@@ -117,17 +117,14 @@ Mapping header Google Form CSV ke tabel database:
 | `Tempat Lahir` | `students.birth_place` | Trim String |
 | `Tanggal Lahir` | `students.birth_date` | `parseBirthDate` |
 | `Kota Asal / Domisili` | `students.origin_city` | Trim String |
-| `No WhatsApp Aktif` | `student_contacts.whatsapp_number` | `sanitizeWhatsApp` |
-| `Username Instagram` | `student_contacts.instagram_handle` | `sanitizeInstagram` |
-| `Alamat Kost` | `student_contacts.boarding_address` | Text |
-| `Hobi / Minat` | `student_profiles.hobbies` | Split by comma `,` → JSON array |
-| `Quotes / Motto` | `student_profiles.quote` | Text |
-| `Tempat Makan Favorit` | `student_profiles.favorite_food_place` | Text |
-| `Link Spotify Lagu` | `student_profiles.spotify_track_url` | URL string |
-| `Foto Formal (KTM)` | `student_profiles.formal_photo_url` | Download Google Drive → R2 Upload |
-| `Foto Non-Formal` | `student_profiles.informal_photo_url` | Download Google Drive → R2 Upload |
-| `No WA Orang Tua` | `student_emergencies.parent_whatsapp` | `sanitizeWhatsApp` |
-| `No WA Ibu/Bapak Kost` | `student_emergencies.landlord_whatsapp` | `sanitizeWhatsApp` |
+| `No WhatsApp Aktif` | `students.whatsapp_no` | `sanitizeWhatsApp` |
+| `Username Instagram` | `students.instagram_username` | `sanitizeInstagram` |
+| `Alamat Kost` | `students.address` | Text |
+| `Hobi / Minat` | `students.hobbies` | Split by comma `,` → JSON array |
+| `Quotes / Motto` | `students.bio_quote` | Text |
+| `Foto Profil (Avatar)` | `students.avatar_url` | Download Google Drive → R2 Upload |
+| `No WA Orang Tua / Kontak Darurat` | `students.emergency_contact_phone` | `sanitizeWhatsApp` |
+| `Nama Kontak Darurat` | `students.emergency_contact_name` | Text |
 
 ---
 
@@ -202,12 +199,9 @@ Summary:
 ### 5.3 Alur Insert Satu Baris (transaksional)
 
 1. Buka transaksi database.
-2. Insert `students` → dapatkan ID.
-3. Insert `student_contacts` (relasi ke ID).
-4. Insert `student_profiles` (termasuk hasil upload foto).
-5. Insert `student_emergencies`.
-6. Commit transaksi.
-7. Jika ada error → rollback, catat baris gagal.
+2. Insert **1 baris ke `students`** (semua kolom: identitas, kontak, profil, darurat, avatar URL).
+3. Commit transaksi.
+4. Jika ada error → rollback, catat baris gagal.
 
 > Transaksi memastikan **tidak ada data parsial** bila salah satu langkah gagal.
 

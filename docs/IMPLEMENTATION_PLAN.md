@@ -34,39 +34,32 @@ EPIC 1 → 2 → 3 → {4, 5, 6} → {7, 8, 9} → {10, 11} → 12 → 13
 ## EPIC 2 — Database Schema & Migration 🔴
 *Definisi seluruh tabel via Laravel Migration.*
 
-- [ ] **2.1** Migration `students` (uuid PK, nim unique, class_name indexed, timestamps)
-- [ ] **2.2** Migration `student_contacts` (FK student_id unique, cascade delete)
-- [ ] **2.3** Migration `student_profiles` (hobbies JSON, foto URLs)
-- [ ] **2.4** Migration `student_emergencies` (FK student_id unique, cascade delete)
-- [ ] **2.5** Migration `app_config` (key unique, value, updated_by)
-- [ ] **2.6** Migration `admin_whitelist` (email unique lowercase, is_active)
-- [ ] **2.7** Migration `admin_otp` (email indexed, otp_hash, expires_at, attempts)
-- [ ] **2.8** Migration `audit_logs` (action indexed, metadata JSON)
-- [ ] **2.9** Jalankan migration `php artisan migrate` ke Supabase
-- [ ] **2.10** Tulis & jalankan SQL RLS (tolak `anon`/`authenticated`)
+- [ ] **2.1** Migration `students` (bigint PK auto-increment, nim unique, semua kolom mahasiswa dalam 1 tabel)
+- [ ] **2.2** Migration `app_config` (key unique, value, updated_by)
+- [ ] **2.3** Migration `admin_whitelist` (email unique lowercase, is_active)
+- [ ] **2.4** Migration `admin_otp` (email indexed, otp_hash, expires_at, attempts)
+- [ ] **2.5** Migration `audit_logs` (action indexed, metadata JSON)
+- [ ] **2.6** Jalankan migration `php artisan migrate` ke Supabase
+- [ ] **2.7** Tulis & jalankan SQL RLS (tolak `anon`/`authenticated`)
 
 ## EPIC 3 — Eloquent Models, Enums & Relationships 🔴
-*Model Laravel + relationships + casts + enums.*
+*Model Laravel + casts + enums.*
 
 - [ ] **3.1** PHP Enum `ClassEnum` (A, B, C, D) + `ReligionEnum` (7 nilai)
-- [ ] **3.2** Model `Student` (hasOne contacts/profile/emergency, casts enum + date)
-- [ ] **3.3** Model `StudentContact` (belongsTo student, $hidden untuk field sensitif jika perlu)
-- [ ] **3.4** Model `StudentProfile` (belongsTo student, cast hobbies as array)
-- [ ] **3.5** Model `StudentEmergency` (belongsTo student)
-- [ ] **3.6** Model `AppConfig` (helper getValue/setValue)
-- [ ] **3.7** Model `AdminWhitelist` (scope active)
-- [ ] **3.8** Model `AdminOtp` (scope valid/unused)
-- [ ] **3.9** Model `AuditLog` (append-only, disable updated_at)
-- [ ] **3.10** Model `User` (admin auth untuk Filament, atau pakai custom guard)
+- [ ] **3.2** Model `Student` (tabel tunggal: semua kolom mahasiswa, casts enum + date + json + boolean)
+- [ ] **3.3** Model `AppConfig` (helper getValue/setValue)
+- [ ] **3.4** Model `AdminWhitelist` (scope active)
+- [ ] **3.5** Model `AdminOtp` (scope valid/unused)
+- [ ] **3.6** Model `AuditLog` (append-only, disable updated_at)
+- [ ] **3.7** Model `User` (admin auth untuk Filament, atau pakai custom guard)
 
 ## EPIC 4 — Validation Layer (Form Requests) 🔴
 *Form Request classes + sanitizer helpers.*
 
 - [ ] **4.1** Helper sanitizers di `app/Helpers/sanitizers.php`: `sanitizeWhatsApp`, `sanitizeInstagram`, `parseBirthDate` + autoload via composer `files`
-- [ ] **4.2** `StoreStudentRequest` (nim, full_name, nickname, class, religion, birth fields)
-- [ ] **4.3** `StoreContactRequest` + `StoreProfileRequest` + `StoreEmergencyRequest`
-- [ ] **4.4** Auth requests: `PasscodeRequest`, `AdminEmailRequest`, `VerifyOtpRequest`
-- [ ] **4.5** Sanitasi via `prepareForValidation()` di masing-masing request
+- [ ] **4.2** `StoreStudentRequest` (semua kolom student: nim, name, nickname, gender, class, religion, birth, kontak, sosmed, darurat)
+- [ ] **4.3** Auth requests: `PasscodeRequest`, `AdminEmailRequest`, `VerifyOtpRequest`
+- [ ] **4.4** Sanitasi via `prepareForValidation()` di masing-masing request
 
 ## EPIC 5 — Auth: Angkatan Passcode (Role student) 🔴
 *Gerbang akses internal angkatan via Sanctum.*
@@ -125,8 +118,8 @@ EPIC 1 → 2 → 3 → {4, 5, 6} → {7, 8, 9} → {10, 11} → 12 → 13
 ## EPIC 10 — Admin Panel Filament v5 (CRUD, Config, Audit) 🟡
 *Kontrol penuh admin via Filament Resources & Pages.*
 
-- [ ] **10.1** Filament Resource `StudentResource` (`--generate --view`): CRUD + nested form contacts/profile/emergency
-- [ ] **10.2** Filament Page `EmergencyContacts` (view-only kontak darurat, audit READ_EMERGENCIES)
+- [ ] **10.1** Filament Resource `StudentResource` (`--generate --view`): CRUD semua kolom student dalam 1 form/tab
+- [ ] **10.2** Filament Page `EmergencyContacts` (view-only: WA darurat & alamat kost, audit READ_EMERGENCIES)
 - [ ] **10.3** Filament Page `ConfigManagement` (ganti passcode + bump epoch, audit ROTATE_PASSCODE)
 - [ ] **10.4** Filament Resource `AuditLogResource` (view-only, filter action/actor/tanggal)
 - [ ] **10.5** Filament Resource `AdminWhitelistResource` (manage whitelist, audit WHITELIST_CHANGE)
@@ -141,19 +134,36 @@ EPIC 1 → 2 → 3 → {4, 5, 6} → {7, 8, 9} → {10, 11} → 12 → 13
 - [ ] **11.2** Setup bucket R2 + CORS + custom domain CDN
 - [ ] **11.3** `UploadController@generatePresignedUrl` (POST /api/upload: presigned PUT, expired 5 menit, admin-only)
 - [ ] **11.4** Validasi tipe/ukuran file + naming convention (`formal/{nim}.jpg`, `informal/{nim}.jpg`)
-- [ ] **11.5** Integrasi `FileUpload` Filament di StudentResource (disk r2, directory formal/informal)
+- [ ] **11.5** Integrasi `FileUpload` Filament di StudentResource (disk r2, directory avatars)
 
-## EPIC 12 — CSV Ingestion & Seeder 🟢
-*Migrasi data Google Form via Artisan Command.*
+## EPIC 12 — CSV Ingestion & Data Migration (4 Task Tickets) 🟢
+*Migrasi data Google Form ke Supabase via Artisan Command. Fase 1: 16–18 Okt.*
 
-- [ ] **12.1** Install `league/csv` (`composer require league/csv`)
-- [ ] **12.2** Artisan Command `app/Console/Commands/SeedFromCsv.php`
-- [ ] **12.3** Pipeline sanitasi (sanitizeWhatsApp, sanitizeInstagram, parseBirthDate)
-- [ ] **12.4** Downloader image (Google Drive → R2 via Storage facade)
-- [ ] **12.5** Batch insert transaksional (`DB::transaction`) untuk students/contacts/profiles/emergencies
-- [ ] **12.6** CLI command `php artisan seed:from-csv {file} --dry-run`
-- [ ] **12.7** Seeder `AuthSeeder` untuk seed passcode awal + epoch + admin whitelist
-- [ ] **12.8** Seeder `StudentSeeder` + Factory untuk dummy data dev
+### Ticket 1: Setup Library & Script Command Ingestion — Deadline: **16 Okt (Malam)**
+- [ ] **12.1** Pastikan `league/csv` terinstall (`composer require league/csv`)
+- [ ] **12.2** Buat Artisan Command: `php artisan make:command SeedFromCsv`
+- [ ] **12.3** Konfigurasi signature: `seed:from-csv {file?}` + validasi file ada
+- [ ] **12.4** Baca file CSV dan tampilkan jumlah baris di terminal
+
+### Ticket 2: Parser & Sanitizer Data — Deadline: **17 Okt (Siang)**
+- [ ] **12.5** Buat helper `app/Helpers/sanitizers.php` + autoload composer
+- [ ] **12.6** Implementasi `sanitizeWhatsApp()` → normalisasi ke format `628...`
+- [ ] **12.7** Implementasi `sanitizeInstagram()` → bersihkan @, URL, trailing slash
+- [ ] **12.8** Implementasi `parseBirthDate()` → konversi ke `YYYY-MM-DD`
+- [ ] **12.9** Hubungkan sanitizer ke loop pembacaan CSV
+
+### Ticket 3: Image Transfer Handler (Google Drive → R2) — Deadline: **17 Okt (Malam)**
+- [ ] **12.10** Konfirmasi disk `r2` di `config/filesystems.php` sudah terkonfigurasi
+- [ ] **12.11** Fungsi konversi URL Google Drive View/Share → Direct Download Link
+- [ ] **12.12** Download file foto via HTTP Client Laravel
+- [ ] **12.13** Upload ke R2 via `Storage::disk('r2')->put()` + simpan URL publik
+
+### Ticket 4: Dry-run & Real Execution — Deadline: **18 Okt (Malam)**
+- [ ] **12.14** Tambahkan option `--dry-run` pada command (simulasi tanpa tulis DB)
+- [ ] **12.15** Tampilkan progress bar di terminal saat proses seeding
+- [ ] **12.16** Uji `--dry-run` dengan data sampel CSV lokal
+- [ ] **12.17** Eksekusi riil ke Supabase PostgreSQL (tanpa flag dry-run)
+- [ ] **12.18** Seeder `AuthSeeder` untuk seed passcode awal + epoch + admin whitelist
 
 ## EPIC 13 — Deployment & Production Readiness 🟢
 *Go-live Vercel & production hardening.*
@@ -173,8 +183,8 @@ EPIC 1 → 2 → 3 → {4, 5, 6} → {7, 8, 9} → {10, 11} → 12 → 13
 | Epic | Fokus | Prioritas | Bergantung pada |
 | :--- | :--- | :---: | :--- |
 | 1 | Foundation & Infrastructure | 🔴 | — |
-| 2 | Database Schema & Migration | 🔴 | 1 |
-| 3 | Eloquent Models & Enums | 🔴 | 2 |
+| 2 | Database Schema & Migration (5 tabel) | 🔴 | 1 |
+| 3 | Eloquent Models & Enums (1 model Student) | 🔴 | 2 |
 | 4 | Validation Layer (Form Requests) | 🔴 | 3 |
 | 5 | Auth Passcode (student) | 🔴 | 3, 4 |
 | 6 | Auth Admin (Whitelist + OTP) | 🔴 | 3, 4 |
@@ -183,5 +193,7 @@ EPIC 1 → 2 → 3 → {4, 5, 6} → {7, 8, 9} → {10, 11} → 12 → 13
 | 9 | Protected Pages & API | 🟡 | 5, 7 |
 | 10 | Admin Panel Filament v5 | 🟡 | 6, 7 |
 | 11 | Storage R2 Upload | 🟡 | 6, 7 |
-| 12 | CSV Ingestion & Seeder | 🟢 | 2, 4, 11 |
+| 12 | CSV Ingestion (4 Tickets: 16–18 Okt) | 🔴* | 2, 4, 11 |
 | 13 | Deployment & Production | 🟢 | semua |
+
+> *🔴 EPIC 12 diprioritaskan tinggi karena data harus ada di Supabase sebelum pengembangan UI/Filament (Fase 1 strategy).*

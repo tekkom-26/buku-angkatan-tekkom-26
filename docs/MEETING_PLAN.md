@@ -282,8 +282,8 @@ Map 13 Epic di `docs/IMPLEMENTATION_PLAN.md` ke owner.
 **Status saat ini:** migrasi & model **belum** dibuat (akan dikerjakan di Epic 2 & 3).
 
 **Yang dibahas:**
-- Review rancangan 8 tabel (`ARCHITECTURE.md` Section 2):
-  `students`, `student_contacts`, `student_profiles`, `student_emergencies`, `app_config`, `admin_whitelist`, `admin_otp`, `audit_logs`.
+- Review rancangan 5 tabel (`ARCHITECTURE.md` Section 2):
+  `students` (tabel tunggal), `app_config`, `admin_whitelist`, `admin_otp`, `audit_logs`.
 - **Pertanyaan:**
   - Field sudah sesuai data Google Form?
   - Enum `class` & `religion` sudah cocok? (implementasi via PHP Enum + kolom string)

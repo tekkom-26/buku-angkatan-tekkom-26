@@ -15,7 +15,7 @@ Panduan Git Flow, konvensi commit, dan Vibe Coding rules untuk tim dev & AI Assi
    - Selalu definisikan return type & parameter type pada method. Hindari tipe campuran tanpa alasan.
    - Gunakan **PHP Enums** (bukan konstanta string tersebar) untuk nilai tetap seperti `ClassEnum`, `ReligionEnum`.
 3. **Privacy First**:
-   - Dilarang menampilkan atau mengekspos field dari tabel `student_emergencies`, `student_contacts.whatsapp_number`, dan `student_contacts.boarding_address` di komponen UI, Blade view, Filament Resource, maupun response API non-admin.
+   - Dilarang menampilkan atau mengekspos field sensitif (`whatsapp_no`, `address`, `emergency_contact_phone`) di komponen UI, Blade view, Filament Resource, maupun response API non-admin.
    - Endpoint non-admin wajib memilih kolom secara eksplisit atau memakai API Resource (dilarang lazy-load relasi sensitif).
 4. **Auth & Secrets**:
    - Sesi memakai **Laravel Sanctum** (token di HttpOnly cookie). Jangan pernah menaruh secret/passcode/hash di kode atau log.

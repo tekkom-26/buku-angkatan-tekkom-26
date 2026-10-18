@@ -35,48 +35,28 @@ Document Source of Truth arsitektur backend **Web Buku Angkatan**.
 
 ```mermaid
 erDiagram
-    STUDENTS ||--|| STUDENT_CONTACTS : "has"
-    STUDENTS ||--|| STUDENT_PROFILES : "has"
-    STUDENTS ||--|| STUDENT_EMERGENCIES : "has (RESTRICTED)"
-
     STUDENTS {
-        uuid id PK
+        bigint id PK "Auto-increment"
         string nim "Unique, Indexed"
-        string full_name
+        string name
         string nickname
+        string gender "L / P"
         string class_name "A, B, C, D"
         string religion
         string birth_place
         date birth_date
         string origin_city
-        datetime created_at
-        datetime updated_at
-    }
-
-    STUDENT_CONTACTS {
-        uuid id PK
-        uuid student_id FK "Unique"
-        string whatsapp_number "ADMIN ONLY"
-        string instagram_handle
-        text boarding_address "ADMIN ONLY"
-    }
-
-    STUDENT_PROFILES {
-        uuid id PK
-        uuid student_id FK "Unique"
+        string email "Unique, Nullable"
+        string whatsapp_no "ADMIN ONLY"
+        string instagram_username
+        string line_id
+        string avatar_url "Cloudflare R2 public URL"
+        text address "ADMIN ONLY (alamat kost)"
+        text bio_quote
         json hobbies
-        text quote
-        string favorite_food_place
-        string spotify_track_url
-        string formal_photo_url
-        string informal_photo_url
-    }
-
-    STUDENT_EMERGENCIES {
-        uuid id PK
-        uuid student_id FK "Unique"
-        string parent_whatsapp "ADMIN ONLY"
-        string landlord_whatsapp "ADMIN ONLY"
+        string emergency_contact_name "ADMIN ONLY"
+        string emergency_contact_phone "ADMIN ONLY"
+        boolean is_verified "default: false"
         datetime created_at
         datetime updated_at
     }
@@ -137,39 +117,37 @@ erDiagram
 
 ### Data Dictionary
 
-Setiap tabel dideskripsikan di bawah. Kolom `id` selalu `UUID` (PK, default `gen_random_uuid()`); `created_at`/`updated_at` adalah `TIMESTAMP` kecuali disebut lain.
+Setiap tabel dideskripsikan di bawah. Kolom `id` pada tabel sistem (`app_config`, `admin_whitelist`, `admin_otp`, `audit_logs`) bertipe **UUID** (PK, default `gen_random_uuid()`). Tabel `students` memakai **BigInt Auto-increment** sebagai PK (standar Laravel + Filament).
 
-**1. `students`** (Data Resmi Utama)
+**Catatan: Tabel `app_config` dan `students` saja yang dikelola pada dashboard filament, sisanya dikelola pada database level.**
+
+**1. `students`** (Tabel Tunggal berisi Seluruh data mahasiswa)
+- `id` — `BIGINT`, PK, auto-increment
 - `nim` — `VARCHAR(20)`, UNIQUE, INDEXED
-- `full_name` — `VARCHAR(100)`
+- `name` — `VARCHAR(100)` — nama lengkap
 - `nickname` — `VARCHAR(50)`
+- `gender` — `VARCHAR(1)` — nilai: `L` / `P`
 - `class_name` — `VARCHAR(1)`, INDEXED (cast `ClassEnum`)
 - `religion` — `VARCHAR(20)` (cast `ReligionEnum`)
 - `birth_place` — `VARCHAR(100)`
 - `birth_date` — `DATE`
 - `origin_city` — `VARCHAR(100)`
-
-**2. `student_contacts`** (Kontak — sebagian Admin Only)
-- `student_id` — `UUID`, FK → `students.id`, UNIQUE, cascade on delete
-- `whatsapp_number` — `VARCHAR(20)` — 🔒 **admin only**
-- `instagram_handle` — `VARCHAR(50)` — student ✅
-- `boarding_address` — `TEXT` — 🔒 **admin only**
-
-**3. `student_profiles`** (Public Content / Vibes)
-- `student_id` — `UUID`, FK → `students.id`, UNIQUE, cascade on delete
+- `email` — `VARCHAR(255)`, UNIQUE, nullable
+- `whatsapp_no` — `VARCHAR(20)`, nullable — 🔒 **admin only**
+- `instagram_username` — `VARCHAR(50)`, nullable
+- `line_id` — `VARCHAR(50)`, nullable
+- `avatar_url` — `TEXT`, nullable — URL publik Cloudflare R2
+- `address` — `TEXT`, nullable — 🔒 **admin only** (alamat kost)
+- `bio_quote` — `TEXT`, nullable
 - `hobbies` — `JSON` (array of strings, cast ke array)
-- `quote` — `TEXT`
-- `favorite_food_place` — `TEXT`
-- `spotify_track_url` — `TEXT`
-- `formal_photo_url` — `TEXT` (Foto KTM background merah)
-- `informal_photo_url` — `TEXT`
+- `emergency_contact_name` — `VARCHAR(100)`, nullable — 🔒 **admin only**
+- `emergency_contact_phone` — `VARCHAR(20)`, nullable — 🔒 **admin only**
+- `is_verified` — `BOOLEAN` (default `false`)
+- `created_at` / `updated_at` — `TIMESTAMP`
 
-**4. `student_emergencies`** (Data Privat / Emergency — STRICT RESTRICTED)
-- `student_id` — `UUID`, FK → `students.id`, UNIQUE, cascade on delete
-- `parent_whatsapp` — `VARCHAR(20)` — 🔒 admin only
-- `landlord_whatsapp` — `VARCHAR(20)` — 🔒 admin only
+> **Keputusan arsitektur**: Data mahasiswa disatukan dalam **1 tabel tunggal** untuk menyederhanakan pengembangan dengan Filament v5. Tidak ada relasi terpisah. Pembatasan akses per field diterapkan di layer aplikasi (Filament Resource scoping + API Resources), bukan via pemisahan tabel.
 
-**5. `app_config`** (Konfigurasi Aplikasi — Admin Only)
+**2. `app_config`** (Konfigurasi Aplikasi — Admin Only)
 - `key` — `VARCHAR(100)`, UNIQUE. Key yang dipakai:
   - `angkatan_passcode` → `value` = bcrypt hash passcode angkatan
   - `auth_epoch` → `value` = integer (string), di-increment untuk mencabut semua sesi
@@ -205,13 +183,13 @@ Setiap tabel dideskripsikan di bawah. Kolom `id` selalu `UUID` (PK, default `gen
 
 | Field | guest | student | admin |
 | :--- | :---: | :---: | :---: |
-| Nama Lengkap, NIM, Kelas, Kota Asal | ❌ | ✅ | ✅ |
-| Hobi, Quotes, Tempat Makan, Spotify | ❌ | ✅ | ✅ |
-| Foto Formal & Non-Formal | ❌ | ✅ | ✅ |
-| Username Instagram | ❌ | ✅ | ✅ |
+| Nama, NIM, Nickname, Kelas, Kota Asal | ❌ | ✅ | ✅ |
+| Gender, Agama, Tempat/Tanggal Lahir | ❌ | ✅ | ✅ |
+| Email, Instagram, LINE ID | ❌ | ✅ | ✅ |
+| Foto Profil (avatar), Hobi, Bio Quote | ❌ | ✅ | ✅ |
 | **No WhatsApp Pribadi** | ❌ | ❌ | ✅ |
-| **Alamat Kost** | ❌ | ❌ | ✅ |
-| **Kontak Darurat (ortu/kost)** | ❌ | ❌ | ✅ |
+| **Alamat Kost (address)** | ❌ | ❌ | ✅ |
+| **Kontak Darurat (nama & no HP)** | ❌ | ❌ | ✅ |
 
 > **Catatan**: Landing Page (`/`) hanya menampilkan **statistik agregat** (jumlah siswa per kelas, total angkatan) — tanpa data personal apa pun. Seluruh data personal hanya terlihat setelah lolos Angkatan Passcode, dan field WA pribadi + alamat kost hanya untuk admin.
 
@@ -236,10 +214,10 @@ Setiap tabel dideskripsikan di bawah. Kolom `id` selalu `UUID` (PK, default `gen
 ### Migration Strategy
 
 - Setiap tabel punya **satu file migration** tersendiri di `database/migrations/`.
-- Tabel: `students`, `student_contacts`, `student_profiles`, `student_emergencies`, `app_config`, `admin_whitelist`, `admin_otp`, `audit_logs`.
-- Semua PK bertipe UUID (`gen_random_uuid()`), relasi `student_id` memakai cascade on delete.
-- Index wajib: `students.nim` (unique), `students.class_name`, `admin_otp.email`, `audit_logs.action`.
-- Urutan migration mengikuti dependency FK: `students` lebih dulu sebelum tabel anak.
+- Tabel: `students` (tabel tunggal, semua kolom mahasiswa), `app_config`, `admin_whitelist`, `admin_otp`, `audit_logs`.
+- Tabel `students` memakai PK **BigInt auto-increment** (standar Laravel/Filament). Tabel sistem memakai **UUID**.
+- Index wajib: `students.nim` (unique), `students.class_name`, `students.email` (unique), `admin_otp.email`, `audit_logs.action`.
+- Urutan migration: `students` pertama (tidak ada FK ke tabel lain di dalamnya).
 - Jalankan migration ke Supabase memakai direct connection.
 
 ### Row Level Security (RLS) — Defense-in-Depth
@@ -255,7 +233,7 @@ Karena aplikasi **tidak** memakai Supabase Auth, penegakan akses utama ada di **
 3. **Cabut (revoke) hak akses tabel** di schema `public` dari role `anon` dan `authenticated` sebagai lapis tambahan (opsional, paling ketat).
 4. Backend tetap dapat membaca/menulis karena memakai koneksi privileged yang **melewati RLS**.
 
-> **Konsekuensi penting**: Karena RLS di-bypass oleh koneksi backend, **satu-satunya penegak** pembatasan akses adalah kode aplikasi. Semua endpoint wajib melewati middleware/gate, dan query WAJIB memilih kolom secara eksplisit (tidak boleh lazy-load `student_contacts`/`student_emergencies` untuk endpoint non-admin).
+> **Konsekuensi penting**: Karena RLS di-bypass oleh koneksi backend, **satu-satunya penegak** pembatasan akses adalah kode aplikasi. Semua endpoint wajib melewati middleware/gate, dan query WAJIB memilih kolom secara eksplisit (tidak boleh return field sensitif seperti `whatsapp_no`, `address`, `emergency_contact_phone` untuk endpoint non-admin).
 
 ---
 
@@ -346,10 +324,7 @@ Helper function global di `app/Helpers/` (di-autoload via composer `autoload.fil
 
 | Form Request | Field & Rules |
 | :--- | :--- |
-| `StoreStudentRequest` | `nim` (required, unique:students,nim, max:20), `full_name` (required, max:100), `nickname` (required, max:50), `class_name` (required, in:A,B,C,D), `religion` (required, in:7 nilai enum), `birth_place` (required, min:2), `birth_date` (required, date), `origin_city` (required, min:2) |
-| `StoreContactRequest` | `whatsapp_number` (required, regex:/^628\d{8,12}$/), `instagram_handle` (nullable, max:50), `boarding_address` (nullable, min:5) |
-| `StoreProfileRequest` | `hobbies` (nullable, array), `quote` (nullable, max:500), `favorite_food_place` (nullable, max:200), `spotify_track_url` (nullable, url), `formal_photo_url` (nullable, url), `informal_photo_url` (nullable, url) |
-| `StoreEmergencyRequest` | `parent_whatsapp` (required, regex:/^628\d{8,12}$/), `landlord_whatsapp` (nullable, regex:/^628\d{8,12}$/) |
+| `StoreStudentRequest` | `nim` (required, unique:students,nim, max:20), `name` (required, max:100), `nickname` (nullable, max:50), `gender` (nullable, in:L,P), `class_name` (required, in:A,B,C,D), `religion` (required, in:7 nilai enum), `birth_place` (nullable), `birth_date` (nullable, date), `origin_city` (nullable), `email` (nullable, email, unique:students,email), `whatsapp_no` (nullable, regex:/^628\d{8,12}/), `instagram_username` (nullable, max:50), `line_id` (nullable, max:50), `avatar_url` (nullable, url), `address` (nullable), `bio_quote` (nullable, max:500), `hobbies` (nullable, array), `emergency_contact_name` (nullable, max:100), `emergency_contact_phone` (nullable, regex:/^628\d{8,12}/) |
 | `PasscodeRequest` | `passcode` (required, string) |
 | `AdminEmailRequest` | `email` (required, email, lowercase) |
 | `VerifyOtpRequest` | `email` (required, email), `otp` (required, digits:6) |
@@ -423,7 +398,7 @@ Set di **Vercel Dashboard → Settings → Environment Variables**:
 | :--- | :--- | :--- |
 | `guest` | Tanpa auth | Hanya Landing Page (`/`) |
 | `student` | Angkatan Passcode → Sanctum token (HttpOnly cookie) | Directory, Galeri, Detail Profil |
-| `admin` | Whitelist email + OTP (Resend) → Sanctum token (HttpOnly cookie) | Admin Panel Filament + seluruh data termasuk `student_emergencies` |
+| `admin` | Whitelist email + OTP (Resend) → Sanctum token (HttpOnly cookie) | Admin Panel Filament + seluruh data termasuk kontak darurat |
 
 Hierarki: `guest < student < admin`. Admin **secara implisit lolos** semua guard `student`.
 
@@ -580,10 +555,10 @@ sequenceDiagram
 /directory                → Angkatan Directory (PROTECTED - student) - Blade view
                             - Direktori lengkap + filter kelas + pencarian
 /gallery                  → Galeri Foto (PROTECTED - student) - Blade view
-                            - Grid foto formal & non-formal
+                            - Grid foto profil (avatar)
 /admin                    → Filament Panel (RESTRICTED - admin)
-/admin/students           → StudentResource (CRUD + upload/ganti foto)
-/admin/emergencies        → EmergencyContacts page (view-only, audit READ_EMERGENCIES)
+/admin/students           → StudentResource (CRUD + upload/ganti foto, semua kolom)
+/admin/emergencies        → EmergencyContacts page (view-only: WA darurat & alamat, audit READ_EMERGENCIES)
 /admin/config             → ConfigManagement page (ganti passcode + bump epoch)
 /admin/audit-logs         → AuditLogResource (view-only)
 /admin/admin-whitelists   → AdminWhitelistResource (manage whitelist)
@@ -604,8 +579,8 @@ app/
 │   ├── Middleware/         # EnsureStudentRole, EnsureAdminRole, CheckAuthEpoch
 │   ├── Requests/           # Form Request validation
 │   └── Resources/          # API Resource (JSON shaping)
-├── Models/                 # Student, StudentContact, StudentProfile, StudentEmergency,
-│                           # AppConfig, AdminWhitelist, AdminOtp, AuditLog
+├── Models/                 # Student (tabel tunggal), AppConfig, AdminWhitelist,
+│                           # AdminOtp, AuditLog
 ├── Policies/               # StudentPolicy, AdminWhitelistPolicy
 ├── Services/               # AppConfigService, OtpService, AuditService
 ├── Mail/                   # OtpMail
@@ -613,7 +588,7 @@ app/
 └── Helpers/                # sanitizers.php (autoload via composer files)
 
 database/
-├── migrations/             # 8 migration (1 per tabel)
+├── migrations/             # 5 migration (students, app_config, admin_whitelist, admin_otp, audit_logs)
 ├── seeders/                # DatabaseSeeder, AuthSeeder, StudentSeeder
 └── factories/              # StudentFactory
 
@@ -662,7 +637,7 @@ Sanctum token bersifat persistent sampai expiry. Solusinya: metadata `epoch` di 
 - **Anti-enumeration**: `request-otp` selalu `200` generik.
 - **Secret separation**: master secret (`APP_KEY`, DB creds) di env; operational secret (passcode, epoch) di `app_config` (bisa rotasi instan).
 - **HttpOnly + Secure + SameSite** untuk semua cookie token.
-- **Query scoping**: endpoint non-admin **wajib** memilih kolom eksplisit atau pakai API Resources; `student_contacts.whatsapp_number`, `boarding_address`, dan seluruh `student_emergencies` tidak boleh di-return di endpoint student/public.
+- **Query scoping**: endpoint non-admin **wajib** memilih kolom eksplisit atau pakai API Resources; `students.whatsapp_no`, `address`, `emergency_contact_name`, dan `emergency_contact_phone` tidak boleh di-return di endpoint student/public.
 - **Model `$hidden`**: sembunyikan field sensitif (mis. `otp_hash`) dari serialization/Filament.
 
 ---

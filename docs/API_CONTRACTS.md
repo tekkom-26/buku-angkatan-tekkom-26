@@ -280,7 +280,7 @@ Presigned PUT URL Cloudflare R2 (upload/ganti foto).
 > Presigned URL expired dalam 5 menit.
 
 #### 🛡️ `GET /api/admin/emergencies`
-Data darurat (kontak ortu & ibu/bapak kost). **Satu-satunya endpoint yang mengembalikan `student_emergencies`.**
+Data darurat (kontak ortu & kontak darurat). **Satu-satunya endpoint yang mengembalikan field `emergency_contact_name` & `emergency_contact_phone`.**
 
 - **Query Parameters**: `page`, `limit`, `class`, `search`
 - **Response `200 OK`**:
@@ -402,9 +402,9 @@ Ekspor seluruh data (termasuk kontak darurat) ke CSV/XLSX.
 
 🔒 **STRICT GUARANTEE**:
 
-1. Tabel `student_emergencies` (`parent_whatsapp`, `landlord_whatsapp`) **HANYA** dapat diakses via `GET /api/admin/emergencies`, `GET /api/admin/export`, dan Filament Page `EmergencyContacts` — semuanya ber-guard 🛡️ Admin Only.
+1. Field **Kontak Darurat** (`emergency_contact_name`, `emergency_contact_phone`) **HANYA** dapat diakses via `GET /api/admin/emergencies`, `GET /api/admin/export`, dan Filament Page `EmergencyContacts` — semuanya ber-guard 🛡️ Admin Only.
 
-2. Field **No WhatsApp Pribadi** (`student_contacts.whatsapp_number`) dan **Alamat Kost** (`student_contacts.boarding_address`) **tidak pernah** muncul di endpoint 🔓 Public maupun 🔐 Protected. Hanya endpoint 🛡️ Admin yang mengembalikannya.
+2. Field **No WhatsApp Pribadi** (`whatsapp_no`) dan **Alamat Kost** (`address`) **tidak pernah** muncul di endpoint 🔓 Public maupun 🔐 Protected. Hanya endpoint 🛡️ Admin yang mengembalikannya.
 
 3. Endpoint 🔓 Public (`GET /api/public/stats`, `GET /api/classes`) hanya mengembalikan **data agregat** — tanpa identitas personal.
 
@@ -455,12 +455,12 @@ Semua endpoint JSON mengembalikan format seragam (lihat Section 2). Pendekatan:
 ### 8.3 Field Scoping via API Resource
 
 - Endpoint non-admin **wajib** memakai API Resource untuk memilih kolom yang boleh keluar.
-- Field sensitif (`whatsapp_number`, `boarding_address`, `student_emergencies`) hanya disertakan bila pemanggil punya ability `admin`.
+- Field sensitif (`whatsapp_no`, `address`, `emergency_contact_phone`) hanya disertakan bila pemanggil punya ability `admin`.
 
 **Alur shaping response student (pseudocode):**
 1. Susun field publik: identitas, kelas, kota asal, Instagram, ringkasan profil (foto, quote, hobi).
 2. Cek ability token pemanggil.
-3. Jika pemanggil `admin` → tambahkan `whatsapp_number` dan `boarding_address`.
+3. Jika pemanggil `admin` → tambahkan `whatsapp_no` dan `address`.
 4. Jika bukan admin → jangan sertakan field tersebut sama sekali (bukan di-null-kan, tetapi tidak ada di payload).
 5. Kembalikan data hasil shaping.
 
