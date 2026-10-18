@@ -40,7 +40,7 @@ erDiagram
         string nim "Unique, Indexed"
         string name
         string nickname
-        string gender "L / P"
+        string song_url
         string class_name "A, B, C, D"
         string religion
         string birth_place
@@ -56,7 +56,6 @@ erDiagram
         json hobbies
         string emergency_contact_name "ADMIN ONLY"
         string emergency_contact_phone "ADMIN ONLY"
-        boolean is_verified "default: false"
         datetime created_at
         datetime updated_at
     }
@@ -126,14 +125,15 @@ Setiap tabel dideskripsikan di bawah. Kolom `id` pada tabel sistem (`app_config`
 - `nim` — `VARCHAR(20)`, UNIQUE, INDEXED
 - `name` — `VARCHAR(100)` — nama lengkap
 - `nickname` — `VARCHAR(50)`
-- `gender` — `VARCHAR(1)` — nilai: `L` / `P`
 - `class_name` — `VARCHAR(1)`, INDEXED (cast `ClassEnum`)
 - `religion` — `VARCHAR(20)` (cast `ReligionEnum`)
 - `birth_place` — `VARCHAR(100)`
 - `birth_date` — `DATE`
+- `song_url` — `TEXT`
 - `origin_city` — `VARCHAR(100)`
 - `email` — `VARCHAR(255)`, UNIQUE, nullable
 - `whatsapp_no` — `VARCHAR(20)`, nullable — 🔒 **admin only**
+- `food_place` — `TEXT`, nullable
 - `instagram_username` — `VARCHAR(50)`, nullable
 - `line_id` — `VARCHAR(50)`, nullable
 - `avatar_url` — `TEXT`, nullable — URL publik Cloudflare R2
@@ -142,10 +142,9 @@ Setiap tabel dideskripsikan di bawah. Kolom `id` pada tabel sistem (`app_config`
 - `hobbies` — `JSON` (array of strings, cast ke array)
 - `emergency_contact_name` — `VARCHAR(100)`, nullable — 🔒 **admin only**
 - `emergency_contact_phone` — `VARCHAR(20)`, nullable — 🔒 **admin only**
-- `is_verified` — `BOOLEAN` (default `false`)
 - `created_at` / `updated_at` — `TIMESTAMP`
 
-> **Keputusan arsitektur**: Data mahasiswa disatukan dalam **1 tabel tunggal** untuk menyederhanakan pengembangan dengan Filament v5. Tidak ada relasi terpisah. Pembatasan akses per field diterapkan di layer aplikasi (Filament Resource scoping + API Resources), bukan via pemisahan tabel.
+> **Keputusan arsitektur**: Data mahasiswa disatukan dalam **1 tabel tunggal** untuk menyederhanakan pengembangan dengan Filament v5. Tidak ada relasi terpisah. Pembatasan akses per field diterapkan di layer aplikasi (Filament Resource scoping + Eloquent local scope), bukan via pemisahan tabel.
 
 **2. `app_config`** (Konfigurasi Aplikasi — Admin Only)
 - `key` — `VARCHAR(100)`, UNIQUE. Key yang dipakai:
@@ -184,7 +183,7 @@ Setiap tabel dideskripsikan di bawah. Kolom `id` pada tabel sistem (`app_config`
 | Field | guest | student | admin |
 | :--- | :---: | :---: | :---: |
 | Nama, NIM, Nickname, Kelas, Kota Asal | ❌ | ✅ | ✅ |
-| Gender, Agama, Tempat/Tanggal Lahir | ❌ | ✅ | ✅ |
+| Agama, Tempat/Tanggal Lahir, Song URL | ❌ | ✅ | ✅ |
 | Email, Instagram, LINE ID | ❌ | ✅ | ✅ |
 | Foto Profil (avatar), Hobi, Bio Quote | ❌ | ✅ | ✅ |
 | **No WhatsApp Pribadi** | ❌ | ❌ | ✅ |
@@ -324,7 +323,7 @@ Helper function global di `app/Helpers/` (di-autoload via composer `autoload.fil
 
 | Form Request | Field & Rules |
 | :--- | :--- |
-| `StoreStudentRequest` | `nim` (required, unique:students,nim, max:20), `name` (required, max:100), `nickname` (nullable, max:50), `gender` (nullable, in:L,P), `class_name` (required, in:A,B,C,D), `religion` (required, in:7 nilai enum), `birth_place` (nullable), `birth_date` (nullable, date), `origin_city` (nullable), `email` (nullable, email, unique:students,email), `whatsapp_no` (nullable, regex:/^628\d{8,12}/), `instagram_username` (nullable, max:50), `line_id` (nullable, max:50), `avatar_url` (nullable, url), `address` (nullable), `bio_quote` (nullable, max:500), `hobbies` (nullable, array), `emergency_contact_name` (nullable, max:100), `emergency_contact_phone` (nullable, regex:/^628\d{8,12}/) |
+| `StoreStudentRequest` | `nim` (required, unique:students,nim, max:20), `name` (required, max:100), `nickname` (nullable, max:50), `class_name` (required, in:A,B,C,D), `religion` (required, in:7 nilai enum), `birth_place` (nullable), `birth_date` (nullable, date), `origin_city` (nullable), `email` (nullable, email, unique:students,email), `whatsapp_no` (nullable, regex:/^628\d{8,12}/), `instagram_username` (nullable, max:50), `line_id` (nullable, max:50), `song_url` (nullable, url),`avatar_url` (nullable, url), `address` (nullable), `bio_quote` (nullable, max:500), `hobbies` (nullable, array), `emergency_contact_name` (nullable, max:100), `emergency_contact_phone` (nullable, regex:/^628\d{8,12}/) |
 | `PasscodeRequest` | `passcode` (required, string) |
 | `AdminEmailRequest` | `email` (required, email, lowercase) |
 | `VerifyOtpRequest` | `email` (required, email), `otp` (required, digits:6) |
@@ -404,18 +403,22 @@ Hierarki: `guest < student < admin`. Admin **secara implisit lolos** semua guard
 
 ### Route Access Matrix
 
-| Route (UI) | guest | student | admin |
+| Route (UI / Web) | guest | student | admin |
 | :--- | :---: | :---: | :---: |
-| `/` Landing Page | ✅ | ✅ | ✅ |
-| `/unlock` (form passcode) | ✅ | — | — |
-| `/students/{nim}` Detail Profil | ❌ | ✅ | ✅ |
-| `/directory` Direktori Angkatan | ❌ | ✅ | ✅ |
-| `/gallery` Galeri Foto | ❌ | ✅ | ✅ |
+| `/` Landing Page (Blade) | ✅ | ✅ | ✅ |
+| `/unlock` Form Passcode (Blade) | ✅ | — | — |
+| `/directory` Direktori (Blade) | ❌ | ✅ | ✅ |
+| `/students/{nim}` Detail Profil (Blade) | ❌ | ✅ | ✅ |
+| `/gallery` Galeri Foto (Blade) | ❌ | ✅ | ✅ |
 | `/admin/*` Panel Filament | ❌ | ❌ | ✅ |
 
-### Endpoint Access Matrix
+> **Konvensi**: Semua route `GET` di atas mengembalikan **HTML Blade** (server-side rendered). Data di-query oleh Controller lalu dikirim ke View. Tidak ada pemanggilan API dari frontend.
 
-| Endpoint | guest | student | admin |
+### Endpoint Access Matrix (API JSON)
+
+> Hanya **mutasi & autentikasi** yang mengembalikan JSON. Terdaftar di `routes/api.php`.
+
+| Method + Endpoint | guest | student | admin |
 | :--- | :---: | :---: | :---: |
 | `POST /api/auth/passcode` | ✅ | — | — |
 | `DELETE /api/auth/passcode` | ✅ | ✅ | ✅ |
@@ -423,16 +426,10 @@ Hierarki: `guest < student < admin`. Admin **secara implisit lolos** semua guard
 | `POST /api/auth/admin/verify-otp` | ✅ | ✅ | ✅ |
 | `POST /api/auth/admin/logout` | ✅ | ✅ | ✅ |
 | `GET /api/auth/session` | ✅ | ✅ | ✅ |
-| `GET /api/public/stats` | ✅ | ✅ | ✅ |
-| `GET /api/classes` | ✅ | ✅ | ✅ |
-| `GET /api/students` | ❌ | ✅ | ✅ |
-| `GET /api/students/{nim}` | ❌ | ✅ | ✅ |
-| `GET /api/gallery` | ❌ | ✅ | ✅ |
 | `POST /api/upload` | ❌ | ❌ | ✅ |
-| `GET /api/admin/emergencies` | ❌ | ❌ | ✅ |
-| `GET /api/admin/audit-logs` | ❌ | ❌ | ✅ |
 | `PATCH /api/admin/config` | ❌ | ❌ | ✅ |
-| `/api/admin/students/*` (CRUD) | ❌ | ❌ | ✅ |
+
+> **Catatan**: `GET /api/auth/session` adalah satu-satunya GET endpoint API (dipakai JavaScript untuk toggle UI). Seluruh data mahasiswa diakses via **route web Blade**, bukan API JSON.
 
 ### 7.1 Alur Autentikasi Angkatan Passcode (Role `student`)
 
@@ -547,13 +544,14 @@ sequenceDiagram
 ## 8. Route Map & Page Structure
 
 ```
-/                         → Landing Page (PUBLIC) - Blade view
-                            - Hero section, statistik agregat, pengenalan singkat
+/                         → Landing Page (PUBLIC) - Blade view (server-side rendered)
+                            - Hero section, statistik agregat (total student, per kelas)
 /unlock                   → Form Angkatan Passcode (PUBLIC) - Blade view
+                            - Submit ke POST /api/auth/passcode via JavaScript fetch
+/directory                → Angkatan Directory (PROTECTED - student) - Blade view
+                            - Direktori lengkap + filter kelas + pencarian (paginated)
 /students/{nim}           → Student Detail Page (PROTECTED - student) - Blade view
                             - Bio, quotes, foto, hobi, sosmed (tanpa WA & alamat kost)
-/directory                → Angkatan Directory (PROTECTED - student) - Blade view
-                            - Direktori lengkap + filter kelas + pencarian
 /gallery                  → Galeri Foto (PROTECTED - student) - Blade view
                             - Grid foto profil (avatar)
 /admin                    → Filament Panel (RESTRICTED - admin)
@@ -564,7 +562,8 @@ sequenceDiagram
 /admin/admin-whitelists   → AdminWhitelistResource (manage whitelist)
 ```
 
-> **Catatan**: Halaman login admin dihandle oleh **Filament panel login** (dapat dikustomisasi agar pakai email + OTP, bukan password).
+> **Konvensi arsitektur**: **GET = Blade HTML (server-side)**, **POST/PUT/PATCH/DELETE = API JSON**. Data mahasiswa di-query oleh Controller lalu dikirim ke Blade View — tidak ada pemanggilan API dari frontend. Admin CRUD dikelola sepenuhnya oleh Filament (Livewire internal), tanpa endpoint API terpisah.
+> Halaman login admin dihandle oleh **Filament panel login** (dapat dikustomisasi agar pakai email + OTP, bukan password).
 
 ### Struktur Folder Laravel 13 + Filament v5
 
@@ -575,10 +574,9 @@ app/
 │   ├── Pages/              # EmergencyContacts, ConfigManagement
 │   └── Resources/          # Students, AuditLogs, AdminWhitelists (Resource + Pages + Schemas + Tables)
 ├── Http/
-│   ├── Controllers/        # Auth, Public, Directory, Student, Gallery, Upload
+│   ├── Controllers/        # Auth, Public, Directory, Student, Gallery, Upload, Config
 │   ├── Middleware/         # EnsureStudentRole, EnsureAdminRole, CheckAuthEpoch
-│   ├── Requests/           # Form Request validation
-│   └── Resources/          # API Resource (JSON shaping)
+│   └── Requests/           # Form Request validation (untuk endpoint API)
 ├── Models/                 # Student (tabel tunggal), AppConfig, AdminWhitelist,
 │                           # AdminOtp, AuditLog
 ├── Policies/               # StudentPolicy, AdminWhitelistPolicy
@@ -594,8 +592,8 @@ database/
 
 resources/views/            # Blade: landing, unlock, directory, gallery, students/show, layouts
 routes/
-├── web.php                 # Route Blade (public + student)
-├── api.php                 # Route JSON API (auth, public, admin)
+├── web.php                 # Route Blade (GET → HTML: public + student + admin filament)
+├── api.php                 # Route JSON (POST/DELETE/PATCH: auth, upload, config, session)
 └── console.php
 
 api/index.php               # Vercel entrypoint
@@ -637,7 +635,7 @@ Sanctum token bersifat persistent sampai expiry. Solusinya: metadata `epoch` di 
 - **Anti-enumeration**: `request-otp` selalu `200` generik.
 - **Secret separation**: master secret (`APP_KEY`, DB creds) di env; operational secret (passcode, epoch) di `app_config` (bisa rotasi instan).
 - **HttpOnly + Secure + SameSite** untuk semua cookie token.
-- **Query scoping**: endpoint non-admin **wajib** memilih kolom eksplisit atau pakai API Resources; `students.whatsapp_no`, `address`, `emergency_contact_name`, dan `emergency_contact_phone` tidak boleh di-return di endpoint student/public.
+- **Query scoping**: Controller halaman 🔐 (Directory, Student Detail, Gallery) **wajib** memilih kolom eksplisit via `select()` atau Eloquent local scope. `students.whatsapp_no`, `address`, `emergency_contact_name`, dan `emergency_contact_phone` **tidak boleh** dikirim ke Blade view non-admin.
 - **Model `$hidden`**: sembunyikan field sensitif (mis. `otp_hash`) dari serialization/Filament.
 
 ---

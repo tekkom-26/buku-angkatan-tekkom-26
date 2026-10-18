@@ -16,7 +16,7 @@ Panduan Git Flow, konvensi commit, dan Vibe Coding rules untuk tim dev & AI Assi
    - Gunakan **PHP Enums** (bukan konstanta string tersebar) untuk nilai tetap seperti `ClassEnum`, `ReligionEnum`.
 3. **Privacy First**:
    - Dilarang menampilkan atau mengekspos field sensitif (`whatsapp_no`, `address`, `emergency_contact_phone`) di komponen UI, Blade view, Filament Resource, maupun response API non-admin.
-   - Endpoint non-admin wajib memilih kolom secara eksplisit atau memakai API Resource (dilarang lazy-load relasi sensitif).
+   - Endpoint non-admin / Blade view wajib memilih kolom secara eksplisit via `select()` atau Eloquent local scope (dilarang select * yang include field sensitif).
 4. **Auth & Secrets**:
    - Sesi memakai **Laravel Sanctum** (token di HttpOnly cookie). Jangan pernah menaruh secret/passcode/hash di kode atau log.
    - Perubahan passcode atau pencabutan sesi wajib lewat `app_config` + increment `auth_epoch`.
@@ -24,7 +24,7 @@ Panduan Git Flow, konvensi commit, dan Vibe Coding rules untuk tim dev & AI Assi
    - Setiap akses data darurat, mutasi data, login, dan rotasi passcode wajib menulis `audit_logs` (via `AuditService`).
 6. **Clean Code**:
    - Tulis kode modular, readable, dan ringkas.
-   - Hindari boilerplate yang tidak perlu; manfaatkan fitur framework (Form Requests, Policies, API Resources).
+   - Hindari boilerplate yang tidak perlu; manfaatkan fitur framework (Form Requests, Policies, Eloquent Scopes).
 
 ---
 
@@ -50,8 +50,7 @@ bukang-filament/
 │   ├── Http/
 │   │   ├── Controllers/           # Auth, Public, Directory, Student, Gallery, Upload
 │   │   ├── Middleware/            # EnsureStudentRole, EnsureAdminRole, CheckAuthEpoch
-│   │   ├── Requests/              # Form Request validation
-│   │   └── Resources/             # API Resources (JSON shaping)
+│   │   └── Requests/              # Form Request validation (untuk endpoint API)
 │   ├── Models/                    # Eloquent models
 │   ├── Policies/                  # Authorization policies
 │   ├── Services/                  # AppConfigService, OtpService, AuditService

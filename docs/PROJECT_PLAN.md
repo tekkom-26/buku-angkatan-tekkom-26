@@ -43,25 +43,28 @@ Stack: **Laravel 13 + Filament v5 + Sanctum + PostgreSQL (Supabase) + Cloudflare
 ---
 
 ### Milestone A: Public Access (guest)
-- [ ] Controller `PublicController@stats` (GET /api/public/stats: statistik agregat — tanpa data personal).
-- [ ] Controller `PublicController@classes` (GET /api/classes: rekapitulasi per kelas).
-- [ ] Blade view `landing.blade.php` (hero section, statistik, pengenalan singkat).
-- [ ] Pastikan **tidak ada** data personal yang bocor di endpoint public.
+- [ ] Controller `PublicController@index` (GET / : query statistik agregat → kirim ke `landing.blade.php`).
+- [ ] Controller `PasscodeController@showForm` (GET /unlock : tampilkan form passcode).
+- [ ] Blade view `landing.blade.php` (hero section, statistik total & per kelas, pengenalan singkat).
+- [ ] Blade view `unlock.blade.php` (form input passcode, submit via JS fetch → POST /api/auth/passcode).
+- [ ] Pastikan **tidak ada** data personal yang bocor di halaman public.
 
 ---
 
 ### Milestone B: Passcode Access (student)
+Fokus: passcode gate + halaman internal (Blade SSR). Controller query DB → kirim data ke View. Tidak ada API GET untuk data mahasiswa.
 - [ ] Seed passcode awal + `auth_epoch` ke `app_config` via `AuthSeeder` (bcrypt hash).
 - [ ] Service `AppConfigService` untuk baca/tulis config + cache.
 - [ ] Middleware `CheckAuthEpoch` (validasi token epoch vs current epoch).
 - [ ] Middleware `EnsureStudentRole` (cek Sanctum token ability = student).
 - [ ] Controller `PasscodeController@verify` (POST /api/auth/passcode: verify bcrypt + create Sanctum token) + **rate limiting**.
 - [ ] Controller `PasscodeController@logout` (DELETE /api/auth/passcode: revoke token).
-- [ ] Controller `PasscodeController@session` (GET /api/auth/session: return current role).
+- [ ] Controller `PasscodeController@session` (GET /api/auth/session: return current role JSON — satu-satunya GET API).
 - [ ] Registrasi middleware alias di `bootstrap/app.php`.
-- [ ] Controller `DirectoryController@index` (GET /api/students: direktori, pagination, filter, search).
-- [ ] Controller `StudentController@show` (GET /api/students/{nim}: detail — **tanpa** WA pribadi & alamat kost).
-- [ ] Controller `GalleryController@index` (GET /api/gallery: galeri foto).
+- [ ] Controller `DirectoryController@index` (GET /directory : query DB → kirim ke `directory.blade.php`, pagination, filter, search, select kolom publik saja).
+- [ ] Controller `StudentController@show` (GET /students/{nim} : query detail → kirim ke `students/show.blade.php`, tanpa WA/alamat/darurat).
+- [ ] Controller `GalleryController@index` (GET /gallery : query foto → kirim ke `gallery.blade.php`, grid avatar).
+- [ ] Eloquent local scope `scopePublic()` pada Model Student (exclude kolom sensitif otomatis).
 - [ ] Blade view `unlock.blade.php` (form passcode).
 - [ ] Blade view `directory.blade.php` (direktori mahasiswa).
 - [ ] Blade view `students/show.blade.php` (detail profil).
@@ -70,7 +73,7 @@ Stack: **Laravel 13 + Filament v5 + Sanctum + PostgreSQL (Supabase) + Cloudflare
 ---
 
 ### Milestone C: Admin Access (Whitelist + OTP)
-Fokus: login passwordless + panel Filament + data darurat. **Semua mutasi data & upload hanya admin.**
+Fokus: login passwordless + panel Filament + data darurat. **Semua mutasi data & upload hanya admin. CRUD mahasiswa dikelola sepenuhnya oleh Filament (tidak perlu API endpoint terpisah).**
 - [ ] Buat tabel `admin_whitelist` + seed email pengurus via `AuthSeeder` atau SQL Supabase langsung.
 - [ ] Service `OtpService` (generate/hash/verify OTP 6-digit).
 - [ ] Mailable `OtpMail` untuk kirim OTP via Resend.
@@ -157,7 +160,7 @@ Fokus: login passwordless + panel Filament + data darurat. **Semua mutasi data &
 - [ ] Rate limiting: passcode (5x/15m/IP via Laravel throttle), request-otp (per email & IP), verify-otp (max 5/OTP).
 - [ ] Anti email-enumeration pada `request-otp` (selalu 200 generik).
 - [ ] Cookie HttpOnly + Secure + SameSite (student=Lax, admin=Strict).
-- [ ] Query scoping: WA pribadi, alamat kost, & kontak darurat hanya di endpoint/resource admin.
+- [ ] Query scoping: WA pribadi, alamat kost, & kontak darurat hanya di Blade view / Filament admin.
 - [ ] Model `$hidden` untuk `otp_hash` dan field sensitif.
 - [ ] Audit log untuk: login, gagal login, rotasi passcode, baca emergencies, mutasi data.
 - [ ] Rotasi `APP_KEY` terdokumentasi sebagai prosedur darurat (bump epoch lebih diutamakan).

@@ -1,6 +1,8 @@
 # API Contracts & Specification
 
-Dokumen API Contracts untuk backend **Web Buku Angkatan** (Laravel 13 + Filament v5).
+Dokumen kontrak API untuk backend **Web Buku Angkatan** (Laravel 13 + Filament v5).
+
+> **Prinsip arsitektur**: Karena menggunakan **Filament v5** untuk admin dan **Blade Templates** untuk publik/student, komunikasi via API JSON **diminimalkan**. Request **GET** mengembalikan **halaman HTML (Blade View)** langsung dari server. Hanya request **mutasi (POST / PUT / PATCH / DELETE)** dan **endpoint autentikasi** yang mengembalikan **response JSON**.
 
 ---
 
@@ -23,15 +25,15 @@ Hierarki: `guest < student < admin`. Admin otomatis lolos guard 🔐.
 
 ## 2. Global JSON Response Format
 
+> Format ini **hanya berlaku untuk endpoint API yang mengembalikan JSON** (auth, mutasi, upload). Request GET ke route web mengembalikan HTML Blade.
+
 ### Success Response
 ```json
 {
   "success": true,
-  "data": {},
-  "meta": { "page": 1, "limit": 20, "total": 120, "total_pages": 6 }
+  "data": {}
 }
 ```
-*(`meta` opsional, hanya pada endpoint koleksi/paginated)*
 
 ### Error Response
 ```json
@@ -41,13 +43,13 @@ Hierarki: `guest < student < admin`. Admin otomatis lolos guard 🔐.
     "code": "VALIDATION_ERROR",
     "message": "Validation failed",
     "details": {
-      "whatsapp_number": ["Invalid WhatsApp number format. Must start with 628"]
+      "whatsapp_no": ["Invalid WhatsApp number format. Must start with 628"]
     }
   }
 }
 ```
 
-> **Laravel validation error** (422) di-transform ke format di atas via `bootstrap/app.php` exception handler.
+> **Laravel validation error** (422) di-transform ke format di atas via exception handler. Berlaku untuk request API saja; request web menampilkan error blade bawaan Laravel.
 
 ### Guard Error Responses
 ```json
@@ -60,7 +62,9 @@ Hierarki: `guest < student < admin`. Admin otomatis lolos guard 🔐.
 
 ---
 
-## 3. Auth Endpoints
+## 3. Endpoint API (JSON Response)
+
+> Hanya endpoint **mutasi & autentikasi** yang mengembalikan JSON. Semua endpoint di bawah terdaftar di `routes/api.php`.
 
 ### 3.1 Student — Angkatan Passcode
 
@@ -94,7 +98,7 @@ Logout student — revoke Sanctum token + clear cookie.
 Kirim OTP 6 digit ke email admin (harus terdaftar di `admin_whitelist`).
 
 - **Request Body**: `{ "email": "pengurus@gmail.com" }`
-- **Response `200 OK`** (SELALU 200 generik — anti email-enumeration, baik email terdaftar maupun tidak):
+- **Response `200 OK`** (SELALU 200 generik — anti email-enumeration):
 ```json
 { "success": true, "data": { "message": "Jika email terdaftar, kode OTP telah dikirim." } }
 ```
@@ -120,10 +124,14 @@ Verifikasi OTP dan create Sanctum token + HttpOnly cookie.
 > Audit: `ADMIN_LOGIN` (sukses) / `ADMIN_LOGIN_FAIL` (gagal).
 
 #### 🔓 `POST /api/auth/admin/logout`
-Logout admin — revoke Sanctum token + clear cookie (aman dipanggil tanpa sesi aktif).
+Logout admin — revoke Sanctum token + clear cookie.
+
+- **Response `200 OK`**: `{ "success": true, "data": { "message": "Logged out" } }`
+
+### 3.3 Session Check (untuk JavaScript frontend)
 
 #### 🔓 `GET /api/auth/session`
-Status sesi aktif (untuk UI). Sesi dengan `epoch` lama dianggap invalid.
+Cek status sesi aktif (dipakai oleh JavaScript untuk toggle UI). **Satu-satunya GET endpoint API.**
 
 - **Response `200 OK`**:
 ```json
@@ -132,226 +140,26 @@ Status sesi aktif (untuk UI). Sesi dengan `epoch` lama dianggap invalid.
 { "success": true, "data": { "role": "admin", "email": "pengurus@gmail.com" } }
 ```
 
----
-
-## 4. Public Endpoints (Landing Page)
-
-#### 🔓 `GET /api/public/stats`
-Statistik agregat angkatan. **Tanpa data personal.**
-
-- **Response `200 OK`**:
-```json
-{
-  "success": true,
-  "data": {
-    "total_students": 122,
-    "total_classes": 4,
-    "hero_title": "Buku Angkatan 2022",
-    "hero_subtitle": "Kenalan lebih dekat dengan angkatan kita."
-  }
-}
-```
-
-#### 🔓 `GET /api/classes`
-Rekapitulasi jumlah mahasiswa per kelas.
-
-- **Response `200 OK`**:
-```json
-{
-  "success": true,
-  "data": [
-    { "class_name": "A", "total_students": 32 },
-    { "class_name": "B", "total_students": 30 },
-    { "class_name": "C", "total_students": 29 },
-    { "class_name": "D", "total_students": 31 }
-  ]
-}
-```
-
----
-
-## 5. Protected Endpoints (Angkatan Passcode)
-
-#### 🔐 `GET /api/students`
-Direktori mahasiswa dengan pagination, filter kelas, dan pencarian.
-
-- **Query Parameters**: `page` (default 1), `limit` (default 20), `class` (`A|B|C|D`), `search` (nama/NIM)
-- **Response `200 OK`**:
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": "c7b8e1a0-4f2b-4d3a-8f1e-9a0b1c2d3e4f",
-      "nim": "21000123",
-      "full_name": "Ahmad Subekti",
-      "nickname": "Bekti",
-      "class_name": "A",
-      "origin_city": "Semarang",
-      "instagram_handle": "ahmadbekti",
-      "profile": {
-        "formal_photo_url": "https://cdn.bukuangkatan.com/formal/21000123.jpg",
-        "quote": "Belajar terus sampai faham.",
-        "hobbies": ["Coding", "Fotografi"]
-      }
-    }
-  ],
-  "meta": { "page": 1, "limit": 20, "total": 122, "total_pages": 7 }
-}
-```
-
-#### 🔐 `GET /api/students/{nim}`
-Detail profil mahasiswa (data untuk `student` — **tanpa WA pribadi & alamat kost**).
-
-- **Response `200 OK`**:
-```json
-{
-  "success": true,
-  "data": {
-    "id": "c7b8e1a0-4f2b-4d3a-8f1e-9a0b1c2d3e4f",
-    "nim": "21000123",
-    "full_name": "Ahmad Subekti",
-    "nickname": "Bekti",
-    "class_name": "A",
-    "religion": "ISLAM",
-    "birth_place": "Semarang",
-    "birth_date": "2002-08-17",
-    "origin_city": "Semarang",
-    "instagram_handle": "ahmadbekti",
-    "profile": {
-      "hobbies": ["Coding", "Fotografi", "Basket"],
-      "quote": "Belajar terus sampai faham.",
-      "favorite_food_place": "Warung Bu Siti Bojongsoang",
-      "spotify_track_url": "https://open.spotify.com/track/4cOdK2wGLETKBW3PvgPWqT",
-      "formal_photo_url": "https://cdn.bukuangkatan.com/formal/21000123.jpg",
-      "informal_photo_url": "https://cdn.bukuangkatan.com/informal/21000123.jpg"
-    }
-  }
-}
-```
-> ⚠️ **Tidak ada** `whatsapp_number` dan `boarding_address` — keduanya admin-only.
-
-- **Response `404 Not Found`**:
-```json
-{ "success": false, "error": { "code": "NOT_FOUND", "message": "Student with NIM 21000123 was not found" } }
-```
-
-#### 🔐 `GET /api/gallery`
-Galeri foto seluruh angkatan (formal & non-formal).
-
-- **Query Parameters**: `page`, `limit`, `class` (opsional)
-- **Response `200 OK`**:
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "nim": "21000123",
-      "full_name": "Ahmad Subekti",
-      "formal_photo_url": "https://cdn.bukuangkatan.com/formal/21000123.jpg",
-      "informal_photo_url": "https://cdn.bukuangkatan.com/informal/21000123.jpg"
-    }
-  ],
-  "meta": { "page": 1, "limit": 24, "total": 122, "total_pages": 6 }
-}
-```
-
----
-
-## 6. Admin Endpoints (Restricted)
-
-> Semua endpoint 🛡️ memerlukan Sanctum token dengan ability `admin` yang valid (epoch cocok). **Semua mutasi data & upload hanya admin.**
+### 3.4 File Upload (Admin Only)
 
 #### 🛡️ `POST /api/upload`
-Presigned PUT URL Cloudflare R2 (upload/ganti foto).
+Presigned PUT URL Cloudflare R2 (upload/ganti foto profil).
 
-- **Request Body**: `{ "filename": "21000123-formal.jpg", "file_type": "image/jpeg", "folder": "formal" }`
+- **Request Body**: `{ "filename": "21000123.jpg", "file_type": "image/jpeg" }`
 - **Response `200 OK`**:
 ```json
 {
   "success": true,
   "data": {
-    "upload_url": "https://<account_id>.r2.cloudflarestorage.com/buku-angkatan-assets/formal/21000123-formal.jpg?X-Amz-Algorithm=...",
-    "public_url": "https://cdn.bukuangkatan.com/formal/21000123-formal.jpg",
-    "key": "formal/21000123-formal.jpg"
+    "upload_url": "https://<account>.r2.cloudflarestorage.com/...?X-Amz-Algorithm=...",
+    "public_url": "https://cdn.bukuangkatan.com/avatars/21000123.jpg",
+    "key": "avatars/21000123.jpg"
   }
 }
 ```
-> Presigned URL expired dalam 5 menit.
+> Presigned URL expired dalam 5 menit. Alternatif: upload langsung via Filament FileUpload component (tanpa API).
 
-#### 🛡️ `GET /api/admin/emergencies`
-Data darurat (kontak ortu & kontak darurat). **Satu-satunya endpoint yang mengembalikan field `emergency_contact_name` & `emergency_contact_phone`.**
-
-- **Query Parameters**: `page`, `limit`, `class`, `search`
-- **Response `200 OK`**:
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "nim": "21000123",
-      "full_name": "Ahmad Subekti",
-      "parent_whatsapp": "6281200000001",
-      "landlord_whatsapp": "6281200000002"
-    }
-  ],
-  "meta": { "page": 1, "limit": 20, "total": 122, "total_pages": 7 }
-}
-```
-> Audit: `READ_EMERGENCIES` dicatat tiap akses.
-
-#### 🛡️ `GET /api/admin/students` · `POST /api/admin/students`
-Kelola data siswa (list lengkap termasuk WA pribadi & alamat kost, serta create).
-
-**GET response** sama seperti `GET /api/students` tapi include `whatsapp_number` dan `boarding_address`.
-
-**POST request body**:
-```json
-{
-  "nim": "21000125",
-  "full_name": "Citra Dewi",
-  "nickname": "Citra",
-  "class_name": "B",
-  "religion": "ISLAM",
-  "birth_place": "Bandung",
-  "birth_date": "2002-05-10",
-  "origin_city": "Bandung",
-  "contact": {
-    "whatsapp_number": "628123456790",
-    "instagram_handle": "citradewi",
-    "boarding_address": "Jl. Cibaduyut No. 5"
-  },
-  "profile": {
-    "hobbies": ["Membaca", "Travelling"],
-    "quote": "Hidup adalah petualangan",
-    "favorite_food_place": "Warung Nasi Ibu Ani",
-    "spotify_track_url": "",
-    "formal_photo_url": "https://cdn.bukuangkatan.com/formal/21000125.jpg",
-    "informal_photo_url": "https://cdn.bukuangkatan.com/informal/21000125.jpg"
-  },
-  "emergency": {
-    "parent_whatsapp": "628987654321",
-    "landlord_whatsapp": "628111222333"
-  }
-}
-```
-
-**POST response `201 Created`**:
-```json
-{ "success": true, "data": { "id": "uuid", "nim": "21000125" } }
-```
-
-> Audit: `MUTATE_STUDENT` dicatat untuk create/update/delete.
-
-#### 🛡️ `GET /api/admin/students/{nim}` · `PATCH` · `DELETE`
-Detail/edit/hapus data siswa (full field, termasuk kontak pribadi).
-
-**PATCH request** sama seperti POST tapi semua field opsional.
-
-**DELETE response `200 OK`**:
-```json
-{ "success": true, "data": { "message": "Student deleted successfully" } }
-```
+### 3.5 Configuration Management (Admin Only)
 
 #### 🛡️ `PATCH /api/admin/config`
 Ganti Angkatan Passcode dan/atau increment `auth_epoch`.
@@ -366,35 +174,110 @@ Ganti Angkatan Passcode dan/atau increment `auth_epoch`.
 ```
 > Ganti passcode otomatis menaikkan `auth_epoch` → seluruh sesi student lama langsung mati.
 > Audit: `ROTATE_PASSCODE`.
+> *Catatan: config management juga bisa dilakukan langsung via Filament Page `ConfigManagement` tanpa memanggil API ini.*
 
-#### 🛡️ `GET /api/admin/audit-logs`
-Jejak audit (pagination + filter `action`, `actor_email`, rentang tanggal).
+---
 
-- **Query Parameters**: `page`, `limit`, `action`, `actor_email`, `date_from`, `date_to`
-- **Response `200 OK`**:
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": "uuid",
-      "actor_email": "pengurus@gmail.com",
-      "actor_role": "admin",
-      "action": "READ_EMERGENCIES",
-      "target": null,
-      "ip": "103.x.x.x",
-      "created_at": "2026-10-15T10:00:00Z"
-    }
-  ],
-  "meta": { "page": 1, "limit": 50, "total": 320, "total_pages": 7 }
-}
-```
+## 4. Route Web (Blade Views — Server-Side Rendered)
 
-#### 🛡️ `GET /api/admin/export`
-Ekspor seluruh data (termasuk kontak darurat) ke CSV/XLSX.
+> Semua route di bawah terdaftar di `routes/web.php`. Mengembalikan **HTML lengkap** (Blade template), bukan JSON. Data di-query langsung oleh Controller lalu dikirim ke View via **Laravel's standard view binding** (`return view('page', $data)`).
 
-- **Query Parameters**: `format` (`csv` atau `xlsx`)
-- **Response `200 OK`**: File download dengan header `Content-Disposition: attachment; filename="students_export_2026-10-15.csv"`
+### 4.1 Public Pages (🔓 Guest)
+
+#### `GET /` — Landing Page
+Halaman utama publik. Menampilkan hero section dan **statistik agregat** (total student, per kelas). **Tanpa data personal apa pun.**
+
+- **Controller**: `PublicController@index`
+- **View**: `landing.blade.php`
+- **Data yang dikirim ke view**:
+  - `total_students` (integer)
+  - `per_class` (array: `[{class_name: 'A', total: 32}, ...]`)
+  - `hero_title`, `hero_subtitle` (string)
+
+#### `GET /unlock` — Form Angkatan Passcode
+Form input passcode. Submit ke `POST /api/auth/passcode` (JavaScript fetch).
+
+- **Controller**: `PasscodeController@showForm`
+- **View**: `unlock.blade.php`
+
+### 4.2 Protected Pages (🔐 Student / Admin)
+
+> Semua route di bawah dipasangi **middleware `student`** (cek Sanctum token ability = student atau admin).
+
+#### `GET /directory` — Direktori Angkatan
+Daftar seluruh mahasiswa dengan pagination, filter kelas, dan pencarian. **Tidak menampilkan WA pribadi & alamat kost.**
+
+- **Controller**: `DirectoryController@index`
+- **View**: `directory.blade.php`
+- **Data yang dikirim ke view**:
+  - `students` (paginated Eloquent collection, field: nim, name, nickname, class_name, origin_city, instagram_username, avatar_url, bio_quote)
+  - `filters` (array: kelas aktif untuk dropdown filter)
+  - Query params: `?page=1&class=A&search=...`
+
+#### `GET /students/{nim}` — Detail Profil Mahasiswa
+Profil lengkap satu mahasiswa. **Tidak menampilkan WA pribadi, alamat kost, dan kontak darurat.**
+
+- **Controller**: `StudentController@show`
+- **View**: `students/show.blade.php`
+- **Data yang dikirim ke view**:
+  - `student` (Eloquent model, field publik: nim, name, nickname, song_url, class_name, religion, birth_place, birth_date, origin_city, email, instagram_username, line_id, avatar_url, bio_quote, hobbies)
+
+#### `GET /gallery` — Galeri Foto
+Grid foto profil seluruh angkatan.
+
+- **Controller**: `GalleryController@index`
+- **View**: `gallery.blade.php`
+- **Data yang dikirim ke view**:
+  - `photos` (paginated: nim, name, avatar_url)
+  - Query params: `?page=1&class=A`
+
+### 4.3 Admin Panel (🛡️ Filament)
+
+> Route admin **dikelola sepenuhnya oleh Filament v5**. Tidak perlu manual controller/view untuk CRUD.
+
+#### `GET /admin` — Filament Panel Dashboard
+Redirect ke login jika belum autentikasi admin.
+
+#### `GET /admin/students` — StudentResource (Filament)
+CRUD lengkap data mahasiswa (semua kolom termasuk sensitif: whatsapp_no, address, emergency_contact_*). Upload foto via FileUpload component.
+
+#### `GET /admin/emergencies` — EmergencyContacts Page (Filament)
+View-only: daftar kontak darurat (emergency_contact_name, emergency_contact_phone). Audit `READ_EMERGENCIES` tiap akses.
+
+#### `GET /admin/config` — ConfigManagement Page (Filament)
+Ganti passcode + bump epoch. Audit `ROTATE_PASSCODE`.
+
+#### `GET /admin/audit-logs` — AuditLogResource (Filament)
+View-only log audit dengan filter action/actor/tanggal.
+
+#### `GET /admin/admin-whitelists` — AdminWhitelistResource (Filament)
+Kelola whitelist email admin. Audit `WHITELIST_CHANGE`.
+
+---
+
+## 5. Daftar Lengkap Endpoint API (JSON)
+
+| Method | Endpoint | Auth | Deskripsi |
+| :--- | :--- | :---: | :--- |
+| `POST` | `/api/auth/passcode` | 🔓 | Verifikasi passcode angkatan → set cookie student |
+| `DELETE` | `/api/auth/passcode` | 🔐 | Logout student → clear cookie |
+| `POST` | `/api/auth/admin/request-otp` | 🔓 | Kirim OTP ke email admin |
+| `POST` | `/api/auth/admin/verify-otp` | 🔓 | Verifikasi OTP → set cookie admin |
+| `POST` | `/api/auth/admin/logout` | 🛡️ | Logout admin → clear cookie |
+| `GET` | `/api/auth/session` | 🔓 | Cek role sesi aktif (JSON) |
+| `POST` | `/api/upload` | 🛡️ | Generate presigned URL R2 |
+| `PATCH` | `/api/admin/config` | 🛡️ | Ganti passcode / bump epoch |
+
+## 6. Daftar Lengkap Route Web (Blade HTML)
+
+| Method | Route | Auth | View | Deskripsi |
+| :--- | :--- | :---: | :--- | :--- |
+| `GET` | `/` | 🔓 | `landing.blade.php` | Landing page + statistik agregat |
+| `GET` | `/unlock` | 🔓 | `unlock.blade.php` | Form input passcode |
+| `GET` | `/directory` | 🔐 | `directory.blade.php` | Direktori mahasiswa (paginated + filter) |
+| `GET` | `/students/{nim}` | 🔐 | `students/show.blade.php` | Detail profil mahasiswa |
+| `GET` | `/gallery` | 🔐 | `gallery.blade.php` | Galeri foto profil |
+| `GET` | `/admin/*` | 🛡️ | Filament | Panel admin (CRUD, config, audit) |
 
 ---
 
@@ -402,78 +285,57 @@ Ekspor seluruh data (termasuk kontak darurat) ke CSV/XLSX.
 
 🔒 **STRICT GUARANTEE**:
 
-1. Field **Kontak Darurat** (`emergency_contact_name`, `emergency_contact_phone`) **HANYA** dapat diakses via `GET /api/admin/emergencies`, `GET /api/admin/export`, dan Filament Page `EmergencyContacts` — semuanya ber-guard 🛡️ Admin Only.
+1. Field **Kontak Darurat** (`emergency_contact_name`, `emergency_contact_phone`) **HANYA** tampil di **Filament Panel Admin** (`/admin/emergencies` dan `/admin/students`) — ber-guard 🛡️ Admin Only.
 
-2. Field **No WhatsApp Pribadi** (`whatsapp_no`) dan **Alamat Kost** (`address`) **tidak pernah** muncul di endpoint 🔓 Public maupun 🔐 Protected. Hanya endpoint 🛡️ Admin yang mengembalikannya.
+2. Field **No WhatsApp Pribadi** (`whatsapp_no`) dan **Alamat Kost** (`address`) **tidak pernah** muncul di halaman 🔓 Public maupun 🔐 Protected. Hanya 🛡️ Admin (Filament) yang melihatnya.
 
-3. Endpoint 🔓 Public (`GET /api/public/stats`, `GET /api/classes`) hanya mengembalikan **data agregat** — tanpa identitas personal.
+3. Halaman 🔓 Public (`/`) hanya menampilkan **data agregat** (jumlah total, per kelas) — tanpa identitas personal.
 
 4. Angkatan Passcode disimpan sebagai **bcrypt hash** di `app_config`; OTP admin disimpan sebagai **hash** di `admin_otp`. Keduanya tidak pernah plaintext dan tidak pernah dikirim ke client.
 
 5. Seluruh akses data sensitif dicatat di `audit_logs`.
 
+6. **Query scoping di Controller**: Controller untuk halaman 🔐 (`DirectoryController`, `StudentController`, `GalleryController`) **wajib** memilih kolom eksplisit (tidak boleh `select(*)` atau lazy-load field sensitif). Gunakan Eloquent query scoping atau `select()` spesifik.
+
 ---
 
 ## 8. Implementation Notes (High-Level)
 
-Section ini menjelaskan **pendekatan** yang dipakai agar kontrak di atas terpenuhi. Detail penulisan kode diserahkan ke fase implementasi.
+### 8.1 API Response Wrapper (hanya untuk endpoint JSON)
 
-### 8.1 API Response Wrapper
+Endpoint API (auth, upload, config) mengembalikan format seragam (lihat Section 2):
 
-Semua endpoint JSON mengembalikan format seragam (lihat Section 2). Pendekatan:
-
-- Sediakan **satu mekanisme bersama** (mis. trait atau helper) untuk membentuk response `success` dan `error`.
-- Response sukses: `{ success, data, meta? }`.
+- Sediakan **satu mekanisme bersama** (trait/helper) untuk response `success` dan `error`.
+- Response sukses: `{ success, data }`.
 - Response error: `{ success, error: { code, message, details? } }`.
-- `meta` hanya disertakan pada endpoint koleksi/paginated.
 
-**Alur pembentukan response sukses (pseudocode):**
-1. Terima `data` dan (opsional) `meta`.
-2. Bentuk payload `{ success: true, data }`.
-3. Jika `meta` ada → tambahkan ke payload.
-4. Kembalikan sebagai JSON dengan HTTP status yang sesuai.
+### 8.2 Exception Handling
 
-**Alur pembentukan response error (pseudocode):**
-1. Terima `code`, `message`, (opsional) `details`, dan `status`.
-2. Bentuk payload `{ success: false, error: { code, message } }`.
-3. Jika `details` ada → tambahkan ke dalam `error`.
-4. Kembalikan sebagai JSON dengan HTTP status yang sesuai.
+- **Request API** (`api/*`): `ValidationException` di-transform ke JSON error format (Section 2), HTTP 422.
+- **Request Web** (`web/*`): error validasi ditampilkan sebagai **blade error page** bawaan Laravel (tidak perlu transform JSON).
 
-### 8.2 Exception Handling (Validasi & Error Umum)
+### 8.3 Data Passing ke Blade View (Server-Side Rendering)
 
-- Laravel melempar `ValidationException` (HTTP 422) saat validasi Form Request gagal.
-- **Global exception handler** men-transform exception tersebut ke format error seragam di Section 2.
-- Berlaku khusus untuk request yang menargetkan `api/*`; request web (Blade) tetap menampilkan error bawaan.
+Controller untuk route web mengirim data ke view via mekanisme standar Laravel:
 
-**Alur transform error (pseudocode):**
-1. Tangkap `ValidationException`.
-2. Jika request menuju `api/*`:
-   - Susun payload error dengan `code = VALIDATION_ERROR`, `message` umum, dan `details` = daftar error per field.
-   - Kembalikan HTTP `422`.
-3. Selain itu → biarkan handler bawaan berjalan.
-
-### 8.3 Field Scoping via API Resource
-
-- Endpoint non-admin **wajib** memakai API Resource untuk memilih kolom yang boleh keluar.
-- Field sensitif (`whatsapp_no`, `address`, `emergency_contact_phone`) hanya disertakan bila pemanggil punya ability `admin`.
-
-**Alur shaping response student (pseudocode):**
-1. Susun field publik: identitas, kelas, kota asal, Instagram, ringkasan profil (foto, quote, hobi).
-2. Cek ability token pemanggil.
-3. Jika pemanggil `admin` → tambahkan `whatsapp_no` dan `address`.
-4. Jika bukan admin → jangan sertakan field tersebut sama sekali (bukan di-null-kan, tetapi tidak ada di payload).
-5. Kembalikan data hasil shaping.
+1. Controller query database (Eloquent).
+2. Terapkan **kolom eksplisit** (jangan `select(*)` untuk halaman non-admin).
+3. Return data ke view: `return view('directory', compact('students', 'filters'))`.
+4. Blade template render HTML lengkap dengan data tersebut.
+5. Tidak ada pemanggilan API dari frontend — data sudah ada saat HTML dikirim.
 
 ### 8.4 Catatan Filament v5
 
-Beberapa konvensi API Filament v5 yang perlu diperhatikan saat membangun panel admin (menggantikan gaya Filament v3):
+Admin panel dikelola sepenuhnya oleh Filament v5. Konvensi:
 
 | Aspek | Konvensi v5 |
 | :--- | :--- |
-| Definisi form | Memakai `Filament\Schemas\Schema` (bukan `Form`) |
+| Definisi form | Memakai `Filament\Schemas\Schema` |
 | Struktur resource | Resource + subfolder `Pages/`, `Schemas/`, `Tables/` |
 | Aksi per baris tabel | `->recordActions([...])` |
 | Aksi toolbar/bulk | `->toolbarActions([...])` |
+| File upload | `Forms\Components\FileUpload::make('avatar_url')->disk('r2')` |
+| Export | `ExportAction` atau `Filament\Actions\ExportAction` |
 | Requirement | Livewire v4 + Tailwind CSS v4 |
 
-> Nama class dan method final dapat menyesuaikan versi Filament minor terbaru; yang penting adalah pemisahan Resource/Pages/Schemas/Tables dan penempatan aksi pada grup yang benar.
+> **CRUD, export, dan upload di admin tidak memerlukan API endpoint terpisah** — semua ditangani oleh Filament secara internal (Livewire component → controller → DB).

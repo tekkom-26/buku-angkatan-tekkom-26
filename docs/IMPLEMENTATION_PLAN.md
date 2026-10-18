@@ -57,7 +57,7 @@ EPIC 1 → 2 → 3 → {4, 5, 6} → {7, 8, 9} → {10, 11} → 12 → 13
 *Form Request classes + sanitizer helpers.*
 
 - [ ] **4.1** Helper sanitizers di `app/Helpers/sanitizers.php`: `sanitizeWhatsApp`, `sanitizeInstagram`, `parseBirthDate` + autoload via composer `files`
-- [ ] **4.2** `StoreStudentRequest` (semua kolom student: nim, name, nickname, gender, class, religion, birth, kontak, sosmed, darurat)
+- [ ] **4.2** `StoreStudentRequest` (semua kolom student: nim, name, nickname, song_url, class, religion, birth, kontak, sosmed, darurat)
 - [ ] **4.3** Auth requests: `PasscodeRequest`, `AdminEmailRequest`, `VerifyOtpRequest`
 - [ ] **4.4** Sanitasi via `prepareForValidation()` di masing-masing request
 
@@ -87,33 +87,33 @@ EPIC 1 → 2 → 3 → {4, 5, 6} → {7, 8, 9} → {10, 11} → 12 → 13
 - [ ] **6.8** Scheduled command cleanup OTP expired (`php artisan make:command CleanupExpiredOtps`)
 
 ## EPIC 7 — Audit & Security Helpers 🟡
-*Jejak audit + hardening keamanan.*
+*Jejak audit + hardening keamanan + query scoping.*
 
 - [ ] **7.1** Service `AuditService` (tulis `audit_logs` dengan ip + user_agent)
 - [ ] **7.2** Helper ekstrak `ip` + `user_agent` dari request
 - [ ] **7.3** Implementasi Token Epoch check di middleware `CheckAuthEpoch`
-- [ ] **7.4** API Resource classes untuk scoping field visibility (StudentResource, StudentDetailResource)
+- [ ] **7.4** Eloquent local scope `scopePublic()` pada Model Student (exclude kolom: whatsapp_no, address, emergency_contact_*)
 - [ ] **7.5** Policies: `StudentPolicy`, `AdminWhitelistPolicy` untuk Filament authorization
 
-## EPIC 8 — Public Pages & API (Landing Page) 🟡
-*Data agregat tanpa personal info.*
+## EPIC 8 — Public Pages (Landing Page — Blade SSR) 🟡
+*Halaman publik server-side rendered. Data agregat tanpa personal info.*
 
-- [ ] **8.1** `PublicController@stats` (GET /api/public/stats: total students, per class)
-- [ ] **8.2** `PublicController@classes` (GET /api/classes: breakdown per class)
+- [ ] **8.1** `PublicController@index` (GET / : query total students + per class → kirim ke view)
+- [ ] **8.2** `PasscodeController@showForm` (GET /unlock : tampilkan form passcode)
 - [ ] **8.3** Blade view `landing.blade.php` (hero, stats agregat) + layout
-- [ ] **8.4** Standard API response trait (`ApiResponse`: success/error/meta)
-- [ ] **8.5** Global exception handler transform (ValidationException → 422 format)
+- [ ] **8.4** Blade view `unlock.blade.php` (form passcode, submit via JS fetch ke POST /api/auth/passcode)
+- [ ] **8.5** Global exception handler untuk web (validation error → blade error page)
 
-## EPIC 9 — Protected Pages & API (Directory, Detail, Gallery) 🟡
-*Konten internal untuk student (middleware `student`).*
+## EPIC 9 — Protected Pages (Directory, Detail, Gallery — Blade SSR) 🟡
+*Konten internal untuk student (middleware `student`). Controller query DB → kirim ke Blade View.*
 
-- [ ] **9.1** `DirectoryController@index` (GET /api/students: pagination + filter class + search)
-- [ ] **9.2** `StudentController@show` (GET /api/students/{nim}: detail — **tanpa** WA pribadi & alamat kost)
-- [ ] **9.3** `GalleryController@index` (GET /api/gallery: foto formal + informal)
+- [ ] **9.1** `DirectoryController@index` (GET /directory: pagination + filter class + search, select kolom publik saja)
+- [ ] **9.2** `StudentController@show` (GET /students/{nim}: detail, select kolom publik, tanpa WA/alamat/darurat)
+- [ ] **9.3** `GalleryController@index` (GET /gallery: grid foto avatar, paginated)
 - [ ] **9.4** Blade view `directory.blade.php` (direktori dengan filter & search)
 - [ ] **9.5** Blade view `students/show.blade.php` (detail profil)
 - [ ] **9.6** Blade view `gallery.blade.php` (grid galeri foto)
-- [ ] **9.7** Response shaping per role via API Resources
+- [ ] **9.7** Eloquent local scope `scopePublic()` pada Model Student (otomatis exclude kolom sensitif)
 
 ## EPIC 10 — Admin Panel Filament v5 (CRUD, Config, Audit) 🟡
 *Kontrol penuh admin via Filament Resources & Pages.*
