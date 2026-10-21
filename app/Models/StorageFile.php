@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 
@@ -31,7 +32,7 @@ use Illuminate\Support\Facades\Storage;
 #[Hidden([])]
 class StorageFile extends Model
 {
-    use HasUuids;
+    use HasFactory, HasUuids;
 
     public const VISIBILITY_PUBLIC = 'public';
 
