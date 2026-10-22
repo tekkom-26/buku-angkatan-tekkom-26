@@ -13,10 +13,12 @@
         "laravel/tinker": "^3.0",
         "league/csv": "^9.28",
         "league/flysystem-aws-s3-v3": "^3.35",
+        "livewire/flux": "^2.21",
         "resend/resend-laravel": "^1.6"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
+        "laravel/boost": "^2.10",
         "laravel/pail": "^1.2.5",
         "laravel/pao": "^1.0.6",
         "laravel/pint": "^1.32",

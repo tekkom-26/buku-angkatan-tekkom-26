@@ -2,8 +2,24 @@
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
+@source '../../vendor/livewire/flux/stubs/**/*.blade.php';
 
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+
+    --color-brand-deep: #123B46;
+    --color-brand-teal: #176B70;
+    --color-brand-cyan: #38BFC3;
+    --color-brand-mint: #A5E6DF;
+    --color-brand-mist: #F1F7F6;
+
+    --color-accent: var(--color-brand-teal);
+    --color-accent-content: #ffffff;
+    --color-accent-foreground: var(--color-brand-deep);
+}
+
+:where(a, button, input, select, textarea, iframe):focus-visible {
+    outline: 3px solid var(--color-brand-cyan);
+    outline-offset: 3px;
 }
