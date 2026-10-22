@@ -14,7 +14,7 @@
             </div>
 
             {{-- Footer nav links --}}
-            <nav class="flex items-center gap-1">
+            <nav aria-label="Navigasi footer" class="flex items-center gap-1">
                 <a href="/" class="px-3 py-1.5 text-xs rounded-md transition-colors {{ $activePage === 'home' ? 'text-brand-mint/60' : 'text-white/35 hover:text-brand-mint' }}">
                     Beranda
                 </a>

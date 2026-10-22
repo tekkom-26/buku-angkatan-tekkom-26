@@ -18,3 +18,8 @@
     --color-accent-content: #ffffff;
     --color-accent-foreground: var(--color-brand-deep);
 }
+
+:where(a, button, input, select, textarea, iframe):focus-visible {
+    outline: 3px solid var(--color-brand-cyan);
+    outline-offset: 3px;
+}

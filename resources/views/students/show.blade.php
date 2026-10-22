@@ -11,11 +11,30 @@
     </head>
     <body class="bg-brand-mist text-brand-deep antialiased">
 
+        <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[110] focus:rounded-lg focus:bg-white focus:px-4 focus:py-3 focus:font-semibold focus:text-brand-deep focus:shadow-lg">
+            Lewati ke konten utama
+        </a>
+
+        <div id="page-loading-overlay" class="fixed inset-0 z-[100] grid place-items-center bg-brand-mist/95 px-6" role="status" aria-live="polite" aria-label="Memuat profil mahasiswa">
+            <div class="w-full max-w-md">
+                <div class="mb-5 flex items-center justify-center gap-3 text-sm font-semibold text-brand-deep">
+                    <span class="size-5 animate-spin rounded-full border-2 border-brand-teal/20 border-t-brand-teal" aria-hidden="true"></span>
+                    <span>Memuat profil mahasiswa...</span>
+                </div>
+                <div class="grid grid-cols-3 gap-3" aria-hidden="true">
+                    <div class="aspect-square animate-pulse rounded-lg bg-white shadow-sm"><div class="m-3 h-3 w-2/3 rounded bg-brand-deep/10"></div><div class="mx-3 h-2 w-1/2 rounded bg-brand-deep/5"></div></div>
+                    <div class="aspect-square animate-pulse rounded-lg bg-white shadow-sm"><div class="m-3 h-3 w-2/3 rounded bg-brand-deep/10"></div><div class="mx-3 h-2 w-1/2 rounded bg-brand-deep/5"></div></div>
+                    <div class="aspect-square animate-pulse rounded-lg bg-white shadow-sm"><div class="m-3 h-3 w-2/3 rounded bg-brand-deep/10"></div><div class="mx-3 h-2 w-1/2 rounded bg-brand-deep/5"></div></div>
+                </div>
+            </div>
+        </div>
+        <noscript><style>#page-loading-overlay { display: none !important; }</style></noscript>
+
         {{-- Navbar --}}
         <x-navbar activePage="unlock" />
 
 
-        <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <main id="main-content" tabindex="-1" aria-busy="true" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
 
 
             <div class="mb-6">
@@ -40,8 +59,10 @@
                                 <div class="rounded-xl overflow-hidden aspect-[3/4] bg-brand-deep/5">
                                     <img
                                         src="{{ $student['formal_photo_url'] }}"
+                                            onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode($student['nickname']) }}&background=176B70&color=fff&size=800'"
                                         alt="Foto resmi {{ $student['name'] }}"
                                         class="w-full h-full object-cover"
+                                        fetchpriority="high"
                                     />
                                 </div>
                                 {{-- Label badge --}}
@@ -60,6 +81,7 @@
                                         src="{{ $student['casual_photo_url'] }}"
                                         alt="Foto casual {{ $student['nickname'] }}"
                                         class="w-full h-full object-cover"
+                                        loading="lazy"
                                     />
                                 </div>
                                 <div class="absolute bottom-2 left-2">
@@ -229,6 +251,7 @@
                                             src="{{ $student['formal_photo_url'] }}"
                                             alt="@{{ $student['instagram_username'] }}"
                                             class="w-full h-full rounded-full object-cover"
+                                            loading="lazy"
                                         />
                                     </div>
                                 </div>
@@ -268,9 +291,19 @@
                             </div>
                         </div>
                         <div class="px-6 pb-6">
-                            <div class="rounded-xl overflow-hidden bg-brand-deep/3">
-                                <iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/track/{{ basename($student['spotify_song_url']); }}?utm_source=generator&si=353177db515e4495" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-                            </div>
+                            @if ($student['spotify_track_id'])
+                                <div class="relative min-h-[352px] overflow-hidden rounded-xl bg-brand-deep/3">
+                                    <div id="spotify-loading" class="absolute inset-0 z-10 grid content-center gap-4 bg-white p-5" aria-hidden="true">
+                                        <div class="h-4 w-2/3 animate-pulse rounded bg-brand-deep/10"></div>
+                                        <div class="h-3 w-1/2 animate-pulse rounded bg-brand-deep/5"></div>
+                                        <div class="h-10 w-full animate-pulse rounded-lg bg-brand-deep/5"></div>
+                                    </div>
+                                    <p id="spotify-status" class="sr-only" role="status" aria-live="polite">Memuat pemutar Spotify.</p>
+                                    <iframe id="spotify-embed" data-testid="embed-iframe" title="Lagu favorit {{ $student['nickname'] }} di Spotify" style="border-radius:12px" src="https://open.spotify.com/embed/track/{{ $student['spotify_track_id'] }}?utm_source=generator&si=353177db515e4495" width="100%" height="352" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+                                </div>
+                            @else
+                                <p class="rounded-xl bg-brand-deep/3 p-5 text-sm text-brand-deep/55" role="status">Lagu Spotify belum ditambahkan.</p>
+                            @endif
                         </div>
                     </div>
 
@@ -282,8 +315,9 @@
                 @if($prevStudent)
                     <a href="/students/{{ $prevStudent['nim'] }}"
                        class="group inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-brand-deep/55 hover:text-brand-deep bg-white border border-brand-teal/10 hover:border-brand-teal/25 hover:shadow-sm transition-all"
+                       aria-label="Mahasiswa sebelumnya: {{ $prevStudent['nickname'] }}"
                     >
-                        <flux:icon icon="arrow-left" class="size-4 group-hover:-translate-x-0.5 transition-transform" />
+                        <flux:icon icon="arrow-left" class="size-4 group-hover:-translate-x-0.5 transition-transform" aria-hidden="true" />
                         <span class="hidden sm:inline">Sebelumnya:</span>
                         <span class="font-semibold">{{ $prevStudent['nickname'] }}</span>
                     </a>
@@ -298,6 +332,7 @@
                 @if($nextStudent)
                     <a href="/students/{{ $nextStudent['nim'] }}"
                        class="group inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-brand-deep/55 hover:text-brand-deep bg-white border border-brand-teal/10 hover:border-brand-teal/25 hover:shadow-sm transition-all"
+                              aria-label="Mahasiswa berikutnya: {{ $nextStudent['nickname'] }}"
                     >
                         <span class="font-semibold">{{ $nextStudent['nickname'] }}</span>
                         <span class="hidden sm:inline">:Selanjutnya</span>
@@ -315,6 +350,57 @@
         {{-- Footer --}}
         <x-footer activePage="unlock" />
 
+        <script>
+            (() => {
+                const overlay = document.getElementById('page-loading-overlay');
+                const main = document.getElementById('main-content');
+                const spotifyEmbed = document.getElementById('spotify-embed');
+
+                const setPageLoading = (isLoading) => {
+                    overlay.hidden = !isLoading;
+                    main.setAttribute('aria-busy', String(isLoading));
+                };
+
+                const hidePageLoading = () => setPageLoading(false);
+
+                if (document.readyState === 'complete') {
+                    hidePageLoading();
+                } else {
+                    window.addEventListener('load', hidePageLoading, { once: true });
+                }
+
+                window.addEventListener('pageshow', (event) => {
+                    if (event.persisted) {
+                        hidePageLoading();
+                    }
+                });
+
+                document.addEventListener('click', (event) => {
+                    const link = event.target.closest('a[href]');
+
+                    if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || link.target === '_blank' || link.hasAttribute('download')) {
+                        return;
+                    }
+
+                    const destination = new URL(link.href, window.location.href);
+                    const isSamePageAnchor = destination.origin === window.location.origin
+                        && destination.pathname === window.location.pathname
+                        && destination.search === window.location.search
+                        && destination.hash;
+
+                    if (destination.origin === window.location.origin && !isSamePageAnchor) {
+                        setPageLoading(true);
+                    }
+                });
+
+                if (spotifyEmbed) {
+                    spotifyEmbed.addEventListener('load', () => {
+                        document.getElementById('spotify-loading').hidden = true;
+                        document.getElementById('spotify-status').textContent = 'Pemutar Spotify siap.';
+                    });
+                }
+            })();
+        </script>
 
     </body>
 </html>

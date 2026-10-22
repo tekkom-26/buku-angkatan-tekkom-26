@@ -67,6 +67,7 @@ class StudentController extends Controller
                 'hobbies' => $student->hobbies ? (is_string($student->hobbies) ? array_map('trim', explode(',', $student->hobbies)) : $student->hobbies) : ['Membaca', 'Olahraga'],
                 'favorite_food_place' => $student->favorite_food_place ?? 'Warung favorit',
                 'spotify_song_url' => $student->spotify_song_url ?? null,
+                'spotify_track_id' => $this->extractSpotifyTrackId($student->spotify_song_url),
             ];
 
             // Find previous and next student for navigation
@@ -128,6 +129,14 @@ class StudentController extends Controller
             // Show user-friendly error
             abort(500, 'Terjadi kesalahan saat memuat profil mahasiswa. Silakan coba lagi nanti.');
         }
+    }
+
+    private function extractSpotifyTrackId(?string $url): ?string {
+        if (!$url) return null;
+        if (preg_match('/track\/([a-zA-Z0-9]+)/', $url, $matches)) {
+            return $matches[1];
+        }
+        return null;
     }
 }
 
