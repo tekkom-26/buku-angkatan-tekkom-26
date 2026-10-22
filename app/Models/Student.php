@@ -3,9 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Model;   
+use App\Observers\StudentObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
+#[ObservedBy([StudentObserver::class])]
 class Student extends Model
+
 {
     // Pilihan dari Google Form (bisa dipakai di Select Filament)
     public const CLASSES = ['A' => 'A', 'B' => 'B', 'C' => 'C', 'D' => 'D'];
