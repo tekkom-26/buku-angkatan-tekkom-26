@@ -13,6 +13,7 @@
         "laravel/tinker": "^3.0",
         "league/csv": "^9.28",
         "league/flysystem-aws-s3-v3": "^3.35",
+        "livewire/flux": "^2.21",
         "resend/resend-laravel": "^1.6"
     },
     "require-dev": {
