@@ -238,7 +238,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="px-6 pb-6">
+                        <div class="px-6 pb-2">
                             <a href="{{ $student['instagram_url'] }}" target="_blank" rel="noopener noreferrer"
                                class="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-gradient-to-r from-yellow-400/10 via-pink-500/10 to-purple-600/10 border border-pink-200/40 text-sm font-semibold text-brand-deep hover:from-yellow-400/18 hover:via-pink-500/18 hover:to-purple-600/18 transition-all group"
                             >
@@ -269,7 +269,7 @@
                         </div>
                         <div class="px-6 pb-6">
                             <div class="rounded-xl overflow-hidden bg-brand-deep/3">
-                                <iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/track/5lbqrStwpHLLhyaOHZbORO?utm_source=generator&si=353177db515e4495" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+                                <iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/track/{{ basename($student['spotify_song_url']); }}?utm_source=generator&si=353177db515e4495" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
                             </div>
                         </div>
                     </div>
@@ -278,34 +278,29 @@
             </section>
 
 
-            @php
-                // Derive prev/next NIM for navigation
-                $currentNum = (int) substr($student['nim'], 4);
-                $prevNim = $currentNum > 1 ? '2404' . str_pad((string)($currentNum - 1), 5, '0', STR_PAD_LEFT) : null;
-                $nextNim = $currentNum < 207 ? '2404' . str_pad((string)($currentNum + 1), 5, '0', STR_PAD_LEFT) : null;
-            @endphp
-
             <div class="flex items-center justify-between pt-6 border-t border-brand-teal/10">
-                @if($prevNim)
-                    <a href="/students/{{ $prevNim }}"
+                @if($prevStudent)
+                    <a href="/students/{{ $prevStudent['nim'] }}"
                        class="group inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-brand-deep/55 hover:text-brand-deep bg-white border border-brand-teal/10 hover:border-brand-teal/25 hover:shadow-sm transition-all"
                     >
                         <flux:icon icon="arrow-left" class="size-4 group-hover:-translate-x-0.5 transition-transform" />
-                        Sebelumnya
+                        <span class="hidden sm:inline">Sebelumnya:</span>
+                        <span class="font-semibold">{{ $prevStudent['nickname'] }}</span>
                     </a>
                 @else
                     <div></div>
                 @endif
 
                 <span class="text-xs text-brand-deep/25 font-mono">
-                    {{ $currentNum }} / 207
+                    {{ $currentPosition }} / {{ $totalInClass }} (Kelas {{ $student['class_name'] }})
                 </span>
 
-                @if($nextNim)
-                    <a href="/students/{{ $nextNim }}"
+                @if($nextStudent)
+                    <a href="/students/{{ $nextStudent['nim'] }}"
                        class="group inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-brand-deep/55 hover:text-brand-deep bg-white border border-brand-teal/10 hover:border-brand-teal/25 hover:shadow-sm transition-all"
                     >
-                        Selanjutnya
+                        <span class="font-semibold">{{ $nextStudent['nickname'] }}</span>
+                        <span class="hidden sm:inline">:Selanjutnya</span>
                         <flux:icon icon="arrow-right" class="size-4 group-hover:translate-x-0.5 transition-transform" />
                     </a>
                 @else

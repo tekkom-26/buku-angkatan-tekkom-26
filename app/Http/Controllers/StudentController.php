@@ -69,8 +69,43 @@ class StudentController extends Controller
                 'spotify_song_url' => $student->spotify_song_url ?? null,
             ];
 
+            // Find previous and next student for navigation
+            $prevStudent = Student::query()
+                ->select('nim', 'nickname')
+                ->where('class_name', $student->class_name)
+                ->where('nim', '<', $student->nim)
+                ->orderBy('nim', 'desc')
+                ->first();
+
+            $nextStudent = Student::query()
+                ->select('nim', 'nickname')
+                ->where('class_name', $student->class_name)
+                ->where('nim', '>', $student->nim)
+                ->orderBy('nim', 'asc')
+                ->first();
+
+            // Get current position in class
+            $currentPosition = Student::query()
+                ->where('class_name', $student->class_name)
+                ->where('nim', '<=', $student->nim)
+                ->count();
+
+            $totalInClass = Student::query()
+                ->where('class_name', $student->class_name)
+                ->count();
+
             return view('students.show', [
                 'student' => $studentData,
+                'prevStudent' => $prevStudent ? [
+                    'nim' => $prevStudent->nim,
+                    'nickname' => $prevStudent->nickname ?? 'Student',
+                ] : null,
+                'nextStudent' => $nextStudent ? [
+                    'nim' => $nextStudent->nim,
+                    'nickname' => $nextStudent->nickname ?? 'Student',
+                ] : null,
+                'currentPosition' => $currentPosition,
+                'totalInClass' => $totalInClass,
             ]);
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
