@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class DirectoryController extends Controller
@@ -24,14 +25,7 @@ class DirectoryController extends Controller
 
             // Query builder
             $query = Student::query()
-                ->select([
-                    'nim',
-                    'name',
-                    'nickname',
-                    'class_name',
-                    'origin_city',
-                    'formal_photo_url',
-                ])
+                ->public()
                 ->orderBy('class_name', 'asc')
                 ->orderBy('name', 'asc');
 
@@ -40,8 +34,8 @@ class DirectoryController extends Controller
                 $search = $request->input('search');
                 $query->where(function ($q) use ($search) {
                     $q->where('nim', 'LIKE', "%{$search}%")
-                      ->orWhere('name', 'LIKE', "%{$search}%")
-                      ->orWhere('nickname', 'LIKE', "%{$search}%");
+                        ->orWhere('name', 'LIKE', "%{$search}%")
+                        ->orWhere('nickname', 'LIKE', "%{$search}%");
                 });
             }
 
@@ -57,7 +51,7 @@ class DirectoryController extends Controller
                     'nickname' => $student->nickname ?? $student->name,
                     'class_name' => $student->class_name,
                     'origin_city' => $student->origin_city ?? 'Unknown',
-                    'avatar_url' => $student->formal_photo_url ?? 'https://ui-avatars.com/api/?name=' . urlencode($student->nickname ?? $student->name) . '&background=176B70&color=fff&size=400',
+                    'avatar_url' => $student->formal_photo_url ?? 'https://ui-avatars.com/api/?name='.urlencode($student->nickname ?? $student->name).'&background=176B70&color=fff&size=400',
                 ];
             });
 
@@ -73,7 +67,7 @@ class DirectoryController extends Controller
                 'totalStudents' => $totalStudents,
             ]);
 
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             // Validation error - redirect back with errors
             return redirect()
                 ->route('directory.index')

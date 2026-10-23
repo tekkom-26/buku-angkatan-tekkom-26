@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Middleware\CheckAuthEpoch;
 use App\Http\Middleware\EnsureAngkatanPasscode;
+use App\Http\Middleware\EnsureStudentRole;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -16,6 +18,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'angkatan.passcode' => EnsureAngkatanPasscode::class,
+            'student.epoch' => CheckAuthEpoch::class,
+            'student.role' => EnsureStudentRole::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

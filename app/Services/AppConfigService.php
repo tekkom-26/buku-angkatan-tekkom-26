@@ -49,6 +49,10 @@ class AppConfigService
 
     public function authEpoch(): int
     {
-        return (int) $this->get(self::KEY_AUTH_EPOCH, '1');
+        $value = AppConfig::query()
+            ->where('key', self::KEY_AUTH_EPOCH)
+            ->value('value');
+
+        return (int) ($value ?? '1');
     }
 }
