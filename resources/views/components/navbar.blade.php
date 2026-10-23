@@ -23,7 +23,7 @@
                 <a href="/identity" class="px-3.5 py-2 text-sm font-medium rounded-lg transition-colors {{ $activePage === 'identity' ? 'text-brand-teal bg-brand-teal/8' : 'text-brand-deep/70 hover:bg-brand-deep/5 hover:text-brand-deep' }}">
                     Identitas Angkatan
                 </a>
-                <a href="/unlock" class="px-3.5 py-2 text-sm font-medium rounded-lg transition-colors {{ $activePage === 'unlock' ? 'text-brand-teal bg-brand-teal/8' : 'text-brand-deep/70 hover:bg-brand-deep/5 hover:text-brand-deep' }}">
+                <a href="/directory" class="px-3.5 py-2 text-sm font-medium rounded-lg transition-colors {{ $activePage === 'unlock' ? 'text-brand-teal bg-brand-teal/8' : 'text-brand-deep/70 hover:bg-brand-deep/5 hover:text-brand-deep' }}">
                     Buku Angkatan
                 </a>
                 <a href="/#kontak" class="px-3.5 py-2 text-sm font-medium text-brand-deep/70 rounded-lg hover:bg-brand-deep/5 hover:text-brand-deep transition-colors">
@@ -33,7 +33,7 @@
 
             {{-- CTA Button --}}
             <div class="shrink-0">
-                <flux:button href="/unlock" class="text-brand-mist" variant="primary" size="sm">
+                <flux:button href="/directory" class="text-brand-mist" variant="primary" size="sm">
                     Buka Buku Angkatan
                     <flux:icon icon="arrow-right" class="size-3.5" />
                 </flux:button>

@@ -48,8 +48,9 @@ class PasscodeAuthTest extends TestCase
 
         app(AppConfigService::class)->set('auth_epoch', '2');
 
-        $this->withCookie('angkatan_session', $cookie->getValue())
-            ->get('/students/21000001')
+        $this->call('GET', '/students/21000001', [], [
+            'angkatan_session' => $cookie->getValue(),
+        ])
             ->assertRedirectToRoute('unlock');
     }
 
@@ -58,9 +59,20 @@ class PasscodeAuthTest extends TestCase
         $cookie = $this->postJson('/api/auth/passcode', ['passcode' => 'secret-pass'])
             ->getCookie('angkatan_session', false);
 
-        $this->withCookie('angkatan_session', $cookie->getValue())
-            ->get('/directory')
+        $this->call('GET', '/directory', [], [
+            'angkatan_session' => $cookie->getValue(),
+        ])
             ->assertOk();
+    }
+
+    public function test_api_issued_cookie_authenticates_web_request(): void
+    {
+        $cookie = $this->postJson('/api/auth/passcode', ['passcode' => 'secret-pass'])
+            ->getCookie('angkatan_session', false);
+
+        $this->call('GET', '/directory', [], [
+            'angkatan_session' => $cookie->getValue(),
+        ])->assertOk();
     }
 
     public function test_public_scope_excludes_sensitive_student_columns(): void

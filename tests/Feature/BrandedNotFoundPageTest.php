@@ -29,8 +29,9 @@ class BrandedNotFoundPageTest extends TestCase
         $cookie = $this->postJson('/api/auth/passcode', ['passcode' => 'secret-pass'])
             ->getCookie('angkatan_session', false);
 
-        $response = $this->withCookie('angkatan_session', $cookie->getValue())
-            ->get('/students/99999999');
+        $response = $this->call('GET', '/students/99999999', [], [
+            'angkatan_session' => $cookie->getValue(),
+        ]);
 
         $response->assertNotFound();
         $response->assertSee('Halaman ini tidak ditemukan.');
