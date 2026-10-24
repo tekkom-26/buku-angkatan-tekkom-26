@@ -6,11 +6,14 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;   
 use App\Observers\StudentObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 #[ObservedBy([StudentObserver::class])]
 class Student extends Model
 
 {
+    use HasFactory;
     // Pilihan dari Google Form (bisa dipakai di Select Filament)
     public const CLASSES = ['A' => 'A', 'B' => 'B', 'C' => 'C', 'D' => 'D'];
 
