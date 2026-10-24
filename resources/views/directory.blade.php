@@ -43,25 +43,27 @@
 
 
             <div class="mb-8">
-                <flux:card class="!bg-white !border-brand-teal/15">
-                    <form method="GET" action="{{ route('directory.index') }}" class="p-5 sm:p-6">
-                        <div class="flex flex-col sm:flex-row gap-3">
+                <flux:card class="!bg-white !border-brand-teal/15 !p-0 overflow-hidden">
+                    <form method="GET" action="{{ route('directory.index') }}">
+                        <div class="flex flex-col sm:flex-row divide-y sm:divide-y-0 sm:divide-x divide-brand-deep/10">
 
                             {{-- Search input --}}
-                            <div class="flex-1 min-w-0">
-                                <flux:input
+                            <div class="flex-1 min-w-0 flex items-center px-4 py-3">
+                                <flux:icon icon="magnifying-glass" class="size-4 text-brand-deep/40 shrink-0 me-2" />
+                                <input
+                                    type="text"
                                     name="search"
                                     value="{{ request('search') }}"
-                                    icon="magnifying-glass"
-                                    placeholder="> cari nama atau NIM..."
+                                    placeholder="Cari nama atau NIM..."
+                                    class="w-full border-0 p-0 text-sm text-brand-deep placeholder:text-brand-deep/40 focus:outline-none focus:ring-0 bg-transparent"
                                 />
                             </div>
 
                             {{-- Class dropdown --}}
-                            <div class="sm:w-44">
+                            <div class="sm:w-48 flex items-center px-4 py-3">
                                 <select
                                     name="class"
-                                    class="w-full h-[38px] px-3 rounded-lg border border-brand-deep/15 bg-white text-sm text-brand-deep focus:outline-none focus:ring-2 focus:ring-brand-teal/30 focus:border-brand-teal/50 transition-colors"
+                                    class="w-full border-0 p-0 text-sm text-brand-deep bg-transparent focus:outline-none focus:ring-0 cursor-pointer"
                                 >
                                     <option value="">Semua Kelas</option>
                                     @foreach ($filters as $filter)
@@ -73,23 +75,38 @@
                             </div>
 
                             {{-- Submit button --}}
-                            <div class="shrink-0">
-                                <flux:button type="submit" variant="primary">
-                                    <flux:icon icon="funnel" class="size-4 me-1.5" />
+                            <div class="shrink-0 flex">
+                                <flux:button
+                                    type="submit"
+                                    variant="primary"
+                                    icon="funnel"
+                                    class="!rounded-none !h-full !px-6 !text-brand-mist"
+                                >
                                     Filter
                                 </flux:button>
                             </div>
-
-                            {{-- Clear filters (only show when filters are active) --}}
-                            @if(request('search') || request('class'))
-                                <div class="shrink-0">
-                                    <a href="{{ route('directory.index') }}" class="inline-flex items-center h-[38px] px-4 rounded-lg text-sm font-medium text-brand-deep/55 hover:text-brand-deep border border-brand-deep/10 hover:border-brand-deep/20 bg-white transition-colors">
-                                        Reset
-                                    </a>
-                                </div>
-                            @endif
                         </div>
                     </form>
+
+                    {{-- Active filters / reset --}}
+                    @if(request('search') || request('class'))
+                        <div class="flex items-center gap-2 px-4 py-2.5 bg-brand-teal/5 border-t border-brand-deep/10">
+                            <span class="text-xs text-brand-deep/50">Filter aktif:</span>
+                            @if(request('search'))
+                                <span class="inline-flex items-center gap-1 text-xs bg-white border border-brand-deep/10 rounded-full px-2.5 py-1 text-brand-deep">
+                                    "{{ request('search') }}"
+                                </span>
+                            @endif
+                            @if(request('class'))
+                                <span class="inline-flex items-center gap-1 text-xs bg-white border border-brand-deep/10 rounded-full px-2.5 py-1 text-brand-deep">
+                                    Kelas {{ request('class') }}
+                                </span>
+                            @endif
+                            <a href="{{ route('directory.index') }}" class="ms-auto text-xs text-brand-deep/50 hover:text-brand-deep underline underline-offset-2">
+                                Reset semua
+                            </a>
+                        </div>
+                    @endif
                 </flux:card>
             </div>
 

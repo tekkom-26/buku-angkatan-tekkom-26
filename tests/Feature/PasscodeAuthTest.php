@@ -2,9 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Models\Student;
 use App\Services\AppConfigService;
 use Database\Seeders\AuthSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
@@ -31,6 +33,58 @@ class PasscodeAuthTest extends TestCase
     public function test_unlock_form_renders(): void
     {
         $this->get('/unlock')->assertOk()->assertSee('Passcode');
+    }
+
+    public function test_student_pages_redirect_guests_to_unlock(): void
+    {
+        $this->get('/directory')->assertRedirectToRoute('unlock');
+        $this->get('/students/21000001')->assertRedirectToRoute('unlock');
+    }
+
+    public function test_student_pages_redirect_sessions_with_stale_epochs_to_unlock(): void
+    {
+        $cookie = $this->postJson('/api/auth/passcode', ['passcode' => 'secret-pass'])
+            ->getCookie('angkatan_session', false);
+
+        app(AppConfigService::class)->set('auth_epoch', '2');
+
+        $this->call('GET', '/students/21000001', [], [
+            'angkatan_session' => $cookie->getValue(),
+        ])
+            ->assertRedirectToRoute('unlock');
+    }
+
+    public function test_valid_student_session_can_access_directory(): void
+    {
+        $cookie = $this->postJson('/api/auth/passcode', ['passcode' => 'secret-pass'])
+            ->getCookie('angkatan_session', false);
+
+        $this->call('GET', '/directory', [], [
+            'angkatan_session' => $cookie->getValue(),
+        ])
+            ->assertOk();
+    }
+
+    public function test_api_issued_cookie_authenticates_web_request(): void
+    {
+        $cookie = $this->postJson('/api/auth/passcode', ['passcode' => 'secret-pass'])
+            ->getCookie('angkatan_session', false);
+
+        $this->call('GET', '/directory', [], [
+            'angkatan_session' => $cookie->getValue(),
+        ])->assertOk();
+    }
+
+    public function test_public_scope_excludes_sensitive_student_columns(): void
+    {
+        $student = Student::factory()->create();
+
+        $publicStudent = Student::public()->find($student->getKey());
+
+        $this->assertNotNull($publicStudent);
+        $this->assertArrayHasKey('name', $publicStudent->getAttributes());
+        $this->assertArrayNotHasKey('address', $publicStudent->getAttributes());
+        $this->assertArrayNotHasKey('whatsapp_no', $publicStudent->getAttributes());
     }
 
     public function test_correct_passcode_sets_http_only_cookie_and_session(): void
@@ -73,6 +127,18 @@ class PasscodeAuthTest extends TestCase
             ->assertJsonPath('data.role', 'guest');
     }
 
+    public function test_direct_database_epoch_update_revokes_existing_sessions(): void
+    {
+        $cookie = $this->postJson('/api/auth/passcode', ['passcode' => 'secret-pass'])
+            ->getCookie('angkatan_session', false);
+
+        $this->assertSame(1, app(AppConfigService::class)->authEpoch());
+        DB::table('app_config')->where('key', 'auth_epoch')->update(['value' => '2']);
+
+        $this->sessionWithCookie($cookie->getValue())
+            ->assertJsonPath('data.role', 'guest');
+    }
+
     public function test_session_is_guest_without_cookie(): void
     {
         $this->getJson('/api/auth/session')->assertJsonPath('data.role', 'guest');
@@ -80,10 +146,24 @@ class PasscodeAuthTest extends TestCase
 
     public function test_logout_clears_cookie(): void
     {
-        $response = $this->deleteJson('/api/auth/passcode')->assertOk();
+        $sessionCookie = $this->postJson('/api/auth/passcode', ['passcode' => 'secret-pass'])
+            ->getCookie('angkatan_session', false);
 
-        $cookie = $response->getCookie('angkatan_session', false);
-        $this->assertLessThan(time(), $cookie->getExpiresTime());
+        $response = $this->call(
+            'DELETE',
+            '/api/auth/passcode',
+            [],
+            ['angkatan_session' => $sessionCookie->getValue()],
+            [],
+            ['HTTP_ACCEPT' => 'application/json'],
+        )
+            ->assertOk();
+
+        $clearedCookie = $response->getCookie('angkatan_session', false);
+        $this->assertLessThan(time(), $clearedCookie->getExpiresTime());
+
+        $this->sessionWithCookie($sessionCookie->getValue())
+            ->assertJsonPath('data.role', 'guest');
     }
 
     protected function sessionWithCookie(string $value): TestResponse

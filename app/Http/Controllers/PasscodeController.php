@@ -5,12 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Concerns\ApiResponses;
 use App\Http\Requests\VerifyPasscodeRequest;
 use App\Services\AppConfigService;
-use Illuminate\Contracts\Encryption\DecryptException;
+use App\Services\StudentSessionService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 
@@ -18,7 +17,7 @@ class PasscodeController extends Controller
 {
     use ApiResponses;
 
-    public const COOKIE_NAME = 'angkatan_session';
+    public const COOKIE_NAME = StudentSessionService::COOKIE_NAME;
 
     public const SESSION_TTL_SECONDS = 604800; // 7 days
 
@@ -26,7 +25,10 @@ class PasscodeController extends Controller
 
     protected const DECAY_SECONDS = 900; // 15 minutes
 
-    public function __construct(protected AppConfigService $config) {}
+    public function __construct(
+        protected AppConfigService $config,
+        protected StudentSessionService $sessions,
+    ) {}
 
     /**
      * GET /unlock
@@ -58,11 +60,8 @@ class PasscodeController extends Controller
 
         RateLimiter::clear($limiterKey);
 
-        $token = Crypt::encryptString(json_encode([
-            'role' => 'student',
-            'epoch' => $this->config->authEpoch(),
-            'expires_at' => Carbon::now()->addSeconds(self::SESSION_TTL_SECONDS)->getTimestamp(),
-        ]));
+        $expiresAt = Carbon::now()->addSeconds(self::SESSION_TTL_SECONDS);
+        $token = $this->sessions->issueToken($this->config->authEpoch(), $expiresAt);
 
         return $this->success([
             'role' => 'student',
@@ -83,8 +82,10 @@ class PasscodeController extends Controller
     /**
      * DELETE /api/auth/passcode
      */
-    public function logout(): JsonResponse
+    public function logout(Request $request): JsonResponse
     {
+        $this->sessions->revokeRequestSession($request);
+
         return $this->success(['message' => 'Logged out'])
             ->withCookie(cookie()->forget(self::COOKIE_NAME));
     }
@@ -105,24 +106,6 @@ class PasscodeController extends Controller
      */
     protected function resolveRole(Request $request): string
     {
-        $token = $request->cookie(self::COOKIE_NAME);
-        if (! is_string($token) || $token === '') {
-            return 'guest';
-        }
-
-        try {
-            $payload = json_decode(Crypt::decryptString($token), true);
-        } catch (DecryptException) {
-            return 'guest';
-        }
-
-        if (! is_array($payload)
-            || ($payload['role'] ?? null) !== 'student'
-            || ($payload['expires_at'] ?? 0) < Carbon::now()->getTimestamp()
-            || ($payload['epoch'] ?? null) !== $this->config->authEpoch()) {
-            return 'guest';
-        }
-
-        return 'student';
+        return $this->sessions->resolveRequestRole($request);
     }
 }

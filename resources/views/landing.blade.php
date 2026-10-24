@@ -152,117 +152,6 @@
             </div>
         </section>
 
-
-        <section id="tentang" class="py-20 md:py-28 bg-white relative overflow-hidden">
-            {{-- Decorative background element --}}
-            <div class="absolute -right-24 -top-24 w-96 h-96 rounded-full bg-brand-mist blur-3xl"></div>
-            <div class="absolute -left-24 -bottom-24 w-72 h-72 rounded-full bg-brand-mint/15 blur-3xl"></div>
-
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-
-                {{-- Section label — Rule 3 --}}
-                <div class="text-center mb-16">
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-brand-mint/40 text-brand-deep border border-brand-teal/20 mb-4">Tentang Kami</span>
-                    <flux:heading class="text-brand-deep" size="2xl">Mengenal "Ascent"</flux:heading>
-                </div>
-
-                {{-- Two-column layout --}}
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-14 lg:gap-20 items-center">
-
-                    {{-- Left: Visual / Logo Mark — Rule 2: WHITE card, no dark gradient --}}
-                    <div class="relative flex justify-center">
-                        <div class="relative">
-                            {{-- Outer glow ring --}}
-                            <div class="absolute -inset-8 rounded-3xl bg-gradient-to-br from-brand-teal/8 via-brand-cyan/5 to-brand-mint/10 blur-2xl"></div>
-                            {{-- Main mark container — white with border & shadow --}}
-                            <div class="relative w-72 h-72 sm:w-80 sm:h-80 rounded-3xl border border-brand-teal/15 bg-white shadow-xl shadow-brand-deep/6 p-10 flex flex-col items-center justify-center">
-                                {{-- Big lettermark --}}
-                                <span class="text-8xl sm:text-9xl font-extrabold text-brand-deep tracking-tighter">A</span>
-                                <div class="mt-2 w-12 h-0.5 rounded-full bg-brand-teal"></div>
-                                <p class="mt-4 text-sm font-bold text-brand-teal uppercase tracking-[0.25em]">Ascent</p>
-                                <p class="mt-1 text-xs text-brand-deep/45">Teknik Komputer 2026</p>
-                            </div>
-                            {{-- Floating accent badge --}}
-                            <div class="absolute -right-3 -bottom-3 px-4 py-2 rounded-xl bg-white shadow-lg shadow-brand-deep/8 border border-brand-teal/15">
-                                <p class="text-xs font-bold text-brand-teal">{{ $ascent_narrative['tagline'] }}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Right: Narrative text — Rule 3: readable opacity --}}
-                    <div class="space-y-6">
-                        <div class="space-y-4">
-                            <p class="text-base md:text-lg text-brand-deep/80 leading-relaxed">
-                                {!! $ascent_narrative['body'] !!}
-                            </p>
-                            <p class="text-sm text-brand-deep/65 leading-relaxed italic border-l-2 border-brand-teal/25 pl-4">
-                                {{ $ascent_narrative['vision'] }}
-                            </p>
-                        </div>
-
-                        {{-- Quick stats row — Rule 2: white bg cards --}}
-                        <div class="grid grid-cols-3 gap-4 pt-4">
-                            <div class="text-center p-4 rounded-xl border border-brand-teal/12 bg-white shadow-sm">
-                                <p class="text-2xl font-extrabold text-brand-deep">207</p>
-                                <p class="text-[11px] text-brand-deep/50 mt-1 uppercase tracking-wider font-medium">Anggota</p>
-                            </div>
-                            <div class="text-center p-4 rounded-xl border border-brand-teal/12 bg-white shadow-sm">
-                                <p class="text-2xl font-extrabold text-brand-deep">4</p>
-                                <p class="text-[11px] text-brand-deep/50 mt-1 uppercase tracking-wider font-medium">Kelas</p>
-                            </div>
-                            <div class="text-center p-4 rounded-xl border border-brand-teal/12 bg-white shadow-sm">
-                                <p class="text-2xl font-extrabold text-brand-deep">5</p>
-                                <p class="text-[11px] text-brand-deep/50 mt-1 uppercase tracking-wider font-medium">Nilai Inti</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-
-        <section class="py-20 md:py-28 bg-brand-mist/60 relative">
-            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-
-                <div class="text-center mb-16">
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-brand-mint/40 text-brand-deep border border-brand-teal/20 mb-4">Perjalanan Kita</span>
-                    <flux:heading class="text-brand-deep" size="2xl">Sejarah Angkatan</flux:heading>
-                    <p class="mt-3 text-sm text-brand-deep/70 leading-relaxed max-w-lg mx-auto">
-                        Jejak langkah perjalanan angkatan Teknik Komputer 2026 dari awal hingga saat ini.
-                    </p>
-                </div>
-
-                {{-- Vertical Timeline --}}
-                <div class="relative">
-                    {{-- Center line --}}
-                    <div class="absolute left-6 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-brand-teal via-brand-cyan to-brand-mint/30 md:-translate-x-px"></div>
-
-                    <div class="space-y-10">
-                        @foreach ($timeline as $i => $item)
-                            <div class="relative flex items-start gap-6 md:gap-0 {{ $i % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse' }}">
-
-                                {{-- Dot marker --}}
-                                <div class="absolute left-6 md:left-1/2 w-3.5 h-3.5 rounded-full border-2 border-white shadow-md {{ $i % 2 === 0 ? 'bg-brand-teal' : 'bg-brand-cyan' }} -translate-x-1/2 mt-1.5 z-10"></div>
-
-                                {{-- Content card — Rule 2: white + border + shadow --}}
-                                <div class="ml-14 md:ml-0 md:w-[calc(50%-2rem)] {{ $i % 2 === 0 ? 'md:mr-auto md:pr-8' : 'md:ml-auto md:pl-8' }}">
-                                    <div class="rounded-xl border border-brand-teal/12 bg-white shadow-sm hover:shadow-md transition-shadow duration-300 p-6">
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-brand-mint/35 text-brand-deep border border-brand-teal/15 mb-3">{{ $item['period'] }}</span>
-                                        <h3 class="text-base font-semibold text-brand-deep mb-2">{{ $item['title'] }}</h3>
-                                        <p class="text-sm text-brand-deep/65 leading-relaxed">{{ $item['desc'] }}</p>
-                                    </div>
-                                </div>
-
-                                {{-- Spacer for the other side --}}
-                                <div class="hidden md:block md:w-[calc(50%-2rem)]"></div>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-        </section>
-
-
         <section class="py-20 md:py-28 bg-white relative overflow-hidden">
             {{-- Decorative dots pattern --}}
             <div class="absolute inset-0 opacity-[0.03]" style="background-image: radial-gradient(circle, currentColor 1px, transparent 1px); background-size: 24px 24px;"></div>
@@ -420,7 +309,7 @@
                                 {{-- Submit button — Rule 4: brand-teal bg + white text --}}
                                 <div class="flex items-center justify-between pt-2">
                                     <p class="text-[11px] text-brand-deep/40">Biasanya membalas dalam 1×24 jam.</p>
-                                    <flux:button type="submit" variant="primary" icon-trailing="paper-airplane">
+                                    <flux:button type="submit" variant="primary" icon-trailing="paper-airplane" class="!text-brand-mist">
                                         Kirim Pesan
                                     </flux:button>
                                 </div>

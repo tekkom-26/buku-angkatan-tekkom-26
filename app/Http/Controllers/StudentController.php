@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Student;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class StudentController extends Controller
 {
@@ -15,34 +17,18 @@ class StudentController extends Controller
     {
         try {
             // Validate NIM format (must be numeric, typically 8 digits)
-            if (!preg_match('/^\d{8}$/', $nim)) {
+            if (! preg_match('/^\d{8}$/', $nim)) {
                 abort(404, 'Format NIM tidak valid. NIM harus 8 digit angka.');
             }
 
             // Find student by NIM with only PUBLIC fields
             $student = Student::query()
-                ->select([
-                    'nim',
-                    'name',
-                    'nickname',
-                    'class_name',
-                    'religion',
-                    'birth_place',
-                    'birth_date',
-                    'origin_city',
-                    'instagram_username',
-                    'formal_photo_url',
-                    'casual_photo_url',
-                    'bio_quote',
-                    'hobbies',
-                    'favorite_food_place',
-                    'spotify_song_url',
-                ])
+                ->public()
                 ->where('nim', $nim)
                 ->first();
 
             // Student not found
-            if (!$student) {
+            if (! $student) {
                 abort(404, "Mahasiswa dengan NIM {$nim} tidak ditemukan.");
             }
 
@@ -58,11 +44,11 @@ class StudentController extends Controller
                 'age' => $student->birth_date ? $student->birth_date->age : null,
                 'origin_city' => $student->origin_city ?? 'Tidak tersedia',
                 'instagram_username' => $student->instagram_username ?? 'unknown',
-                'instagram_url' => $student->instagram_username 
-                    ? 'https://instagram.com/' . $student->instagram_username 
+                'instagram_url' => $student->instagram_username
+                    ? 'https://instagram.com/'.$student->instagram_username
                     : 'https://instagram.com',
-                'formal_photo_url' => $student->formal_photo_url ?? 'https://ui-avatars.com/api/?name=' . urlencode($student->nickname ?? $student->name) . '&background=176B70&color=fff&size=800',
-                'casual_photo_url' => $student->casual_photo_url ?? 'https://ui-avatars.com/api/?name=' . urlencode($student->nickname ?? $student->name) . '&background=4A8B8C&color=fff&size=800',
+                'formal_photo_url' => $student->formal_photo_url ?? 'https://ui-avatars.com/api/?name='.urlencode($student->nickname ?? $student->name).'&background=176B70&color=fff&size=800',
+                'casual_photo_url' => $student->casual_photo_url ?? 'https://ui-avatars.com/api/?name='.urlencode($student->nickname ?? $student->name).'&background=4A8B8C&color=fff&size=800',
                 'bio_quote' => $student->bio_quote ?? 'Hidup ini indah, nikmati setiap momennya.',
                 'hobbies' => $student->hobbies ? (is_string($student->hobbies) ? array_map('trim', explode(',', $student->hobbies)) : $student->hobbies) : ['Membaca', 'Olahraga'],
                 'favorite_food_place' => $student->favorite_food_place ?? 'Warung favorit',
@@ -109,14 +95,13 @@ class StudentController extends Controller
                 'totalInClass' => $totalInClass,
             ]);
 
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        } catch (ModelNotFoundException $e) {
             // Model not found (shouldn't happen with first() but just in case)
             abort(404, "Mahasiswa dengan NIM {$nim} tidak ditemukan.");
 
-        } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
+        } catch (HttpException $e) {
             // Re-throw HTTP exceptions (404, etc)
             throw $e;
-
         } catch (\Throwable $e) {
             // Log unexpected errors
             Log::error('Student show error', [
@@ -131,12 +116,15 @@ class StudentController extends Controller
         }
     }
 
-    private function extractSpotifyTrackId(?string $url): ?string {
-        if (!$url) return null;
+    private function extractSpotifyTrackId(?string $url): ?string
+    {
+        if (! $url) {
+            return null;
+        }
         if (preg_match('/track\/([a-zA-Z0-9]+)/', $url, $matches)) {
             return $matches[1];
         }
+
         return null;
     }
 }
-
