@@ -8,7 +8,7 @@ use App\Models\StorageFile;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\StorageFile>
+ * @extends Factory<StorageFile>
  */
 class StorageFileFactory extends Factory
 {
@@ -16,17 +16,16 @@ class StorageFileFactory extends Factory
 
     public function definition(): array
     {
-        $filename = fake()->uuid() . '.jpg';
+        $filename = fake()->uuid().'.jpg';
 
         return [
             'disk' => 'r2',
-            'path' => 'students/' . $filename,
+            'path' => 'students/'.$filename,
             'prefix' => 'students',
             'alias' => null,
-            'is_directory' => false,
             'visibility' => StorageFile::VISIBILITY_PUBLIC,
             'uploaded_by' => 'system',
-            'original_name' => fake()->word() . '.jpg',
+            'original_name' => fake()->word().'.jpg',
             'mime_type' => 'image/jpeg',
             'size' => fake()->numberBetween(50000, 500000),
             'metadata' => [

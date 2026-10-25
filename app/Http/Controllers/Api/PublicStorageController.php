@@ -4,11 +4,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Concerns\ApiResponses;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreDirectoryRequest;
+use App\Http\Requests\DirectoryPathRequest;
 use App\Http\Requests\StoreUploadRequest;
 use App\Http\Requests\UpdateStorageFileRequest;
 use App\Models\StorageFile;
 use App\Services\R2FileManagerService;
+use App\Services\R2FileOperationException;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
@@ -42,31 +43,33 @@ class PublicStorageController extends Controller
 
         return $this->success([
             'path' => $relative,
-            'items' => $files->map(fn (StorageFile $file) => $this->present($file))->all(),
+            'items' => $files->map(fn (StorageFile|array $item) => $item instanceof StorageFile
+                ? $this->present($item)
+                : $item)->all(),
         ]);
     }
 
     /**
-     * POST /api/storage/public/directories
+     * DELETE /api/storage/public/directories
      * Body: { "path": "profile-aasokdaok/sub-folder" }
      */
-    public function createDirectory(StoreDirectoryRequest $request)
+    public function destroyDirectory(DirectoryPathRequest $request)
     {
-        $relative = $request->validated('path');
+        $relative = trim($request->validated('path'), '/');
+
+        if ($relative === '') {
+            return $this->error('INVALID_DIRECTORY', 'A directory path is required.', 422);
+        }
+
         $absolute = $this->toAbsolute($relative);
 
         try {
-            $directory = $this->manager->createDirectory(
-                path: $absolute,
-                visibility: StorageFile::VISIBILITY_PUBLIC,
-                prefix: $this->deriveScanPrefix($relative),
-                createdBy: 'public',
-            );
-        } catch (InvalidArgumentException $exception) {
-            return $this->error('DIRECTORY_EXISTS', $exception->getMessage(), 422);
+            $result = $this->manager->deleteDirectory($absolute, StorageFile::VISIBILITY_PUBLIC);
+        } catch (R2FileOperationException $exception) {
+            $result = $exception->results;
         }
 
-        return $this->success($this->present($directory), 201);
+        return $this->success($result);
     }
 
     /**
@@ -85,7 +88,6 @@ class PublicStorageController extends Controller
                 desiredPath: $absolutePath,
                 visibility: StorageFile::VISIBILITY_PUBLIC,
                 alias: $request->validated('alias'),
-                prefix: $this->deriveScanPrefix($relativePath),
                 uploadedBy: 'public',
                 overwrite: (bool) $request->boolean('overwrite'),
             );
@@ -151,21 +153,6 @@ class PublicStorageController extends Controller
         return $relative === '' ? $root : $root.'/'.$relative;
     }
 
-    /**
-     * Derive the "scan prefix" (e.g. "profile-aasokdaok") from the first
-     * path segment supplied by the client, so uploads are nicely groupable.
-     */
-    protected function deriveScanPrefix(string $relative): ?string
-    {
-        $relative = trim($relative, '/');
-
-        if ($relative === '') {
-            return null;
-        }
-
-        return explode('/', $relative)[0];
-    }
-
     protected function abortIfNotPublic(StorageFile $storageFile): void
     {
         abort_unless($storageFile->isPublic(), 404);
@@ -184,11 +171,11 @@ class PublicStorageController extends Controller
             'relative_path' => ltrim(str_replace($root, '', $file->path), '/'),
             'alias' => $file->alias,
             'prefix' => $file->prefix,
-            'is_directory' => $file->is_directory,
+            'is_directory' => false,
             'mime_type' => $file->mime_type,
             'size' => $file->size,
-            'human_size' => $file->is_directory ? null : $file->humanSize(),
-            'url' => $file->is_directory ? null : $file->url(),
+            'human_size' => $file->humanSize(),
+            'url' => $file->url(),
             'created_at' => $file->created_at?->toIso8601String(),
             'updated_at' => $file->updated_at?->toIso8601String(),
         ];

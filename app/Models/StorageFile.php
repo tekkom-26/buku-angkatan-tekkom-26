@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * Database record for a file (or directory marker) stored on a Flysystem disk
+ * Database record for a file stored on a Flysystem disk
  * (Cloudflare R2 by default). Acts as the source of truth for aliases,
  * visibility (public/private) and the scanning "prefix" used to group
  * related uploads (e.g. "profile-aasokdaok/...").
@@ -21,7 +21,6 @@ use Illuminate\Support\Facades\Storage;
     'path',
     'prefix',
     'alias',
-    'is_directory',
     'visibility',
     'uploaded_by',
     'original_name',
@@ -44,14 +43,13 @@ class StorageFile extends Model
     protected function casts(): array
     {
         return [
-            'is_directory' => 'boolean',
             'size' => 'integer',
             'metadata' => 'array',
         ];
     }
 
     /**
-     * Scope a query to only public files/directories.
+     * Scope a query to only public files.
      */
     public function scopePublic(Builder $query): Builder
     {
@@ -59,7 +57,7 @@ class StorageFile extends Model
     }
 
     /**
-     * Scope a query to only private files/directories.
+     * Scope a query to only private files.
      */
     public function scopePrivate(Builder $query): Builder
     {
@@ -76,28 +74,17 @@ class StorageFile extends Model
     }
 
     /**
-     * Scope a query to records directly inside a given directory path
-     * (non-recursive "ls").
+     * Scope a query to files under a directory prefix.
      */
     public function scopeInDirectory(Builder $query, ?string $directory): Builder
     {
         $directory = trim((string) $directory, '/');
 
-        return $query->where('path', 'like', ($directory !== '' ? $directory.'/' : '').'%')
-            ->whereRaw(
-                "path NOT LIKE ?",
-                [($directory !== '' ? $directory.'/' : '').'%/%']
-            );
-    }
+        if ($directory === '') {
+            return $query;
+        }
 
-    public function scopeOnlyFiles(Builder $query): Builder
-    {
-        return $query->where('is_directory', false);
-    }
-
-    public function scopeOnlyDirectories(Builder $query): Builder
-    {
-        return $query->where('is_directory', true);
+        return $query->where('path', 'like', $directory.'/%');
     }
 
     public function isPublic(): bool
@@ -112,10 +99,6 @@ class StorageFile extends Model
      */
     public function url(int $temporaryUrlMinutes = 5): ?string
     {
-        if ($this->is_directory) {
-            return null;
-        }
-
         $disk = Storage::disk($this->disk);
 
         if ($this->isPublic()) {

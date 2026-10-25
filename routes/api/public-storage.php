@@ -18,7 +18,7 @@ Route::prefix('storage/public')
     ->middleware(['throttle:60,1', 'angkatan.passcode'])
     ->group(function () {
         Route::get('/', [PublicStorageController::class, 'index']);
-        Route::post('/directories', [PublicStorageController::class, 'createDirectory']);
+        Route::delete('/directories', [PublicStorageController::class, 'destroyDirectory']);
         Route::post('/files', [PublicStorageController::class, 'store']);
         Route::patch('/files/{storageFile}', [PublicStorageController::class, 'update']);
         Route::delete('/files/{storageFile}', [PublicStorageController::class, 'destroy']);

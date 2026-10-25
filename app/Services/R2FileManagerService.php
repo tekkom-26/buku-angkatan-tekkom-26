@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 use RuntimeException;
+use Throwable;
 
 /**
  * Central service for managing files on the Cloudflare R2 bucket (via the
@@ -31,9 +32,10 @@ class R2FileManagerService
     }
 
     /**
-     * List the immediate contents (files + directories) of a directory,
-     * reading from the database (source of truth for alias/visibility),
-     * reconciled against what currently exists on the disk.
+     * List direct files and virtual child directories using one database query.
+     * Virtual directories are derived from descendant file paths in memory.
+     *
+     * @return Collection<int, StorageFile|array{path: string, is_directory: true}>
      */
     public function listDirectory(?string $directory = null, ?string $visibility = null): Collection
     {
@@ -47,33 +49,30 @@ class R2FileManagerService
             $query->where('visibility', $visibility);
         }
 
-        return $query->orderByDesc('is_directory')->orderBy('path')->get();
-    }
+        $files = $query->orderBy('path')->get();
+        $items = [];
+        $basePath = $directory === '' ? '' : $directory.'/';
 
-    /**
-     * Create a "directory" — on R2 there's no real directory concept, so we
-     * write an empty placeholder object and track it in the DB so it shows
-     * up when listing.
-     */
-    public function createDirectory(string $path, string $visibility = StorageFile::VISIBILITY_PRIVATE, ?string $prefix = null, ?string $createdBy = null): StorageFile
-    {
-        $path = $this->normalizePath($path);
+        foreach ($files as $file) {
+            $relativePath = Str::after($file->path, $basePath);
+            $separatorPosition = strpos($relativePath, '/');
 
-        if (StorageFile::query()->where('disk', $this->disk)->where('path', $path)->exists()) {
-            throw new InvalidArgumentException("Path already exists: {$path}");
+            if ($separatorPosition === false) {
+                $items['file:'.$file->path] = $file;
+
+                continue;
+            }
+
+            $folderPath = $basePath.substr($relativePath, 0, $separatorPosition);
+            $items['directory:'.$folderPath] = [
+                'path' => $folderPath,
+                'is_directory' => true,
+            ];
         }
 
-        // Placeholder object so the "directory" is visible on the bucket too.
-        $this->filesystem()->put($this->keepFileFor($path), '');
-
-        return StorageFile::create([
-            'disk' => $this->disk,
-            'path' => $path,
-            'prefix' => $prefix ?? $this->derivePrefix($path),
-            'is_directory' => true,
-            'visibility' => $visibility,
-            'uploaded_by' => $createdBy,
-        ]);
+        return collect($items)
+            ->sortBy(fn (StorageFile|array $item) => $item instanceof StorageFile ? $item->path : $item['path'])
+            ->values();
     }
 
     /**
@@ -115,7 +114,6 @@ class R2FileManagerService
             'path' => $path,
             'prefix' => $prefix ?? $this->derivePrefix($path),
             'alias' => $alias,
-            'is_directory' => false,
             'visibility' => $visibility,
             'uploaded_by' => $uploadedBy,
             'original_name' => $file->getClientOriginalName(),
@@ -133,33 +131,18 @@ class R2FileManagerService
         return StorageFile::create($attributes);
     }
 
-    /**
-     * Delete a file (or directory + its descendants) from both the disk and
-     * the database.
-     */
+    /** Delete a file from R2 and then remove its database record. */
     public function delete(StorageFile $file): void
     {
-        if ($file->is_directory) {
-            $descendants = StorageFile::query()
-                ->where('disk', $this->disk)
-                ->where('path', 'like', $file->path.'/%')
-                ->get();
-
-            foreach ($descendants as $descendant) {
-                $this->filesystem()->delete($descendant->path);
-                $descendant->delete();
-            }
-
-            $this->filesystem()->delete($this->keepFileFor($file->path));
-        } else {
-            $this->filesystem()->delete($file->path);
+        if (! $this->filesystem()->delete($file->path)) {
+            throw new RuntimeException("Could not delete R2 object: {$file->path}");
         }
 
         $file->delete();
     }
 
     /**
-     * Move/rename a file or directory to a new path.
+     * Move or rename a single file to a new path.
      */
     public function move(StorageFile $file, string $newPath): StorageFile
     {
@@ -169,21 +152,8 @@ class R2FileManagerService
             throw new InvalidArgumentException("Destination already exists: {$newPath}");
         }
 
-        if ($file->is_directory) {
-            $descendants = StorageFile::query()
-                ->where('disk', $this->disk)
-                ->where('path', 'like', $file->path.'/%')
-                ->get();
-
-            foreach ($descendants as $descendant) {
-                $descendantNewPath = $newPath.'/'.Str::after($descendant->path, $file->path.'/');
-                $this->filesystem()->move($descendant->path, $descendantNewPath);
-                $descendant->update(['path' => $descendantNewPath, 'prefix' => $this->derivePrefix($descendantNewPath)]);
-            }
-
-            $this->filesystem()->move($this->keepFileFor($file->path), $this->keepFileFor($newPath));
-        } else {
-            $this->filesystem()->move($file->path, $newPath);
+        if (! $this->filesystem()->move($file->path, $newPath)) {
+            throw new RuntimeException("Could not move R2 object: {$file->path}");
         }
 
         $file->update(['path' => $newPath, 'prefix' => $this->derivePrefix($newPath)]);
@@ -192,21 +162,83 @@ class R2FileManagerService
     }
 
     /**
-     * Generate a short-lived presigned PUT URL so a client can upload
-     * directly to R2 without the file passing through the server.
+     * Delete all files below a virtual directory, committing each successful item.
+     *
+     * @return array{deleted: array<int, string>, failed: array<int, array{path: string, error: string}>}
      */
-    public function presignedUploadUrl(string $desiredPath, int $expiresInMinutes = 5): array
+    public function deleteDirectory(string $path, ?string $visibility = null): array
     {
-        $path = $this->normalizePath($desiredPath);
+        $files = $this->directoryFiles($path, $visibility);
+        $deleted = [];
+        $failed = [];
 
-        $result = $this->filesystem()->temporaryUploadUrl($path, now()->addMinutes($expiresInMinutes));
+        foreach ($files as $file) {
+            try {
+                if (! $this->filesystem()->delete($file->path)) {
+                    throw new RuntimeException("Could not delete R2 object: {$file->path}");
+                }
 
-        return [
-            'upload_url' => $result['url'],
-            'headers' => $result['headers'] ?? [],
-            'key' => $path,
-            'public_url' => $this->filesystem()->url($path),
-        ];
+                $file->delete();
+                $deleted[] = $file->path;
+            } catch (Throwable $exception) {
+                $failed[] = ['path' => $file->path, 'error' => $exception->getMessage()];
+            }
+        }
+
+        $results = compact('deleted', 'failed');
+
+        if ($failed !== []) {
+            throw new R2FileOperationException($results);
+        }
+
+        return $results;
+    }
+
+    /**
+     * Move every file below a virtual directory, committing each successful item.
+     *
+     * @return array{moved: array<int, array{from: string, to: string}>, failed: array<int, array{path: string, error: string}>}
+     */
+    public function moveDirectory(string $oldPrefix, string $newPrefix, ?string $visibility = null): array
+    {
+        $oldPrefix = $this->normalizePath($oldPrefix);
+        $newPrefix = $this->normalizePath($newPrefix);
+
+        if ($oldPrefix === $newPrefix || str_starts_with($newPrefix, $oldPrefix.'/')) {
+            throw new InvalidArgumentException('The destination must be different and outside the source directory.');
+        }
+
+        $files = $this->directoryFiles($oldPrefix, $visibility);
+        $moved = [];
+        $failed = [];
+
+        foreach ($files as $file) {
+            $oldPath = $file->path;
+            $newPath = $newPrefix.'/'.Str::after($oldPath, $oldPrefix.'/');
+
+            try {
+                if (StorageFile::query()->where('disk', $this->disk)->where('path', $newPath)->exists()) {
+                    throw new RuntimeException("Destination already exists: {$newPath}");
+                }
+
+                if (! $this->filesystem()->move($oldPath, $newPath)) {
+                    throw new RuntimeException("Could not move R2 object to: {$newPath}");
+                }
+
+                $file->update(['path' => $newPath, 'prefix' => $this->derivePrefix($newPath)]);
+                $moved[] = ['from' => $oldPath, 'to' => $newPath];
+            } catch (Throwable $exception) {
+                $failed[] = ['path' => $oldPath, 'error' => $exception->getMessage()];
+            }
+        }
+
+        $results = compact('moved', 'failed');
+
+        if ($failed !== []) {
+            throw new R2FileOperationException($results);
+        }
+
+        return $results;
     }
 
     /**
@@ -254,15 +286,29 @@ class R2FileManagerService
         return $path;
     }
 
-    protected function derivePrefix(string $path): ?string
+    public function derivePrefix(string $path): ?string
     {
         $segments = explode('/', trim($path, '/'));
+
+        $publicRoot = trim((string) config('angkatan.public_storage.root_prefix', 'public'), '/');
+
+        if (($segments[0] ?? null) === $publicRoot) {
+            array_shift($segments);
+        }
 
         return $segments[0] ?? null;
     }
 
-    protected function keepFileFor(string $directoryPath): string
+    /** @return Collection<int, StorageFile> */
+    protected function directoryFiles(string $path, ?string $visibility): Collection
     {
-        return rtrim($directoryPath, '/').'/.keep';
+        $path = $this->normalizePath($path);
+
+        return StorageFile::query()
+            ->where('disk', $this->disk)
+            ->where('path', 'like', $path.'/%')
+            ->when($visibility !== null, fn ($query) => $query->where('visibility', $visibility))
+            ->orderBy('path')
+            ->get();
     }
 }
