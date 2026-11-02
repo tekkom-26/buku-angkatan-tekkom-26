@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\AppConfig;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Reads and writes key/value settings stored in the `app_config` table,
@@ -54,5 +55,33 @@ class AppConfigService
             ->value('value');
 
         return (int) ($value ?? '1');
+    }
+
+    /**
+     * Naikkan auth_epoch sebesar +1 secara atomik (baris dikunci selama
+     * transaksi) dan kembalikan nilai epoch yang baru.
+     */
+    public function rotateAuthEpoch(): int
+    {
+        $next = DB::transaction(function (): int {
+            $current = (int) (AppConfig::query()
+                ->where('key', self::KEY_AUTH_EPOCH)
+                ->lockForUpdate()
+                ->value('value') ?? 1);
+
+            $next = $current + 1;
+
+            $this->set(
+                self::KEY_AUTH_EPOCH,
+                (string) $next,
+                'Incremented to revoke all existing student sessions',
+            );
+
+            return $next;
+        });
+
+        $this->forget(self::KEY_AUTH_EPOCH);
+
+        return $next;
     }
 }
