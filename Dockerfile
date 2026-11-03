@@ -1,12 +1,4 @@
-# Stage 1: Build frontend assets
-FROM node:22-bookworm-slim AS frontend
-WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm ci
-COPY . .
-RUN npm run build
-
-# Stage 2: Composer dependencies
+# Stage 1: Composer dependencies
 FROM dunglas/frankenphp:1-php8.4-bookworm AS dependencies
 RUN install-php-extensions pdo_pgsql pgsql intl zip bcmath opcache pcntl
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -20,6 +12,15 @@ RUN composer install \
     --optimize-autoloader \
     --prefer-dist
 
+# Stage 2: Build frontend assets (requires vendor/ for Tailwind v4 to scan livewire/flux stubs)
+FROM node:22-bookworm-slim AS frontend
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .
+COPY --from=dependencies /app/vendor /app/vendor
+RUN npm run build
+
 # Stage 3: Runtime image
 FROM dunglas/frankenphp:1-php8.4-bookworm AS runtime
 RUN install-php-extensions pdo_pgsql pgsql intl zip bcmath opcache pcntl
@@ -30,9 +31,9 @@ WORKDIR /app
 # Enable production PHP configuration
 RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
-# Copy dependencies and application source
-COPY --from=dependencies /app/vendor /app/vendor
+# Copy application source and build artifacts
 COPY . /app
+COPY --from=dependencies /app/vendor /app/vendor
 COPY --from=frontend /app/public/build /app/public/build
 
 # Publish Filament assets and finalize classmap

@@ -38,7 +38,7 @@ class StudentSpotifyEmbedTest extends TestCase
         ]);
 
         $response->assertOk();
-        $response->assertSee('https://open.spotify.com/embed/track/7yCF65vpc7sUwPjftI0iFb?utm_source=generator&theme=0', false);
+        $response->assertSee('https://open.spotify.com/embed/track/7yCF65vpc7sUwPjftI0iFb?utm_source=generator', false);
         $response->assertSee('Lagu Favorit di Spotify');
     }
 
@@ -54,15 +54,15 @@ class StudentSpotifyEmbedTest extends TestCase
         ]);
 
         $response->assertOk();
-        $response->assertSee('https://open.spotify.com/embed/playlist/5c58pkhoT3bWmAcpc6iuWU?utm_source=generator&theme=0', false);
+        $response->assertSee('https://open.spotify.com/embed/playlist/5c58pkhoT3bWmAcpc6iuWU?utm_source=generator', false);
         $response->assertSee('Playlist Favorit di Spotify');
     }
 
-    public function test_renders_fallback_when_spotify_url_is_null(): void
+    public function test_renders_fallback_when_spotify_url_is_invalid(): void
     {
         Student::factory()->create([
             'nim' => '21120126120003',
-            'spotify_song_url' => null,
+            'spotify_song_url' => 'https://example.com/not-spotify',
         ]);
 
         $response = $this->call('GET', '/students/21120126120003', [], [
