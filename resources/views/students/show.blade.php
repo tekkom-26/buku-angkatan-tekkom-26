@@ -258,7 +258,7 @@
                                 </div>
                             </div>
 
-                            <p class="text-xl font-bold text-brand-deep mt-4">@{{ $student['instagram_username'] }}</p>
+                            <p class="text-xl font-bold text-brand-deep mt-4"> {{ $student['instagram_username'] }}</p>
 
                             @if(!empty($student['instagram_bio']))
                                 <p class="text-sm text-brand-deep/50 mt-1.5 max-w-xs mx-auto">{{ $student['instagram_bio'] }}</p>
@@ -289,7 +289,9 @@
                                     </svg>
                                 </div>
                                 <div>
-                                    <p class="text-xs font-medium text-brand-deep/40 uppercase tracking-wider">Lagu Favorit di Spotify</p>
+                                    <p class="text-xs font-medium text-brand-deep/40 uppercase tracking-wider">
+                                        {{ ($student['spotify_type'] ?? 'track') === 'playlist' ? 'Playlist Favorit di Spotify' : 'Lagu Favorit di Spotify' }}
+                                    </p>
                                     <p class="text-sm font-semibold text-brand-deep">Dengarkan sekarang 🎧</p>
                                 </div>
                             </div>
@@ -303,10 +305,11 @@
                                         <div class="h-10 w-full animate-pulse rounded-lg bg-brand-deep/5"></div>
                                     </div>
                                     <p id="spotify-status" class="sr-only" role="status" aria-live="polite">Memuat pemutar Spotify.</p>
-                                    <iframe id="spotify-embed" data-testid="embed-iframe" title="Lagu favorit {{ $student['nickname'] }} di Spotify" style="border-radius:12px" src="https://open.spotify.com/embed/track/{{ $student['spotify_track_id'] }}?utm_source=generator&si=353177db515e4495" width="100%" height="352" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-                                </div>
+                                    <iframe id="spotify-embed" data-testid="embed-iframe" title="{{ ($student['spotify_type'] ?? 'track') === 'playlist' ? 'Playlist' : 'Lagu' }} favorit {{ $student['nickname'] }} di Spotify" style="border-radius:12px" src="https://open.spotify.com/embed/{{ $student['spotify_type'] ?? 'track' }}/{{ $student['spotify_track_id'] }}?utm_source=generator" width="100%" height="352" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+                                
+                                    </div>
                             @else
-                                <p class="rounded-xl bg-brand-deep/3 p-5 text-sm text-brand-deep/55" role="status">Lagu Spotify belum ditambahkan.</p>
+                                <p class="rounded-xl bg-brand-deep/3 p-5 text-sm text-brand-deep/55" role="status">Spotify belum ditambahkan.</p>
                             @endif
                         </div>
                     </div>

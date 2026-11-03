@@ -15,23 +15,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Setup PHP for migrations
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.4'
-          extensions: pdo_pgsql, pgsql
-          coverage: none
-
-      - name: Run Database Migrations (Supabase)
-        if: ${{ secrets.DB_URL != '' }}
-        env:
-          DB_CONNECTION: pgsql
-          DB_URL: ${{ secrets.DB_URL }}
-        run: |
-          composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
-          php artisan migrate --force
-
+        
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 

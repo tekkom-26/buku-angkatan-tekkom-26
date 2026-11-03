@@ -33,6 +33,8 @@ class StudentController extends Controller
             }
 
             // Transform data for view
+            $spotify = $this->extractSpotifyTrackId($student->spotify_song_url);
+
             $studentData = [
                 'nim' => $student->nim,
                 'name' => $student->name,
@@ -53,7 +55,9 @@ class StudentController extends Controller
                 'hobbies' => $student->hobbies ? (is_string($student->hobbies) ? array_map('trim', explode(',', $student->hobbies)) : $student->hobbies) : ['Membaca', 'Olahraga'],
                 'favorite_food_place' => $student->favorite_food_place ?? 'Warung favorit',
                 'spotify_song_url' => $student->spotify_song_url ?? null,
-                'spotify_track_id' => $this->extractSpotifyTrackId($student->spotify_song_url),
+                'spotify_track_id' => $spotify['id'] ?? null,
+                'spotify_type' => $spotify['type'] ?? null,
+                'spotify_item' => $spotify,
             ];
 
             // Find previous and next student for navigation
@@ -116,13 +120,29 @@ class StudentController extends Controller
         }
     }
 
-    private function extractSpotifyTrackId(?string $url): ?string
+    /**
+     * Extract Spotify item ID and type (track, playlist, or album) from a Spotify URL or URI.
+     *
+     * @return array{id: string, type: string}|null
+     */
+    private function extractSpotifyTrackId(?string $url): ?array
     {
         if (! $url) {
             return null;
         }
-        if (preg_match('/track\/([a-zA-Z0-9]+)/', $url, $matches)) {
-            return $matches[1];
+
+        if (preg_match('/(track|playlist|album)\/([a-zA-Z0-9]+)/i', $url, $matches)) {
+            return [
+                'id' => $matches[2],
+                'type' => strtolower($matches[1]),
+            ];
+        }
+
+        if (preg_match('/spotify:(track|playlist|album):([a-zA-Z0-9]+)/i', $url, $matches)) {
+            return [
+                'id' => $matches[2],
+                'type' => strtolower($matches[1]),
+            ];
         }
 
         return null;
