@@ -17,7 +17,7 @@ class StudentController extends Controller
     {
         try {
             // Validate NIM format (must be numeric, typically 8 digits)
-            if (! preg_match('/^\d{8}$/', $nim)) {
+            if (! preg_match('/^\d{14}$/', $nim)) {
                 abort(404, 'Format NIM tidak valid. NIM harus 8 digit angka.');
             }
 
