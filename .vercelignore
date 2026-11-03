@@ -1,0 +1,9 @@
+/node_modules
+/vendor
+/.git
+/storage/*.key
+/.env*
+.agents/
+.claude/
+.codex/
+.mcp.json

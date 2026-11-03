@@ -1,0 +1,43 @@
+name: Deploy Staging to Vercel (Docker)
+
+on:
+  push:
+    branches:
+      - staging
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to Vercel
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP for migrations
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_pgsql, pgsql
+          coverage: none
+
+      - name: Run Database Migrations (Supabase)
+        if: ${{ secrets.DB_URL != '' }}
+        env:
+          DB_CONNECTION: pgsql
+          DB_URL: ${{ secrets.DB_URL }}
+        run: |
+          composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+          php artisan migrate --force
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Deploy Container to Vercel
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: vercel deploy --token=$VERCEL_TOKEN
