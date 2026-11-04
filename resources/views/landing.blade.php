@@ -9,68 +9,12 @@
             @vite(['resources/css/app.css', 'resources/js/app.js'])
         @endif
     </head>
-    <body class="bg-white text-brand-deep antialiased">
+    <body class="bg-surface-canvas text-primary-900 antialiased">
 
         <x-navbar activePage="home" />
 
-
-        <section id="beranda" class="relative min-h-[88vh] flex items-center overflow-hidden">
-            {{-- Background Image --}}
-            <div class="absolute inset-0">
-                <img
-                    src="https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=80&auto=format"
-                    alt="Ascent — Mountain bridge landscape"
-                    class="w-full h-full object-cover"
-                />
-                {{-- Multi-layer gradient overlay --}}
-                <div class="absolute inset-0 bg-gradient-to-b from-brand-deep/85 via-brand-deep/70 to-brand-deep/95"></div>
-                <div class="absolute inset-0 bg-gradient-to-r from-brand-deep/75 via-transparent to-brand-deep/55"></div>
-            </div>
-
-            {{-- Content --}}
-            <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28 md:py-36 w-full">
-                <div class="max-w-3xl">
-                    {{-- Badge pill --}}
-                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/12 backdrop-blur-sm border border-white/20 mb-8">
-                        <span class="w-1.5 h-1.5 rounded-full bg-brand-mint animate-pulse"></span>
-                        <span class="text-xs font-medium text-white/95 uppercase tracking-widest">Web Buku Angkatan Resmi</span>
-                    </div>
-
-                    {{-- Title --}}
-                    <h1 class="text-6xl sm:text-7xl lg:text-[5.5rem] xl:text-[7rem] font-extrabold text-white tracking-tighter leading-[0.85] mb-5">
-                        {{ $hero_title }}
-                    </h1>
-
-                    {{-- Subtitle --}}
-                    <p class="text-xl sm:text-2xl lg:text-3xl font-semibold text-brand-mint mb-6 tracking-tight">
-                        {{ $hero_subtitle }}
-                    </p>
-
-                    {{-- Description --}}
-                    <p class="text-base sm:text-lg text-white/65 leading-relaxed max-w-xl mb-10">
-                        Merekam jejak, membangun kenangan, dan merayakan kebersamaan dalam satu wadah digital yang abadi. Ini adalah cerita kita — 207 jiwa, satu tujuan.
-                    </p>
-
-                    {{-- CTA Group — Rule 1: bright button on dark hero --}}
-                    <div class="flex flex-wrap items-center gap-4">
-                        <a href="/unlock" class="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-brand-mint text-brand-deep font-bold text-base shadow-lg shadow-black/20 hover:bg-white hover:-translate-y-0.5 transition-all duration-200">
-                            Buka Buku Angkatan
-                            <flux:icon icon="arrow-right" class="size-4" />
-                        </a>
-                        <a href="/identity" class="inline-flex items-center gap-2 text-sm font-medium text-white/75 hover:text-white transition-colors">
-                            <flux:icon icon="information-circle" class="size-4" />
-                            Pelajari Lebih Lanjut
-                        </a>
-                    </div>
-
-                    {{-- Scroll indicator --}}
-                    <div class="mt-16 animate-bounce">
-                        <flux:icon icon="chevron-down" class="size-5 text-white/30" />
-                    </div>
-                </div>
-            </div>
-        </section>
-
+        {{-- Section 1: Hero Asymmetric Bento Grid (Issue #18) --}}
+        <x-landing.hero />
 
         <section id="data" class="relative py-20 md:py-28 bg-brand-mist/60">
             {{-- Subtle top separator line --}}
