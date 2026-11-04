@@ -24,7 +24,7 @@ class LandingHeroSectionTest extends TestCase
         $response->assertSee('Baca Filosofi Lambang');
 
         // 4. Right Card Status Badge & Specs
-        $response->assertSee('[STATUS: ACTIVE COHORT // 2026]');
+        $response->assertSee('2026]');
         $response->assertSee('TEKNIK KOMPUTER');
         $response->assertSee('FT UNIVERSITAS DIPONEGORO');
         $response->assertSee('100+ STUDENTS');

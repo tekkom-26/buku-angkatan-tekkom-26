@@ -7,12 +7,13 @@
 ])
 
 {{-- ==========================================================================
-     SCREEN 4: STUDENT DETAIL BENTO PROFILE (NEW LAYOUT)
-     Mengacu pada stich-uiux/biodata-layout.png, GitHub Issue #15, dan DESIGN.md
+     SCREEN 4: STUDENT DETAIL BENTO PROFILE
+     Source of Truth: Figma Node 269:525 (Screen 4 Main Bento Grid) &
+                      DESIGN.md, DOCS_COLOR_CONVENTION.md, stich-uiux/biodata-layout.png
      ========================================================================== --}}
 <div class="w-full">
 
-    {{-- ── SECTION 2: SUB-NAVIGATION & BREADCRUMB STRIP ── --}}
+    {{-- ── SECTION 2: SUB-NAVIGATION & BREADCRUMB STRIP (Figma Node 1:1800) ── --}}
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pt-2">
         {{-- Back Navigation Button --}}
         <div>
@@ -34,23 +35,28 @@
             <span class="text-primary-900/30">/</span>
             <span>DIRECTORY</span>
             <span class="text-primary-900/30">/</span>
-            <span>ROSTER</span>
+            <span>STUDENT</span>
             <span class="text-primary-900/30">/</span>
-            <span class="text-primary-900 font-bold truncate">// 04_DOSSIER_{{ $student['nim'] }}</span>
+            <span class="text-primary-900 font-bold truncate">//{{ $student['nim'] }}</span>
         </div>
     </div>
 
-    {{-- ── SECTION 3: EDITORIAL BENTO GRID ── --}}
+    {{-- ── SECTION 3: EDITORIAL BENTO GRID (Figma Node 269:525) ── --}}
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
         {{-- ══════════════════════════════════════════════════════════════════
-             KOLOM KIRI: CANDIDATE CARD (lg:col-span-5 xl:col-span-4)
-             Sesuai stich-uiux/biodata-layout.png (Left Card)
+             KOLOM KIRI: CANDIDATE CARD (35-40% / lg:col-span-5 xl:col-span-4)
+             Figma Node 269:527 (488px Desktop Width)
              ══════════════════════════════════════════════════════════════════ --}}
         <div
+            id="candidate-card-profile"
             x-data="{
                 photoMode: 'formal',
                 copied: false,
+                setMode(mode) {
+                    this.photoMode = mode;
+                    if (window.syncPhotoMode) window.syncPhotoMode(mode);
+                },
                 copyNim() {
                     navigator.clipboard.writeText('{{ $student['nim'] }}');
                     this.copied = true;
@@ -61,9 +67,6 @@
         >
             {{-- 1. Card Top Header: // SEC_01 // CANDIDATE_CARD & [STATUS: ACTIVE_STUDENT] --}}
             <div class="flex items-center justify-between gap-2 border-b border-surface-border/60 pb-3">
-                <span class="font-mono text-[11px] font-bold text-primary-500 uppercase tracking-wider">
-                    // SEC_01 // CANDIDATE_CARD
-                </span>
                 <span class="inline-flex items-center gap-1.5 font-mono text-[11px] font-bold text-secondary-900">
                     <span class="size-2 rounded-full bg-secondary-500 animate-pulse" aria-hidden="true"></span>
                     [STATUS: ACTIVE_STUDENT]
@@ -76,72 +79,113 @@
                     VIEW_MODE:
                 </span>
                 <div class="inline-flex items-center p-0.5 rounded-lg bg-black/5 border border-surface-border/50">
+                    {{-- Button Formal --}}
                     <button
                         type="button"
-                        @click="photoMode = 'formal'"
-                        :class="photoMode === 'formal' ? 'bg-secondary-500 text-white font-semibold shadow-xs' : 'text-primary-700 hover:text-primary-900'"
-                        class="px-3 py-1 rounded-md text-xs font-mono transition-all duration-180 flex items-center gap-1 cursor-pointer"
+                        id="btn-photo-formal"
+                        @click="setMode('formal')"
+                        onclick="window.setStudentPhotoMode && window.setStudentPhotoMode('formal')"
+                        :class="photoMode === 'formal' ? 'bg-secondary-500 text-white font-semibold shadow-xs' : 'text-primary-700 hover:bg-surface-subtle'"
+                        class="photo-toggle-btn px-3 py-1 rounded-md text-xs font-mono transition-all duration-200 flex items-center gap-1 cursor-pointer bg-secondary-500 text-white font-semibold shadow-xs"
+                        data-mode="formal"
                     >
                         <span>Formal</span>
                     </button>
+
+                    {{-- Button Casual --}}
                     <button
                         type="button"
-                        @click="photoMode = 'casual'"
-                        :class="photoMode === 'casual' ? 'bg-secondary-500 text-white font-semibold shadow-xs' : 'text-primary-700 hover:text-primary-900'"
-                        class="px-3 py-1 rounded-md text-xs font-mono transition-all duration-180 flex items-center gap-1 cursor-pointer"
+                        id="btn-photo-casual"
+                        @click="setMode('casual')"
+                        onclick="window.setStudentPhotoMode && window.setStudentPhotoMode('casual')"
+                        :class="photoMode === 'casual' ? 'bg-secondary-500 text-white font-semibold shadow-xs' : 'text-primary-700 hover:bg-surface-subtle'"
+                        class="photo-toggle-btn px-3 py-1 rounded-md text-xs font-mono transition-all duration-200 flex items-center gap-1 cursor-pointer text-primary-700 hover:bg-surface-subtle"
+                        data-mode="casual"
                     >
                         <span>Kasual</span>
                     </button>
                 </div>
             </div>
 
-            {{-- 3. Photo Frame Container (Ratio 1:1) --}}
-            <div class="relative w-full aspect-square rounded-xl overflow-hidden border border-surface-border bg-white shadow-xs">
-                {{-- Formal Photo View --}}
+            {{-- 3. Photo Frame Container (Ratio 1:1 — 428x428 px in Figma) --}}
+            <div class="relative w-full aspect-[3/4] rounded-xl overflow-hidden border border-surface-border bg-white shadow-xs">
+
+                {{-- ── A. FORMAL PHOTO CONTAINER ── --}}
                 <div
-                    x-show="photoMode === 'formal'"
-                    x-transition.opacity.duration.200ms
-                    class="absolute inset-0 w-full h-full"
+                    id="container-photo-formal"
+                    class="photo-view-layer absolute inset-0 w-full h-full transition-opacity duration-300 opacity-100 z-10"
+                    :class="photoMode === 'formal' ? 'opacity-100 pointer-events-auto z-10' : 'opacity-0 pointer-events-none z-0'"
                 >
-                    <img
-                        src="{{ $student['formal_photo_url'] }}"
-                        onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode($student['nickname']) }}&background=176B70&color=fff&size=800'"
-                        alt="Foto resmi jas almamater {{ $student['name'] }}"
-                        class="w-full h-full object-cover"
-                        fetchpriority="high"
-                    />
-                    {{-- Center Placeholder Overlay (if needed) & JAS ALMAMATER UNDIP --}}
-                    <div class="absolute bottom-3 right-3 px-2.5 py-1 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider bg-primary-900/85 text-white backdrop-blur-xs shadow-xs">
-                        JAS ALMAMATER UNDIP
+                @if (!empty($student['formal_photo_url']))
+                <img
+                    id="img-photo-formal"
+                    src="{{ $student['formal_photo_url'] }}"
+                    alt="Foto resmi {{ $student['name'] }}"
+                    class="w-full h-full object-cover"
+                    fetchpriority="high"
+                    onerror="this.style.display='none'; document.getElementById('placeholder-formal').style.display='flex';"
+                />
+                @endif 
+
+                    {{-- Wireframe Crosslines Placeholder Fallback [AVATAR: FORMAL] --}}
+                    <div
+                        id="placeholder-formal"
+                        class="w-full h-full flex flex-col items-center justify-center p-4 bg-surface-canvas relative overflow-hidden"
+                        style="{{ !empty($student['formal_photo_url']) ? 'display: none;' : 'display: flex;' }}"
+                    >
+                        <svg class="absolute inset-0 h-full w-full stroke-primary-900/15 pointer-events-none" preserveAspectRatio="none" viewBox="0 0 100 100" fill="none">
+                            <line x1="0" y1="0" x2="100" y2="100" vector-effect="non-scaling-stroke" stroke-width="1" />
+                            <line x1="100" y1="0" x2="0" y2="100" vector-effect="non-scaling-stroke" stroke-width="1" />
+                        </svg>
+                        <div class="relative z-10 flex flex-col items-center gap-1 text-center px-4 py-2 rounded-lg bg-white/95 border border-surface-border shadow-xs">
+                            <span class="font-mono text-xs font-bold tracking-wider text-primary-900">[AVATAR: FORMAL]</span>
+                            <span class="font-mono text-[10px] text-primary-500 uppercase tracking-widest">[X] [PHOTO_FORMAL: 1:1]</span>
+                        </div>
                     </div>
+
                 </div>
 
-                {{-- Casual Photo View --}}
+                {{-- ── B. CASUAL PHOTO CONTAINER ── --}}
                 <div
-                    x-show="photoMode === 'casual'"
-                    x-cloak
-                    x-transition.opacity.duration.200ms
-                    class="absolute inset-0 w-full h-full"
+                    id="container-photo-casual"
+                    class="photo-view-layer absolute inset-0 w-full h-full transition-opacity duration-300 opacity-0 pointer-events-none z-0"
+                    :class="photoMode === 'casual' ? 'opacity-100 pointer-events-auto z-10' : 'opacity-0 pointer-events-none z-0'"
                 >
-                    <img
-                        src="{{ $student['casual_photo_url'] }}"
-                        onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode($student['nickname']) }}&background=4A8B8C&color=fff&size=800'"
-                        alt="Foto kasual {{ $student['nickname'] }}"
-                        class="w-full h-full object-cover"
-                        loading="lazy"
-                    />
-                    <div class="absolute bottom-3 right-3 px-2.5 py-1 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider bg-secondary-700/90 text-white backdrop-blur-xs shadow-xs">
+                    @if (!empty($student['casual_photo_url']))
+                        <img
+                            id="img-photo-casual"
+                            src="{{ $student['casual_photo_url'] }}"
+                            alt="Foto kasual {{ $student['nickname'] }}"
+                            class="w-full h-full object-cover"
+                            loading="lazy"
+                            onerror="this.style.display='none'; document.getElementById('placeholder-casual').style.display='flex';"
+                        />
+                    @endif
+
+                    {{-- Wireframe Crosslines Placeholder Fallback [AVATAR: CASUAL] --}}
+                    <div
+                        id="placeholder-casual"
+                        class="w-full h-full flex flex-col items-center justify-center p-4 bg-surface-canvas relative overflow-hidden"
+                        style="{{ !empty($student['casual_photo_url']) ? 'display: none;' : 'display: flex;' }}"
+                    >
+                        <svg class="absolute inset-0 h-full w-full stroke-primary-900/15 pointer-events-none" preserveAspectRatio="none" viewBox="0 0 100 100" fill="none">
+                            <line x1="0" y1="0" x2="100" y2="100" vector-effect="non-scaling-stroke" stroke-width="1" />
+                            <line x1="100" y1="0" x2="0" y2="100" vector-effect="non-scaling-stroke" stroke-width="1" />
+                        </svg>
+                        <div class="relative z-10 flex flex-col items-center gap-1 text-center px-4 py-2 rounded-lg bg-white/95 border border-surface-border shadow-xs">
+                            <span class="font-mono text-xs font-bold tracking-wider text-secondary-900">[AVATAR: CASUAL]</span>
+                            <span class="font-mono text-[10px] text-primary-500 uppercase tracking-widest">[X] [PHOTO_CASUAL: 1:1]</span>
+                        </div>
+                    </div>
+
+                    {{-- Bottom-Right State Tag --}}
+                    <div class="absolute bottom-3 right-3 px-2.5 py-1 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider bg-secondary-700/90 text-white backdrop-blur-xs shadow-xs pointer-events-none">
                         FOTO BEBAS KASUAL
                     </div>
                 </div>
-
-                {{-- Aspect Ratio Tag (Bottom-Left) --}}
-                <div class="absolute bottom-3 left-3 px-2.5 py-1 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider bg-black/65 text-white/95 backdrop-blur-xs shadow-xs">
-                    RATIO: 1000x1000 PX
-                </div>
             </div>
 
-            {{-- 4. Identity: Nickname & Class Badge --}}
+            {{-- 4. Identity: Nickname & Class Badge (Figma Node 269:554) --}}
             <div class="space-y-2">
                 <div class="flex items-center justify-between gap-2">
                     <h1 class="text-3xl sm:text-4xl font-extrabold text-primary-900 tracking-[-0.025em] leading-tight">
@@ -157,7 +201,7 @@
                     {{ $student['name'] }}
                 </p>
 
-                {{-- Monospace NIM Box with Copy Button --}}
+                {{-- Monospace NIM Box with Copy Button (Figma Node 269:562) --}}
                 <div class="inline-flex items-center gap-2 p-1.5 px-3 rounded-lg bg-white border border-surface-border font-mono text-xs text-primary-900 font-bold shadow-2xs">
                     <span>NIM: {{ $student['nim'] }}</span>
                     <button
@@ -182,7 +226,7 @@
                 </div>
             </div>
 
-            {{-- 5. Instagram Action Button (Full Width Gradient Button) --}}
+            {{-- 5. Instagram Action Button (Figma Node 269:570) --}}
             <div>
                 <a
                     href="{{ $student['instagram_url'] }}"
@@ -198,7 +242,7 @@
                 </a>
             </div>
 
-            {{-- 6. Aspirasi & Prinsip (Callout Box with REV_01) --}}
+            {{-- 6. Aspirasi & Prinsip (Figma Node 269:579) --}}
             <div class="bg-white border-l-4 border-l-primary-900 border border-surface-border p-4 sm:p-5 rounded-r-xl shadow-xs">
                 <div class="flex items-center justify-between gap-2 mb-2">
                     <span class="font-mono text-[10px] font-bold uppercase tracking-wider text-primary-500">
@@ -213,7 +257,7 @@
                 </blockquote>
             </div>
 
-            {{-- 7. Candidate Card Footer: RECORD_HASH & CAMPUS_ID --}}
+            {{-- 7. Candidate Card Footer: RECORD_HASH & CAMPUS_ID (Figma Node 269:587) --}}
             <div class="flex items-center justify-between gap-2 border-t border-surface-border/60 pt-3 text-[10px] font-mono text-primary-500">
                 <span>RECORD_HASH: 0x{{ substr(md5($student['nim']), 0, 6) }}</span>
                 <span>CAMPUS_ID: UNDIP-FT-TK</span>
@@ -221,12 +265,12 @@
         </div>
 
         {{-- ══════════════════════════════════════════════════════════════════
-             KOLOM KANAN: DATA DIRI & LIFESTYLE MATRIX (lg:col-span-7 xl:col-span-8)
-             Sesuai stich-uiux/biodata-layout.png (Right Column)
+             KOLOM KANAN: DATA DIRI & LIFESTYLE MATRIX (65% / lg:col-span-7 xl:col-span-8)
+             Figma Node 269:592 (696px Desktop Width)
              ══════════════════════════════════════════════════════════════════ --}}
         <div class="lg:col-span-7 xl:col-span-8 flex flex-col gap-6">
 
-            {{-- ── 1. MODUL ATAS: INFORMASI IDENTITAS & KEPENDUDUKAN ── --}}
+            {{-- ── 1. SUB-MODUL A: INFORMASI IDENTITAS & KEPENDUDUKAN (Figma Node 269:593) ── --}}
             <div class="bg-white border border-surface-border rounded-2xl p-6 sm:p-7 shadow-xs">
                 {{-- Header with VERIFIKASI_FAKULTAS: OK badge --}}
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
@@ -238,12 +282,9 @@
                             Informasi Identitas & Kependudukan
                         </h2>
                     </div>
-                    <span class="inline-flex items-center self-start sm:self-auto px-3 py-1.5 rounded-lg bg-surface-card border border-surface-border font-mono text-[11px] font-bold text-primary-900 tracking-wider">
-                        VERIFIKASI_FAKULTAS: OK
-                    </span>
                 </div>
 
-                {{-- Structured 5-Tile Metadata Grid (2-Column Rows + 1 Full Width Row) --}}
+                {{-- Structured 5-Tile Metadata Grid --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                     {{-- Tile 1: Asal Kota / Daerah (with #DOMISILI) --}}
@@ -255,9 +296,6 @@
                             <p class="text-base font-bold text-primary-900">
                                 {{ $student['origin_city'] }}
                             </p>
-                            <span class="font-mono text-[10px] text-secondary-900 font-semibold bg-secondary-100/60 px-2 py-0.5 rounded">
-                                #DOMISILI
-                            </span>
                         </div>
                     </div>
 
@@ -280,9 +318,6 @@
                             <p class="text-base font-bold text-primary-900">
                                 {{ $student['age'] ? $student['age'].' Tahun' : 'Tidak tersedia' }}
                             </p>
-                            <span class="font-mono text-[10px] font-bold px-2.5 py-1 rounded bg-highlight-500/35 text-highlight-900 border border-highlight-700/20">
-                                GENERASI 2026
-                            </span>
                         </div>
                     </div>
 
@@ -314,7 +349,7 @@
                 </div>
             </div>
 
-            {{-- ── 2. MODUL TENGAH: HOBI & SPOTIFY EMBED (2-Column Bento) ── --}}
+            {{-- ── 2. SUB-MODUL B: LIFESTYLE, TASTE & MUSIC (Figma Node 269:639) ── --}}
             <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
 
                 {{-- Left Tile: Hobi & Fokus Eksplorasi + Spot Kuliner (md:col-span-6) --}}
@@ -330,7 +365,7 @@
                             </span>
                         </div>
                         <h3 class="text-base sm:text-lg font-bold text-primary-900 mb-3">
-                            Hobi & Fokus Eksplorasi
+                            Hobi
                         </h3>
 
                         <div class="flex flex-wrap gap-2">
@@ -347,9 +382,6 @@
                         <div class="flex items-center justify-between gap-2 mb-2">
                             <span class="font-mono text-[10px] font-bold text-primary-500 uppercase tracking-wider">
                                 // SPOT KULINER FAVORIT
-                            </span>
-                            <span class="font-mono text-[10px] text-primary-500 uppercase tracking-wider">
-                                REKOMENDASI_DOSSIER
                             </span>
                         </div>
 
@@ -417,7 +449,7 @@
                         @endif
                     </div>
 
-                    {{-- Technical Spotify Footer --}}
+                    {{-- Technical Spotify Footer (Figma Node 269:738) --}}
                     <div class="flex items-center justify-between gap-2 pt-2 border-t border-white/10 text-[10px] font-mono text-white/50">
                         <span class="truncate">
                             Powered by Spotify API / Track ID: {{ $student['spotify_track_id'] ? Str::limit($student['spotify_track_id'], 14) : 'NULL' }}
@@ -430,12 +462,9 @@
 
             </div>
 
-            {{-- ── 3. MODUL BAWAH: VALIDATION LOG STRIP (New Element from biodata-layout.png) ── --}}
+            {{-- ── 3. MODUL BAWAH: ADDITIONAL ARCHITECTURAL METADATA BANNER (Figma Node 269:743) ── --}}
             <div class="bg-white border border-surface-border rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
                 <div class="flex flex-wrap items-center gap-2.5">
-                    <span class="font-mono text-[11px] font-bold text-primary-900 bg-surface-card border border-surface-border px-3 py-1.5 rounded-lg whitespace-nowrap">
-                        LOG: 2026-TEKKOM-DOSSIER-V4
-                    </span>
                     <p class="text-xs text-primary-700 font-medium">
                         Data profil divalidasi oleh Biro Administrasi Akademik Mahasiswa.
                     </p>
@@ -492,3 +521,70 @@
     </div>
 
 </div>
+
+{{-- ── 5. CLIENT-SIDE INTERACTIVITY SCRIPT (Vanilla JS & Alpine Integration) ── --}}
+<script>
+    (() => {
+        // State Management Lokal Foto Switcher
+        window.currentStudentPhotoMode = 'formal';
+
+        window.setStudentPhotoMode = function (mode) {
+            window.currentStudentPhotoMode = mode;
+
+            const btnFormal = document.getElementById('btn-photo-formal');
+            const btnCasual = document.getElementById('btn-photo-casual');
+            const containerFormal = document.getElementById('container-photo-formal');
+            const containerCasual = document.getElementById('container-photo-casual');
+
+            const activeClasses = ['bg-secondary-500', 'text-white', 'font-semibold', 'shadow-xs'];
+            const inactiveClasses = ['text-primary-700', 'hover:bg-surface-subtle'];
+
+            if (mode === 'formal') {
+                if (btnFormal) {
+                    btnFormal.classList.add(...activeClasses);
+                    btnFormal.classList.remove(...inactiveClasses);
+                }
+                if (btnCasual) {
+                    btnCasual.classList.remove(...activeClasses);
+                    btnCasual.classList.add(...inactiveClasses);
+                }
+
+                if (containerFormal) {
+                    containerFormal.classList.remove('opacity-0', 'pointer-events-none', 'z-0');
+                    containerFormal.classList.add('opacity-100', 'pointer-events-auto', 'z-10');
+                }
+                if (containerCasual) {
+                    containerCasual.classList.remove('opacity-100', 'pointer-events-auto', 'z-10');
+                    containerCasual.classList.add('opacity-0', 'pointer-events-none', 'z-0');
+                }
+            } else {
+                if (btnCasual) {
+                    btnCasual.classList.add(...activeClasses);
+                    btnCasual.classList.remove(...inactiveClasses);
+                }
+                if (btnFormal) {
+                    btnFormal.classList.remove(...activeClasses);
+                    btnFormal.classList.add(...inactiveClasses);
+                }
+
+                if (containerCasual) {
+                    containerCasual.classList.remove('opacity-0', 'pointer-events-none', 'z-0');
+                    containerCasual.classList.add('opacity-100', 'pointer-events-auto', 'z-10');
+                }
+                if (containerFormal) {
+                    containerFormal.classList.remove('opacity-100', 'pointer-events-auto', 'z-10');
+                    containerFormal.classList.add('opacity-0', 'pointer-events-none', 'z-0');
+                }
+            }
+        };
+
+        window.syncPhotoMode = function (mode) {
+            window.setStudentPhotoMode(mode);
+        };
+
+        // Inisialisasi saat DOM siap
+        document.addEventListener('DOMContentLoaded', () => {
+            window.setStudentPhotoMode('formal');
+        });
+    })();
+</script>

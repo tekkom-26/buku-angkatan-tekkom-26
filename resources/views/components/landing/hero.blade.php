@@ -82,7 +82,7 @@
                 <div class="flex items-center justify-between gap-2">
                     <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-highlight-500 text-highlight-900 font-mono text-[11px] font-bold tracking-wider shadow-xs">
                         <span class="w-1.5 h-1.5 rounded-full bg-highlight-900 animate-pulse" aria-hidden="true"></span>
-                        [STATUS: ACTIVE COHORT // 2026]
+                        [STATUS: ANGKATAN AKTIF // 2026]
                     </span>
                     <span class="font-mono text-[10px] uppercase tracking-widest text-primary-500">
                         // 24:505
@@ -112,7 +112,7 @@
                         <span class="font-semibold text-primary-900 text-right">FT UNIVERSITAS DIPONEGORO</span>
                     </div>
                     <div class="flex items-start justify-between gap-2 font-mono text-[11px] sm:text-xs">
-                        <span class="text-primary-500 uppercase tracking-wider">ROSTER_COUNT:</span>
+                        <span class="text-primary-500 uppercase tracking-wider">STUDENTS_COUNT:</span>
                         <span class="font-semibold text-secondary-700 text-right">100+ STUDENTS</span>
                     </div>
                 </div>
