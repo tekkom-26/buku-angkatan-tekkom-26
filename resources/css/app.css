@@ -3,11 +3,77 @@
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 @source '../../vendor/livewire/flux/stubs/**/*.blade.php';
+@source '../../src/**/*.{ts,tsx,js,jsx}';
+
+/* ==========================================================================
+   DESIGN TOKENS — BASELINE CSS CUSTOM PROPERTIES (:root)
+   Single Source of Truth untuk Palet Warna Angkatan Teknik Komputer 2026.
+   Jika terjadi revisi/penyesuaian hex warna angkatan di masa mendatang,
+   CUKUP UBAH NILAI DI BLOK :root INI tanpa perlu me-refactor kelas Tailwind.
+   ========================================================================== */
+
+:root {
+    /* ── 1. Primary: Deep Plum Family (Teks Utama & Kontras Struktural) ── */
+    --color-primary-50: #f4f1f4;
+    --color-primary-100: #e2dce2;
+    --color-primary-500: #907990;
+    --color-primary-700: #786178;
+    --color-primary-800: #645064;
+    --color-primary-900: #514051; /* Baseline text & dark structural contrast */
+
+    /* ── 2. Secondary / Accent Teal: Sky Wash Family (Action & Link Aktif) ── */
+    --color-secondary-50: #f2f8f7;
+    --color-secondary-100: #e0efec;
+    --color-secondary-300: #aed4ce;
+    --color-secondary-500: #80bab2; /* Baseline Sky Wash — Action/CTA utama */
+    --color-secondary-700: #548981;
+    --color-secondary-900: #3b655f;
+
+    /* ── 3. Highlight / Warm Accent: Butter Cream Family (Badge & Accent) ── */
+    --color-highlight-100: #f5f6db;
+    --color-highlight-300: #e4e79b;
+    --color-highlight-500: #d4d86a; /* Baseline Butter Cream — Highlight & Warning */
+    --color-highlight-700: #9fa436;
+    --color-highlight-900: #6b6f1e;
+
+    /* ── 4. Surface / Neutral: Snow White & Canvas Family (Background & Card) ── */
+    --color-surface-canvas: #FAFAFB; /* Kanvas utama antarmuka */
+    --color-surface-subtle: #f5f4f6; /* Surface netral sekunder */
+    --color-surface-card: #e6e3e8;   /* Snow White — Kartu Bento & container */
+    --color-surface-border: rgba(81, 64, 81, 0.12); /* Hairline divider standard */
+}
 
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 
+    /* ── Semantic Design Tokens (Connected to CSS Variables) ── */
+    --color-primary-50: var(--color-primary-50);
+    --color-primary-100: var(--color-primary-100);
+    --color-primary-500: var(--color-primary-500);
+    --color-primary-700: var(--color-primary-700);
+    --color-primary-800: var(--color-primary-800);
+    --color-primary-900: var(--color-primary-900);
+
+    --color-secondary-50: var(--color-secondary-50);
+    --color-secondary-100: var(--color-secondary-100);
+    --color-secondary-300: var(--color-secondary-300);
+    --color-secondary-500: var(--color-secondary-500);
+    --color-secondary-700: var(--color-secondary-700);
+    --color-secondary-900: var(--color-secondary-900);
+
+    --color-highlight-100: var(--color-highlight-100);
+    --color-highlight-300: var(--color-highlight-300);
+    --color-highlight-500: var(--color-highlight-500);
+    --color-highlight-700: var(--color-highlight-700);
+    --color-highlight-900: var(--color-highlight-900);
+
+    --color-surface-canvas: var(--color-surface-canvas);
+    --color-surface-subtle: var(--color-surface-subtle);
+    --color-surface-card: var(--color-surface-card);
+    --color-surface-border: var(--color-surface-border);
+
+    /* ── Legacy Brand Colors (Backward Compatibility) ── */
     --color-brand-deep: #123B46;
     --color-brand-teal: #176B70;
     --color-brand-cyan: #38BFC3;
