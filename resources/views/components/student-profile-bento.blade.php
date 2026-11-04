@@ -275,13 +275,16 @@
                 {{-- Header with VERIFIKASI_FAKULTAS: OK badge --}}
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
                     <div>
-                        <span class="font-mono text-[11px] font-bold text-primary-500 uppercase tracking-wider block">
+                        <span class="font-mono text-[11px] font-bold text-primary-700 uppercase tracking-wider block">
                             // 01_BIODATA_RESMI
                         </span>
                         <h2 class="text-xl sm:text-2xl font-bold text-primary-900 tracking-tight mt-0.5">
                             Informasi Identitas & Kependudukan
                         </h2>
                     </div>
+                    <span class="inline-flex items-center self-start sm:self-auto px-3 py-1.5 rounded-lg bg-surface-card border border-surface-border font-mono text-[11px] font-bold text-primary-900 tracking-wider">
+                        VERIFIKASI_FAKULTAS: OK
+                    </span>
                 </div>
 
                 {{-- Structured 5-Tile Metadata Grid --}}
@@ -289,19 +292,22 @@
 
                     {{-- Tile 1: Asal Kota / Daerah (with #DOMISILI) --}}
                     <div class="bg-surface-canvas border border-surface-border rounded-xl p-4 flex flex-col justify-between hover:border-primary-900/25 transition-colors">
-                        <span class="font-mono text-[10px] font-semibold text-primary-500 uppercase tracking-wider mb-2 block">
+                        <span class="font-mono text-[10px] font-semibold text-primary-700 uppercase tracking-wider mb-2 block">
                             ASAL KOTA / DAERAH
                         </span>
                         <div class="flex items-baseline justify-between gap-2">
                             <p class="text-base font-bold text-primary-900">
                                 {{ $student['origin_city'] }}
                             </p>
+                            <span class="font-mono text-[10px] text-secondary-900 font-semibold bg-secondary-100/60 px-2 py-0.5 rounded">
+                                #DOMISILI
+                            </span>
                         </div>
                     </div>
 
                     {{-- Tile 2: Tempat, Tanggal Lahir --}}
                     <div class="bg-surface-canvas border border-surface-border rounded-xl p-4 flex flex-col justify-between hover:border-primary-900/25 transition-colors">
-                        <span class="font-mono text-[10px] font-semibold text-primary-500 uppercase tracking-wider mb-2 block">
+                        <span class="font-mono text-[10px] font-semibold text-primary-700 uppercase tracking-wider mb-2 block">
                             TEMPAT, TANGGAL LAHIR
                         </span>
                         <p class="text-base font-bold text-primary-900 leading-snug">
@@ -311,19 +317,22 @@
 
                     {{-- Tile 3: Usia Saat Ini (with GENERASI 2026 badge) --}}
                     <div class="bg-surface-canvas border border-surface-border rounded-xl p-4 flex flex-col justify-between hover:border-primary-900/25 transition-colors">
-                        <span class="font-mono text-[10px] font-semibold text-primary-500 uppercase tracking-wider mb-2 block">
+                        <span class="font-mono text-[10px] font-semibold text-primary-700 uppercase tracking-wider mb-2 block">
                             USIA SAAT INI
                         </span>
                         <div class="flex items-center justify-between gap-2">
                             <p class="text-base font-bold text-primary-900">
                                 {{ $student['age'] ? $student['age'].' Tahun' : 'Tidak tersedia' }}
                             </p>
+                            <span class="font-mono text-[10px] font-bold px-2.5 py-1 rounded bg-highlight-500 text-primary-900 border border-surface-border">
+                                GENERASI 2026
+                            </span>
                         </div>
                     </div>
 
                     {{-- Tile 4: Agama / Kepercayaan --}}
                     <div class="bg-surface-canvas border border-surface-border rounded-xl p-4 flex flex-col justify-between hover:border-primary-900/25 transition-colors">
-                        <span class="font-mono text-[10px] font-semibold text-primary-500 uppercase tracking-wider mb-2 block">
+                        <span class="font-mono text-[10px] font-semibold text-primary-700 uppercase tracking-wider mb-2 block">
                             AGAMA / KEPERCAYAAN
                         </span>
                         <p class="text-base font-bold text-primary-900">
@@ -334,7 +343,7 @@
                     {{-- Tile 5: Departemen / Fakultas (Full Width 2 Kolom) with KAMPUS TEMBALANG --}}
                     <div class="md:col-span-2 bg-surface-canvas border border-surface-border rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-primary-900/25 transition-colors">
                         <div>
-                            <span class="font-mono text-[10px] font-semibold text-primary-500 uppercase tracking-wider mb-1 block">
+                            <span class="font-mono text-[10px] font-semibold text-primary-700 uppercase tracking-wider mb-1 block">
                                 DEPARTEMEN / FAKULTAS
                             </span>
                             <p class="text-base font-bold text-primary-900">
@@ -349,114 +358,126 @@
                 </div>
             </div>
 
-            {{-- ── 2. SUB-MODUL B: LIFESTYLE, TASTE & MUSIC (Figma Node 269:639) ── --}}
+            {{-- ── 2. SUB-MODUL B: SPOTIFY EMBED FULL-WIDTH (stich-uiux/container-2.png) ── --}}
+            <div class="w-full bg-primary-900 text-white border border-primary-900 rounded-2xl p-6 sm:p-7 shadow-xs flex flex-col justify-between overflow-hidden relative">
+                {{-- Decorative Crosshair Elements --}}
+                <span class="absolute top-2.5 right-3 text-white/20 font-mono text-xs select-none pointer-events-none" aria-hidden="true">+</span>
+                <span class="absolute bottom-2.5 left-3 text-white/20 font-mono text-xs select-none pointer-events-none" aria-hidden="true">+</span>
+
+                {{-- Header Spotify Box --}}
+                <div>
+                    <div class="flex items-center justify-between gap-2 mb-1">
+                        <span class="font-mono text-[11px] font-bold text-secondary-300 uppercase tracking-wider">
+                            // ANTHEM_TRACK // SPOTIFY_EMBED
+                        </span>
+                        <span class="font-mono text-[10px] bg-white/10 border border-white/20 px-2.5 py-0.5 rounded text-white/80">
+                            AUDIO_DEV_04
+                        </span>
+                    </div>
+
+                    <h3 class="text-base sm:text-lg font-bold text-white mb-2">
+                        {{ ($student['spotify_type'] ?? 'track') === 'playlist' ? 'Playlist Favorit di Spotify' : 'Lagu Favorit di Spotify' }}
+                    </h3>
+                </div>
+
+                {{-- Embedded Spotify Player (Logic Teknis & Skeleton Dipertahankan 100%) --}}
+                <div class="my-3">
+                    @if ($student['spotify_track_id'])
+                        <div class="relative min-h-[352px] overflow-hidden rounded-xl bg-black/30 border border-white/10 shadow-inner">
+                            <div id="spotify-loading" class="absolute inset-0 z-10 grid content-center gap-4 bg-primary-900 p-5" aria-hidden="true">
+                                <div class="h-4 w-2/3 animate-pulse rounded bg-white/10"></div>
+                                <div class="h-3 w-1/2 animate-pulse rounded bg-white/5"></div>
+                                <div class="h-10 w-full animate-pulse rounded-lg bg-white/5"></div>
+                            </div>
+                            <p id="spotify-status" class="sr-only" role="status" aria-live="polite">Memuat pemutar Spotify.</p>
+                            <iframe
+                                id="spotify-embed"
+                                data-testid="embed-iframe"
+                                title="{{ ($student['spotify_type'] ?? 'track') === 'playlist' ? 'Playlist' : 'Lagu' }} favorit {{ $student['nickname'] }} di Spotify"
+                                style="border-radius:12px"
+                                src="https://open.spotify.com/embed/{{ $student['spotify_type'] ?? 'track' }}/{{ $student['spotify_track_id'] }}?utm_source=generator"
+                                width="100%"
+                                height="352"
+                                frameborder="0"
+                                allowfullscreen=""
+                                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                                loading="lazy"
+                            ></iframe>
+                        </div>
+                    @else
+                        <div class="rounded-xl bg-white/5 border border-white/10 p-6 text-center text-sm text-white/80">
+                            <span class="font-mono text-[10px] uppercase tracking-widest text-secondary-300 block mb-1">// STATUS: UNLINKED</span>
+                            <p class="rounded-xl bg-white/5 p-2 text-sm text-white/80 font-medium" role="status">Spotify belum ditambahkan.</p>
+                        </div>
+                    @endif
+                </div>
+
+                {{-- Technical Spotify Footer (Figma Node 1:2032) --}}
+                <div class="flex items-center justify-between gap-2 pt-2 border-t border-white/10 text-[10px] font-mono text-white/60">
+                    <span class="truncate">
+                        Powered by Spotify API / Track ID: {{ $student['spotify_track_id'] ? Str::limit($student['spotify_track_id'], 14) : 'NULL' }}
+                    </span>
+                    <span class="text-secondary-300 font-bold shrink-0">
+                        SYNC_OK
+                    </span>
+                </div>
+            </div>
+
+            {{-- ── 3. SUB-MODUL C: LIFESTYLE & HANGOUT 2-COLUMN SPLIT (stich-uiux/container-2.png) ── --}}
             <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
 
-                {{-- Left Tile: Hobi & Fokus Eksplorasi + Spot Kuliner (md:col-span-6) --}}
-                <div class="md:col-span-6 bg-surface-card border border-surface-border rounded-2xl p-6 flex flex-col justify-between gap-6 shadow-xs">
-                    {{-- Bagian Hobi --}}
+                {{-- Left Tile: Hobi & Fokus Eksplorasi (md:col-span-6) --}}
+                <div class="md:col-span-6 bg-surface-card border border-surface-border rounded-2xl p-6 flex flex-col justify-between gap-4 shadow-xs">
                     <div>
                         <div class="flex items-center justify-between gap-2 mb-1">
-                            <span class="font-mono text-[11px] font-bold text-primary-500 uppercase tracking-wider">
+                            <span class="font-mono text-[11px] font-bold text-primary-700 uppercase tracking-wider">
                                 // MINAT & AKTIVITAS
                             </span>
-                            <span class="font-mono text-[10px] font-semibold text-primary-700">
+                            <span class="font-mono text-[10px] font-bold text-secondary-900">
                                 [EXP: HARDWARE]
                             </span>
                         </div>
                         <h3 class="text-base sm:text-lg font-bold text-primary-900 mb-3">
-                            Hobi
+                            Hobi & Fokus Eksplorasi
                         </h3>
 
+                        {{-- Chips Hobi: bg-white border border-surface-border --}}
                         <div class="flex flex-wrap gap-2">
                             @foreach ($student['hobbies'] as $hobby)
-                                <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-white border border-surface-border text-primary-900 shadow-2xs hover:border-secondary-500 transition-colors">
+                                <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-primary-900 border border-surface-border shadow-2xs hover:border-secondary-500 transition-colors">
                                     #{{ ucfirst($hobby) }}
                                 </span>
                             @endforeach
                         </div>
                     </div>
+                </div>
 
-                    {{-- Bagian Spot Kuliner Favorit --}}
-                    <div class="border-t border-surface-border/70 pt-4">
-                        <div class="flex items-center justify-between gap-2 mb-2">
-                            <span class="font-mono text-[10px] font-bold text-primary-500 uppercase tracking-wider">
+                {{-- Right Tile: Kuliner & Hangout (md:col-span-6) (stich-uiux/container-2.png) --}}
+                <div class="md:col-span-6 bg-surface-card border border-surface-border rounded-2xl p-6 flex flex-col justify-between gap-4 shadow-xs">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-1">
+                            <span class="font-mono text-[10px] font-bold text-primary-700 uppercase tracking-wider">
                                 // SPOT KULINER FAVORIT
                             </span>
+                            <span class="font-mono text-[10px] text-primary-500 uppercase tracking-wider">
+                                REKOMENDASI_DOSSIER
+                            </span>
                         </div>
+                        <h3 class="text-base sm:text-lg font-bold text-primary-900 mb-3">
+                            Kuliner & Hangout
+                        </h3>
 
-                        <div class="bg-white border border-surface-border rounded-xl p-3 sm:p-3.5 flex items-center justify-between gap-3 shadow-2xs">
-                            <div class="flex items-center gap-2">
-                                <span class="size-2 rounded-full bg-secondary-500 shrink-0" aria-hidden="true"></span>
-                                <span class="font-bold text-sm text-primary-900">
+                        <div class="bg-white border border-surface-border rounded-xl p-3.5 sm:p-4 flex items-center justify-between gap-3 shadow-2xs">
+                            <div class="flex items-center gap-2.5">
+                                <span class="size-2.5 rounded-full bg-secondary-500 shrink-0" aria-hidden="true"></span>
+                                <span class="font-bold text-sm sm:text-base text-primary-900">
                                     {{ $student['favorite_food_place'] }}
                                 </span>
                             </div>
-                            <span class="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-highlight-500/50 text-highlight-900 border border-highlight-700/20 whitespace-nowrap">
+                            <span class="font-mono text-[10px] font-bold px-2.5 py-1 rounded bg-highlight-500 text-primary-900 border border-surface-border whitespace-nowrap">
                                 FAVORITE_SPOT
                             </span>
                         </div>
-                    </div>
-                </div>
-
-                {{-- Right Tile: Spotify Embed Interactive Container (md:col-span-6) --}}
-                <div class="md:col-span-6 bg-primary-900 text-white border border-primary-900 rounded-2xl p-6 shadow-xs flex flex-col justify-between overflow-hidden relative">
-                    {{-- Header Spotify Box --}}
-                    <div>
-                        <div class="flex items-center justify-between gap-2 mb-1">
-                            <span class="font-mono text-[11px] font-bold text-secondary-300 uppercase tracking-wider">
-                                // ANTHEM_TRACK // SPOTIFY_EMBED
-                            </span>
-                            <span class="font-mono text-[10px] bg-white/10 px-2 py-0.5 rounded text-white/70">
-                                AUDIO_DEV_04
-                            </span>
-                        </div>
-
-                        <h3 class="text-sm font-semibold text-white/90">
-                            {{ ($student['spotify_type'] ?? 'track') === 'playlist' ? 'Playlist Favorit di Spotify' : 'Lagu Favorit di Spotify' }}
-                        </h3>
-                    </div>
-
-                    {{-- Embedded Spotify Player (Logic Teknis & Skeleton Dipertahankan 100%) --}}
-                    <div class="my-3">
-                        @if ($student['spotify_track_id'])
-                            <div class="relative min-h-[352px] overflow-hidden rounded-xl bg-black/30 border border-white/10 shadow-inner">
-                                <div id="spotify-loading" class="absolute inset-0 z-10 grid content-center gap-4 bg-primary-900 p-5" aria-hidden="true">
-                                    <div class="h-4 w-2/3 animate-pulse rounded bg-white/10"></div>
-                                    <div class="h-3 w-1/2 animate-pulse rounded bg-white/5"></div>
-                                    <div class="h-10 w-full animate-pulse rounded-lg bg-white/5"></div>
-                                </div>
-                                <p id="spotify-status" class="sr-only" role="status" aria-live="polite">Memuat pemutar Spotify.</p>
-                                <iframe
-                                    id="spotify-embed"
-                                    data-testid="embed-iframe"
-                                    title="{{ ($student['spotify_type'] ?? 'track') === 'playlist' ? 'Playlist' : 'Lagu' }} favorit {{ $student['nickname'] }} di Spotify"
-                                    style="border-radius:12px"
-                                    src="https://open.spotify.com/embed/{{ $student['spotify_type'] ?? 'track' }}/{{ $student['spotify_track_id'] }}?utm_source=generator"
-                                    width="100%"
-                                    height="352"
-                                    frameborder="0"
-                                    allowfullscreen=""
-                                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                                    loading="lazy"
-                                ></iframe>
-                            </div>
-                        @else
-                            <div class="rounded-xl bg-white/5 border border-white/10 p-6 text-center text-sm text-white/70">
-                                <span class="font-mono text-[10px] uppercase tracking-widest text-secondary-300 block mb-1">// STATUS: UNLINKED</span>
-                                <p class="rounded-xl bg-brand-deep/3 p-2 text-sm text-white/70" role="status">Spotify belum ditambahkan.</p>
-                            </div>
-                        @endif
-                    </div>
-
-                    {{-- Technical Spotify Footer (Figma Node 269:738) --}}
-                    <div class="flex items-center justify-between gap-2 pt-2 border-t border-white/10 text-[10px] font-mono text-white/50">
-                        <span class="truncate">
-                            Powered by Spotify API / Track ID: {{ $student['spotify_track_id'] ? Str::limit($student['spotify_track_id'], 14) : 'NULL' }}
-                        </span>
-                        <span class="text-secondary-300 font-semibold shrink-0">
-                            SYNC_OK
-                        </span>
                     </div>
                 </div>
 

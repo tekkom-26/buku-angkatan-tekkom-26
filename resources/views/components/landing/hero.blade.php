@@ -1,6 +1,6 @@
 @props([
-    'title' => 'ASCENT // TEKKOM 2026',
-    'motto' => 'Integrity, Unbreakable, We Are Competent!!!',
+    'title' => 'ANGKATAN // TEKKOM 2026',
+    'motto' => 'LOREM IPSUM DOLOR!!!',
     'narrative' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.',
     'directoryUrl' => '/directory',
     'identityUrl' => '/identity',
@@ -84,9 +84,6 @@
                         <span class="w-1.5 h-1.5 rounded-full bg-highlight-900 animate-pulse" aria-hidden="true"></span>
                         [STATUS: ANGKATAN AKTIF // 2026]
                     </span>
-                    <span class="font-mono text-[10px] uppercase tracking-widest text-primary-500">
-                        // 24:505
-                    </span>
                 </div>
 
                 {{-- 2. Center Graphic (Mascot Chibi Gajah Tekkom Placeholder Image) --}}
@@ -113,7 +110,7 @@
                     </div>
                     <div class="flex items-start justify-between gap-2 font-mono text-[11px] sm:text-xs">
                         <span class="text-primary-500 uppercase tracking-wider">STUDENTS_COUNT:</span>
-                        <span class="font-semibold text-secondary-700 text-right">100+ STUDENTS</span>
+                        <span class="font-semibold text-secondary-700 text-right">205 STUDENTS</span>
                     </div>
                 </div>
 
