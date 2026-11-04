@@ -20,7 +20,7 @@
             <div class="w-full max-w-md">
                 <div class="mb-5 flex items-center justify-center gap-3 text-sm font-semibold text-primary-900">
                     <span class="size-5 animate-spin rounded-full border-2 border-secondary-500/20 border-t-secondary-500" aria-hidden="true"></span>
-                    <span class="font-mono text-xs">// MEMUAT_DOSSIER_MAHASISWA...</span>
+                    <span class="font-mono text-xs">// MEMUAT_DETAIL_MAHASISWA...</span>
                 </div>
                 <div class="grid grid-cols-3 gap-3" aria-hidden="true">
                     <div class="aspect-square animate-pulse rounded-lg bg-surface-card shadow-xs"><div class="m-3 h-3 w-2/3 rounded bg-primary-900/10"></div><div class="mx-3 h-2 w-1/2 rounded bg-primary-900/5"></div></div>
@@ -50,6 +50,7 @@
         {{-- Global Footer --}}
         <x-footer activePage="unlock" />
 
+        @livewireScripts
         <script>
             (() => {
                 const overlay = document.getElementById('page-loading-overlay');
