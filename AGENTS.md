@@ -1,3 +1,31 @@
+# AGENTS & DEVELOPER STRICT CONSTRAINTS (MANDATORY)
+
+> **PENTING**: Seluruh AI coding assistant, agen otomatis, dan developer yang berkontribusi pada repositori ini **WAJIB** mematuhi 4 aturan mutlak berikut tanpa pengecualian. Pelanggaran terhadap batasan ini akan langsung ditolak pada tahap code review dan automated checks.
+
+1. **Wajib Sync dengan Branch `main` Terbaru Sebelum Mulai Coding:**
+   - Sebelum membuat branch kerja baru atau memulai pengkodean, selalu jalankan `git fetch origin main` dan pastikan branch kerja berbasis commit `origin/main` terbaru.
+   - Jangan pernah mengedit atau mengubah dependency tanpa memastikan `package.json` dan `package-lock.json` tetap tersinkronisasi secara ketat.
+
+2. **Dilarang Keras Memakai Arbitrary HEX (`#...`) di Class Tailwind:**
+   - Dilarang keras menggunakan nilai arbitrary hex langsung di class Tailwind (contoh terlarang: `bg-[#80bab2]`, `text-[#514051]`, `border-[#514051]/20`).
+   - Wajib menggunakan Semantic Tokens yang dipetakan dari CSS variables di `:root` sesuai panduan lengkap di [`docs/DOCS_COLOR_CONVENTION.md`](docs/DOCS_COLOR_CONVENTION.md):
+     * **Primary Family (Deep Plum):** `text-primary-900`, `text-primary-800`, `text-primary-700`, `text-primary-500`, `bg-primary-900`, dsb.
+     * **Secondary Family (Sky Wash):** `bg-secondary-500`, `text-secondary-900`, `text-secondary-700`, `text-secondary-300`, `border-secondary-300`, dsb.
+     * **Highlight Family (Butter Cream):** `bg-highlight-500`, `text-highlight-900`, `text-highlight-700`, `bg-highlight-100`, dsb.
+     * **Surface Family (Canvas & Card):** `bg-surface-canvas`, `bg-surface-card`, `bg-surface-subtle`, `border-surface-border`.
+
+3. **Stack Terkunci pada Laravel + Livewire + Blade + Alpine.js:**
+   - Stack frontend terkunci secara permanen pada **Laravel + Livewire + Blade Templates + Alpine.js**.
+   - Dilarang keras menambahkan atau menghasilkan kode React, Vue, JSX, TSX, atau client-side framework lain di dalam repositori ini.
+
+4. **Pemisahan Peran Interaktivitas UI (Alpine.js vs Livewire):**
+   - **Alpine.js**: Digunakan khusus untuk interaksi mikro (*client-side micro-interactions*) yang instan tanpa request jaringan/server round-trip (misalnya: toggle switch foto formal vs casual, copy-to-clipboard visual feedback, tab lokal, dropdown/drawer sederhana).
+   - **Livewire**: Digunakan untuk mengelola *server state*, fetch data asinkronus dari backend, form handling & validasi, paginasi dinamis, dan mutasi data database.
+
+Lihat juga pedoman developer di [`README.md`](README.md) dan [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md).
+
+---
+
 <laravel-boost-guidelines>
 === foundation rules ===
 

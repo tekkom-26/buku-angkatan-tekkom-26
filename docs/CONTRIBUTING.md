@@ -6,6 +6,20 @@ Panduan Git Flow, konvensi commit, dan Vibe Coding rules untuk tim dev & AI Assi
 
 ---
 
+## ⚡ Strict Constraints & Guardrails (Mandatory)
+
+Seluruh developer dan AI agents wajib mematuhi aturan baku berikut sebelum membuka Pull Request:
+1. **Sync dengan `main` Terbaru:** Selalu jalankan `git fetch origin main` dan pastikan branch berbasis `origin/main` terbaru sebelum mulai pengkodean.
+2. **Tanpa Arbitrary HEX di Tailwind:** Dilarang menggunakan `bg-[#...]` atau `text-[#...]`. Wajib memakai semantic tokens (`primary-*`, `secondary-*`, `highlight-*`, `surface-*`) sesuai [DOCS_COLOR_CONVENTION.md](DOCS_COLOR_CONVENTION.md).
+3. **Stack Terkunci:** Wajib menggunakan Laravel + Livewire + Blade + Alpine.js (Dilarang keras menggunakan React/Vue/TSX).
+4. **Pemisahan Interaktivitas UI:**
+   - **Alpine.js**: Untuk *client-side micro-interactions* (toggle foto formal/casual, visual feedback, drawer/modal lokal).
+   - **Livewire**: Untuk *server state management*, form handling, mutasi data, dan dynamic backend rendering.
+
+Detail lengkap ada di [`AGENTS.md`](../AGENTS.md) dan [`README.md`](../README.md).
+
+---
+
 ## 1. Vibe Coding Rules (AI & Developer Guidelines)
 
 1. **Plan Mode First**:

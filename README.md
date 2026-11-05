@@ -13,8 +13,29 @@ Web buku angkatan digital untuk mengenal seluruh mahasiswa satu angkatan — pro
 | Storage | Cloudflare R2 (S3-compatible) |
 | Email | Resend |
 | Auth | Laravel Sanctum |
-| Frontend | Blade Templates |
-| Deployment | Vercel |
+| Frontend | Blade Templates + Livewire + Alpine.js + Tailwind CSS v4 |
+| Deployment | Vercel (FrankenPHP Container) |
+
+## Strict Development Constraints & Guidelines
+
+Seluruh developer dan AI coding agents **WAJIB** mematuhi 4 aturan mutlak berikut:
+
+1. **Wajib Sync dengan Branch `main` Terbaru Sebelum Mulai Coding:**
+   - Selalu tarik dan sinkronkan branch lokal dengan `origin/main` (`git fetch origin main && git checkout -b feature/... origin/main`) sebelum memulai pekerjaan untuk menghindari lockfile desync dan conflict.
+2. **Dilarang Keras Memakai Arbitrary Hex (`#...`) di Class Tailwind:**
+   - Dilarang menuliskan warna heksadesimal langsung di markup/class Tailwind (misal: `bg-[#80bab2]`, `text-[#514051]`).
+   - Wajib gunakan **Semantic Tokens** yang bersumber dari `:root` CSS variables sesuai [`docs/DOCS_COLOR_CONVENTION.md`](docs/DOCS_COLOR_CONVENTION.md):
+     * **Primary Family:** `text-primary-900`, `text-primary-800`, `text-primary-700`, `text-primary-500`, `bg-primary-900`.
+     * **Secondary Family:** `bg-secondary-500`, `text-secondary-900`, `text-secondary-700`, `border-secondary-300`.
+     * **Highlight Family:** `bg-highlight-500`, `text-highlight-900`, `bg-highlight-100`.
+     * **Surface Family:** `bg-surface-canvas`, `bg-surface-card`, `bg-surface-subtle`, `border-surface-border`.
+3. **Stack Terkunci pada Laravel + Livewire + Blade + Alpine.js:**
+   - Dilarang membuat atau mengimpor komponen React / Vue / TSX / JSX. Seluruh arsitektur frontend berbasis file Blade (`.blade.php`), Livewire Components, dan Alpine.js.
+4. **Pemisahan Peran UI: Alpine.js vs Livewire:**
+   - **Alpine.js**: Digunakan untuk *client-side micro-interactions* murni tanpa request server (contoh: toggle switch foto formal vs casual, copy-to-clipboard status, modal/drawer toggle).
+   - **Livewire**: Digunakan untuk *server state management*, fetch/search data dinamis, mutasi backend, dan interaksi formulir.
+
+> Detail panduan agen AI dan otomatisasi dapat dilihat di [`AGENTS.md`](AGENTS.md).
 
 ## Dokumentasi
 
@@ -22,6 +43,8 @@ Source of Truth ada di folder [`docs/`](docs/):
 
 | Dokumen | Isi |
 | :--- | :--- |
+| [`AGENTS.md`](AGENTS.md) | Aturan, strict constraints, dan pedoman kerja untuk AI agent & developer |
+| [`DOCS_COLOR_CONVENTION.md`](docs/DOCS_COLOR_CONVENTION.md) | Pedoman semantic design tokens & konvensi warna Tailwind |
 | [`ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Arsitektur, ERD, RBAC, auth flow, storage |
 | [`API_CONTRACTS.md`](docs/API_CONTRACTS.md) | Spesifikasi endpoint + JSON contract |
 | [`SEEDING_GUIDE.md`](docs/SEEDING_GUIDE.md) | Migrasi data dari CSV Google Form |
