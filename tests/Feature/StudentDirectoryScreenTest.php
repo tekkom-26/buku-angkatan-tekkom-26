@@ -53,14 +53,77 @@ class StudentDirectoryScreenTest extends TestCase
         $response->assertSee('Kelas B');
         $response->assertSee('Kelas C');
         $response->assertSee('Kelas D');
+        $response->assertSee('(1)');
         $response->assertSee('#TK26-001');
-        $response->assertSee('[X] [AVATAR: 1:1 — ADWA]');
+        $response->assertSee('alt="Foto Adwa"', false);
         $response->assertSee('Adwa');
         $response->assertSee('Adwa Rahmant');
         $response->assertSee('Lihat Profil');
         $response->assertSee('/assets/Placeholder.png', false);
 
         $this->assertDoesNotMatchRegularExpression('/(?:bg|text|border|ring)-\[#[0-9a-fA-F]+\]/', $response->getContent());
+    }
+
+    public function test_directory_search_returns_matching_students_from_the_server(): void
+    {
+        Student::factory()->create([
+            'nim' => '21120126120001',
+            'name' => 'Adwa Rahmant',
+            'nickname' => 'Adwa',
+            'class_name' => 'A',
+        ]);
+        Student::factory()->create([
+            'nim' => '21120126120002',
+            'name' => 'Budi Santoso',
+            'nickname' => 'Budi',
+            'class_name' => 'B',
+        ]);
+
+        $response = $this->call('GET', '/directory', ['search' => 'Budi'], [
+            'angkatan_session' => $this->sessionCookie,
+        ]);
+
+        $response->assertOk();
+        $response->assertSee('Budi Santoso');
+        $this->assertSame(1, $response->viewData('students')->total());
+    }
+
+    public function test_directory_search_matches_existing_student_by_keyword_case_insensitively(): void
+    {
+        Student::factory()->create([
+            'name' => 'Adwa Fattur Rahman',
+            'nickname' => 'Adwa',
+            'class_name' => 'C',
+        ]);
+
+        $response = $this->call('GET', '/directory', ['search' => 'adwa'], [
+            'angkatan_session' => $this->sessionCookie,
+        ]);
+
+        $response->assertOk();
+        $response->assertSee('Adwa Fattur Rahman');
+        $this->assertSame(1, $response->viewData('students')->total());
+    }
+
+    public function test_directory_class_filter_returns_students_from_selected_class(): void
+    {
+        Student::factory()->create([
+            'name' => 'Adwa Kelas A',
+            'class_name' => 'A',
+        ]);
+        Student::factory()->create([
+            'name' => 'Budi Kelas B',
+            'class_name' => 'B',
+        ]);
+
+        $response = $this->call('GET', '/directory', ['class' => 'B'], [
+            'angkatan_session' => $this->sessionCookie,
+        ]);
+
+        $response->assertOk();
+        $response->assertSee('Budi Kelas B');
+        $response->assertDontSee('Adwa Kelas A');
+        $this->assertSame(1, $response->viewData('students')->total());
     }
 
     public function test_directory_page_renders_empty_state_when_no_students_match(): void
