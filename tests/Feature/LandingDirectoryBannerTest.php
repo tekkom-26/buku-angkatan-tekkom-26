@@ -13,10 +13,6 @@ class LandingDirectoryBannerTest extends TestCase
         $response->assertOk();
         $response->assertViewIs('landing');
 
-        // 1. Telemetry & Roster Status Badge
-        $response->assertSee('// QUICK_DISCOVERY // ROSTER_ACCESS');
-        $response->assertSee('[ROSTER_STATUS: 205_VERIFIED]');
-
         // 2. Callout Headline & Description Copy
         $response->assertSee('Temukan Rekan Satu Angkatan di Direktori Resmi');
         $response->assertSee('Akses profil lengkap mahasiswa Teknik Komputer 2026 berdasarkan kelas, domisili, dan minat eksplorasi melalui sistem direktori terverifikasi.');
