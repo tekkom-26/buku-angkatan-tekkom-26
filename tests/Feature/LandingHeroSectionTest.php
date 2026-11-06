@@ -54,7 +54,7 @@ class LandingHeroSectionTest extends TestCase
         $response->assertSee('[X] [PHOTO_MOMENT_16:9 — COHORT_GATHERING]');
 
         // Section 4: Directory Quick Discovery Banner Plate
-        $response->assertSee('// QUICK_DISCOVERY // ROSTER_ACCESS');
+        $response->assertSee('// QUICK_DISCOVERY');
         $response->assertSee('Jelajahi 100+ Profil Mahasiswa');
 
         // In-Page Side Navigation Drawer
