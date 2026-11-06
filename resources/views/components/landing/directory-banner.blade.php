@@ -7,7 +7,11 @@
 ])
 
 @php
-    $resolvedDirectoryUrl = $directoryUrl ?? (\Illuminate\Support\Facades\Route::has('directory.index') ? route('directory.index') : '/directory');
+    $resolvedDirectoryUrl = $directoryUrl ?? (
+        \Illuminate\Support\Facades\Route::has('directory.index')
+            ? route('directory.index')
+            : (\Illuminate\Support\Facades\Route::has('directory') ? route('directory') : '/directory')
+    );
 @endphp
 
 {{-- ==========================================================================

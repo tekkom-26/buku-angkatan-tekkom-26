@@ -464,7 +464,7 @@
                             </span>
                         </div>
                         <h3 class="text-base sm:text-lg font-bold text-primary-900 mb-3">
-                            Kuliner & Hangout
+                            Tempat Makan Favorit
                         </h3>
 
                         <div class="bg-white border border-surface-border rounded-xl p-3.5 sm:p-4 flex items-center justify-between gap-3 shadow-2xs">
