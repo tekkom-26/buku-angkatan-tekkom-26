@@ -8,6 +8,7 @@
         @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
             @vite(['resources/css/app.css', 'resources/js/app.js'])
         @endif
+        @livewireStyles
     </head>
     <body class="min-h-screen overflow-x-hidden bg-surface-canvas text-primary-900 antialiased">
 
@@ -303,5 +304,6 @@
         {{-- Global Footer --}}
         <x-footer activePage="unlock" />
 
+        @livewireScripts
     </body>
 </html>
