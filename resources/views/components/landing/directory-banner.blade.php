@@ -39,11 +39,11 @@
                     {{-- Top Metadata & Telemetry Badge Row --}}
                     <div class="flex flex-wrap items-center gap-2.5">
                         <span class="font-mono text-[11px] sm:text-xs font-bold uppercase tracking-[0.05em] text-primary-700">
-                            // QUICK_DISCOVERY // ROSTER_ACCESS
+                            // QUICK_DISCOVERY // STUDENT_ACCESS
                         </span>
                         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-highlight-500 text-highlight-900 font-mono text-[10px] font-bold uppercase tracking-wider">
                             <span class="size-1.5 rounded-full bg-highlight-900" aria-hidden="true"></span>
-                            [ROSTER_STATUS: {{ $totalStudents }}_VERIFIED]
+                            [STUDENT_STATUS: {{ $totalStudents }}_VERIFIED]
                         </span>
                     </div>
 

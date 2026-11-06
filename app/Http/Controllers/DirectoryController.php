@@ -45,13 +45,20 @@ class DirectoryController extends Controller
             }
 
             // Paginate
-            $students = $query->paginate(20)->through(function ($student) {
+            $students = $query->paginate(15)->through(function ($student) {
+                $hobbies = $student->hobbies
+                    ? (is_string($student->hobbies) ? array_values(array_filter(array_map('trim', explode(',', $student->hobbies)))) : (array) $student->hobbies)
+                    : ['Hardware', 'Sistem Digital'];
+
                 return [
                     'nim' => $student->nim,
+                    'name' => $student->name,
                     'nickname' => $student->nickname ?? $student->name,
                     'class_name' => $student->class_name,
-                    'origin_city' => $student->origin_city ?? 'Unknown',
-                    'avatar_url' => $student->formal_photo_url ?? 'https://ui-avatars.com/api/?name='.urlencode($student->nickname ?? $student->name).'&background=176B70&color=fff&size=400',
+                    'origin_city' => $student->origin_city ?? 'Semarang',
+                    'hobbies' => array_slice($hobbies, 0, 3),
+                    'formal_photo_url' => $student->formal_photo_url ?: asset('/assets/Placeholder.png'),
+                    'avatar_url' => $student->formal_photo_url ?: asset('/assets/Placeholder.png'),
                 ];
             });
 
