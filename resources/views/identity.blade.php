@@ -8,9 +8,8 @@
         @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
             @vite(['resources/css/app.css', 'resources/js/app.js'])
         @endif
-        <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+        @livewireStyles
         <style>
-            [x-cloak] { display: none !important; }
         </style>
     </head>
     <body class="bg-surface-canvas text-primary-900 antialiased min-h-screen flex flex-col justify-between overflow-x-hidden">
@@ -34,5 +33,6 @@
         </main>
 
         <x-footer activePage="identity" />
+        @livewireScripts
     </body>
 </html>

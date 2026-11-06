@@ -43,6 +43,8 @@
     --color-surface-border: rgba(81, 64, 81, 0.12); /* Hairline divider standard */
 }
 
+[x-cloak] { display: none !important; }
+
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
