@@ -25,32 +25,12 @@
             x-data="{
                 searchQuery: @js((string) request('search', '')),
                 selectedClass: @js((string) request('class', '')),
-                studentsMeta: @js($studentItems->map(fn ($s, $idx) => [
-                    'idx' => $idx,
-                    'nim' => strtolower((string) ($s['nim'] ?? '')),
-                    'name' => strtolower((string) ($s['name'] ?? $s['nickname'] ?? '')),
-                    'nickname' => strtolower((string) ($s['nickname'] ?? '')),
-                    'city' => strtolower((string) ($s['origin_city'] ?? '')),
-                    'class_name' => (string) ($s['class_name'] ?? ''),
-                ])->values()),
-                matchesFilter(idx) {
-                    const item = this.studentsMeta[idx];
-                    if (!item) return true;
-                    const q = this.searchQuery.trim().toLowerCase();
-                    const matchesClass = !this.selectedClass || item.class_name === this.selectedClass;
-                    const matchesSearch = !q
-                        || item.nim.includes(q)
-                        || item.name.includes(q)
-                        || item.nickname.includes(q)
-                        || item.city.includes(q);
-                    return matchesClass && matchesSearch;
-                },
-                get visibleCount() {
-                    return this.studentsMeta.filter((_, idx) => this.matchesFilter(idx)).length;
-                },
                 resetFilters() {
                     this.searchQuery = '';
                     this.selectedClass = '';
+                },
+                submitFilters() {
+                    this.$refs.filterForm.requestSubmit();
                 }
             }"
             @reset-directory-filter.window="resetFilters()"
@@ -92,6 +72,7 @@
             {{-- ── 2. INTERACTIVE SEARCH BAR & CLASS FILTER CHIPS (Figma Node 1:872) ── --}}
             <section aria-label="Pencarian dan filter kelas mahasiswa" class="mb-8">
                 <form
+                    x-ref="filterForm"
                     method="GET"
                     action="{{ route('directory.index') }}"
                     class="rounded-2xl border border-surface-border bg-white p-4 sm:p-5 shadow-xs space-y-4"
@@ -133,32 +114,33 @@
                             class="flex flex-wrap items-center gap-2"
                         >
                             {{-- All Chip --}}
-                            <button
-                                type="button"
+                            <a
                                 role="tab"
-                                :aria-selected="selectedClass === '' ? 'true' : 'false'"
-                                @click="selectedClass = ''"
-                                :class="selectedClass === ''
-                                    ? 'bg-secondary-500 text-primary-900 border-primary-900/20 font-semibold shadow-2xs'
-                                    : 'bg-surface-card text-primary-700 border-surface-border hover:bg-surface-subtle hover:text-primary-900'"
-                                class="px-3.5 py-2 rounded-lg border font-mono text-xs uppercase tracking-[0.05em] transition-all duration-180 cursor-pointer focus-visible:outline-2 focus-visible:outline-secondary-500 focus-visible:outline-offset-2"
+                                aria-selected="{{ request('class') ? 'false' : 'true' }}"
+                                href="{{ route('directory.index', array_filter(['search' => request('search')])) }}"
+                                @class([
+                                    'px-3.5 py-2 rounded-lg border font-mono text-xs uppercase tracking-[0.05em] transition-all duration-180 cursor-pointer focus-visible:outline-2 focus-visible:outline-secondary-500 focus-visible:outline-offset-2',
+                                    'bg-secondary-500 text-primary-900 border-primary-900/20 font-semibold shadow-2xs' => ! request('class'),
+                                    'bg-surface-card text-primary-700 border-surface-border hover:bg-surface-subtle hover:text-primary-900' => request('class'),
+                                ])
                             >
                                 All
-                            </button>
+                            </a>
 
                             @foreach ($filters as $filter)
-                                <button
-                                    type="button"
+                                <a
                                     role="tab"
-                                    :aria-selected="selectedClass === '{{ $filter }}' ? 'true' : 'false'"
-                                    @click="selectedClass = '{{ $filter }}'"
-                                    :class="selectedClass === '{{ $filter }}'
-                                        ? 'bg-secondary-500 text-primary-900 border-primary-900/20 font-semibold shadow-2xs'
-                                        : 'bg-surface-card text-primary-700 border-surface-border hover:bg-surface-subtle hover:text-primary-900'"
-                                    class="px-3.5 py-2 rounded-lg border font-mono text-xs uppercase tracking-[0.05em] transition-all duration-180 cursor-pointer focus-visible:outline-2 focus-visible:outline-secondary-500 focus-visible:outline-offset-2"
+                                    aria-selected="{{ request('class') === $filter ? 'true' : 'false' }}"
+                                    href="{{ route('directory.index', array_filter(['search' => request('search'), 'class' => $filter])) }}"
+                                    @class([
+                                        'px-3.5 py-2 rounded-lg border font-mono text-xs uppercase tracking-[0.05em] transition-all duration-180 cursor-pointer focus-visible:outline-2 focus-visible:outline-secondary-500 focus-visible:outline-offset-2',
+                                        'bg-secondary-500 text-primary-900 border-primary-900/20 font-semibold shadow-2xs' => request('class') === $filter,
+                                        'bg-surface-card text-primary-700 border-surface-border hover:bg-surface-subtle hover:text-primary-900' => request('class') !== $filter,
+                                    ])
                                 >
                                     Kelas {{ $filter }}
-                                </button>
+                                    <span class="ml-1 text-[10px] opacity-75">({{ $classCounts[$filter] }})</span>
+                                </a>
                             @endforeach
                         </div>
 
@@ -168,7 +150,7 @@
                     <div class="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-surface-border text-xs text-primary-700">
                         <div class="flex flex-wrap items-center gap-2 font-mono text-[11px]">
                             <span>
-                                MENAMPILKAN <strong class="text-primary-900" x-text="visibleCount">{{ $students->count() }}</strong> DARI <strong class="text-primary-900">{{ $students->total() }}</strong> MAHASISWA
+                                MENAMPILKAN <strong class="text-primary-900">{{ $students->count() }}</strong> DARI <strong class="text-primary-900">{{ $students->total() }}</strong> MAHASISWA
                             </span>
                             <template x-if="selectedClass !== ''">
                                 <span class="inline-flex items-center px-2 py-0.5 rounded bg-surface-card border border-surface-border text-primary-900 font-semibold">
@@ -209,14 +191,10 @@
             @if ($students->count() > 0)
                 <section aria-label="Daftar kartu profil mahasiswa">
                     <div
-                        x-show="visibleCount > 0"
                         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
                     >
                         @foreach ($studentItems as $idx => $student)
-                            <div
-                                x-show="matchesFilter({{ $idx }})"
-                                x-transition.opacity.duration.150ms
-                            >
+                            <div>
                                 <x-student-card
                                     :student="$student"
                                     :index="$firstItemIndex + $idx"
@@ -225,10 +203,6 @@
                         @endforeach
                     </div>
 
-                    {{-- Client-Side Instant Filter Empty State (Figma Node 34:1067) --}}
-                    <div x-show="visibleCount === 0" style="display: none;">
-                        <x-directory-empty-state />
-                    </div>
                 </section>
             @else
                 {{-- Server-Side Empty State (Figma Node 34:1067) --}}

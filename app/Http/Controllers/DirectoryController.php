@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
@@ -30,18 +31,21 @@ class DirectoryController extends Controller
                 ->orderBy('name', 'asc');
 
             // Apply search filter (nim or name)
-            if ($request->filled('search')) {
-                $search = $request->input('search');
+            if (filled($validated['search'] ?? null)) {
+                $search = Str::lower(trim($validated['search']));
                 $query->where(function ($q) use ($search) {
-                    $q->where('nim', 'LIKE', "%{$search}%")
-                        ->orWhere('name', 'LIKE', "%{$search}%")
-                        ->orWhere('nickname', 'LIKE', "%{$search}%");
+                    $like = "%{$search}%";
+
+                    $q->whereRaw('LOWER(nim) LIKE ?', [$like])
+                        ->orWhereRaw('LOWER(name) LIKE ?', [$like])
+                        ->orWhereRaw('LOWER(nickname) LIKE ?', [$like])
+                        ->orWhereRaw('LOWER(origin_city) LIKE ?', [$like]);
                 });
             }
 
             // Apply class filter
-            if ($request->filled('class')) {
-                $query->where('class_name', $request->input('class'));
+            if (filled($validated['class'] ?? null)) {
+                $query->where('class_name', $validated['class']);
             }
 
             // Paginate
@@ -64,6 +68,11 @@ class DirectoryController extends Controller
 
             // Available filters (all classes)
             $filters = ['A', 'B', 'C', 'D'];
+            $classCounts = Student::query()
+                ->selectRaw('class_name, COUNT(*) AS total')
+                ->whereIn('class_name', $filters)
+                ->groupBy('class_name')
+                ->pluck('total', 'class_name');
 
             // Total students count (without filters)
             $totalStudents = Student::count();
@@ -71,6 +80,9 @@ class DirectoryController extends Controller
             return view('directory', [
                 'students' => $students,
                 'filters' => $filters,
+                'classCounts' => collect($filters)->mapWithKeys(
+                    fn (string $class): array => [$class => (int) ($classCounts[$class] ?? 0)]
+                ),
                 'totalStudents' => $totalStudents,
             ]);
 
