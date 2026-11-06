@@ -13,3 +13,4 @@ Route::middleware(['student.epoch', 'student.role'])->group(function () {
     Route::get('/students/{nim}', [StudentController::class, 'show'])->name('students.show');
 });
 Route::get('/unlock', [PasscodeController::class, 'showForm'])->name('unlock');
+Route::match(['get', 'post'], '/lock', [PasscodeController::class, 'lock'])->name('lock');

@@ -460,7 +460,7 @@
                                 // SPOT KULINER FAVORIT
                             </span>
                             <span class="font-mono text-[10px] text-primary-500 uppercase tracking-wider">
-                                REKOMENDASI_DOSSIER
+                                REKOMENDASI_MAHASISWA
                             </span>
                         </div>
                         <h3 class="text-base sm:text-lg font-bold text-primary-900 mb-3">

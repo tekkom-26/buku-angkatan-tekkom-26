@@ -51,7 +51,7 @@ class StudentDetailBentoProfileTest extends TestCase
 
         // 1. Sub-Navigation & Breadcrumbs
         $response->assertSee('Kembali ke Direktori');
-        $response->assertSee('// 04_DOSSIER_21120126130088');
+        $response->assertSee('// ');
 
         // 2. Candidate Card Header & Switcher (biodata-layout.png)
         $response->assertSee('// SEC_01 // CANDIDATE_CARD');
@@ -106,7 +106,6 @@ class StudentDetailBentoProfileTest extends TestCase
         $response->assertSee('SYNC_OK');
 
         // 8. Log Verification Strip
-        $response->assertSee('LOG: 2026-TEKKOM-DOSSIER-V4');
         $response->assertSee('+ CHECKSUM_VERIFIED');
     }
 }

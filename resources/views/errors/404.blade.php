@@ -78,7 +78,7 @@
                 <aside class="flex flex-col justify-between bg-surface-canvas p-7 sm:p-10">
                     <div>
                         <div class="flex items-center justify-between border-b border-surface-border pb-5">
-                            <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-primary-500">DIAGNOSTIC_DOSSIER</p>
+                            <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-primary-500">ERROR_DIAGNOSTIC</p>
                             <span class="rounded-full bg-highlight-500 px-3 py-1 font-mono text-[10px] font-medium text-primary-900">TRACE_404</span>
                         </div>
 

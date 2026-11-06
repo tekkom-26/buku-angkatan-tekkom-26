@@ -92,7 +92,6 @@
             <p class="font-mono text-xs uppercase tracking-[0.2em] text-primary-500">MASCOT / 04 ATTRIBUTES</p>
         </div>
 
-        {{-- Split Carousel Container (50% Visual Left / 50% Dossier Right) --}}
         <div class="grid overflow-hidden rounded-2xl border border-surface-border bg-surface-card p-0 shadow-lg lg:grid-cols-2">
             {{-- Left: Visual Display (50%) --}}
             <div class="relative min-h-[22rem] overflow-hidden bg-secondary-500 p-6 sm:min-h-[30rem] sm:p-8">
@@ -137,10 +136,8 @@
                 </div>
             </div>
 
-            {{-- Right: Mascot Dossier (50%) --}}
             <div class="flex flex-col justify-between bg-surface-card p-6 sm:p-8 lg:p-10">
                 <div>
-                    {{-- Dossier Header & Slide Counter Badge --}}
                     <div class="mb-10 flex items-center justify-between border-b border-surface-border pb-5">
                         <p class="font-mono text-xs uppercase tracking-[0.2em] text-primary-500">ATTRIBUTE BREAKDOWN</p>
                         <span class="inline-flex items-center rounded bg-highlight-500 px-3 py-1 font-mono text-xs font-semibold text-primary-900">
@@ -148,7 +145,6 @@
                         </span>
                     </div>
 
-                    {{-- Dossier Content (Grid stacked to prevent layout shift during transition) --}}
                     <div class="grid">
                         @foreach ($slides as $slide)
                             <div
