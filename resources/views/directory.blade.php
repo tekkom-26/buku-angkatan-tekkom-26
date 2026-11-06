@@ -1,19 +1,4 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Direktori Mahasiswa — Ascent Teknik Komputer 2026</title>
-        @fonts
-        @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
-            @vite(['resources/css/app.css', 'resources/js/app.js'])
-        @endif
-        @livewireStyles
-    </head>
-    <body class="min-h-screen overflow-x-hidden bg-surface-canvas text-primary-900 antialiased">
-
-        {{-- Global Navbar --}}
-        <x-navbar activePage="unlock" />
+<x-layouts.app activePage="unlock" title="Direktori Mahasiswa — Ascent Teknik Komputer 2026">
 
         @php
             $studentItems = collect($students->items())->values();
@@ -274,10 +259,4 @@
             @endif
 
         </main>
-
-        {{-- Global Footer --}}
-        <x-footer activePage="unlock" />
-
-        @livewireScripts
-    </body>
-</html>
+</x-layouts.app>

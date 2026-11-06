@@ -1,56 +1,33 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>{{ $student['nickname'] }} — Ascent Teknik Komputer 2026</title>
-        @fonts
-        @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
-            @vite(['resources/css/app.css', 'resources/js/app.js'])
-        @endif
-    </head>
-    <body class="bg-surface-canvas text-primary-900 antialiased selection:bg-secondary-500 selection:text-primary-900 min-h-screen flex flex-col justify-between">
+<x-layouts.app :title="$student['nickname'] . ' — Ascent Teknik Komputer 2026'" activePage="unlock">
 
-        <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[110] focus:rounded-lg focus:bg-white focus:px-4 focus:py-3 focus:font-semibold focus:text-primary-900 focus:shadow-lg">
-            Lewati ke konten utama
-        </a>
-
-        {{-- Page Loading Transition Overlay --}}
-        <div id="page-loading-overlay" class="fixed inset-0 z-[100] grid place-items-center bg-surface-canvas/95 px-6 backdrop-blur-xs" role="status" aria-live="polite" aria-label="Memuat profil mahasiswa">
-            <div class="w-full max-w-md">
-                <div class="mb-5 flex items-center justify-center gap-3 text-sm font-semibold text-primary-900">
-                    <span class="size-5 animate-spin rounded-full border-2 border-secondary-500/20 border-t-secondary-500" aria-hidden="true"></span>
-                    <span class="font-mono text-xs">// MEMUAT_DETAIL_MAHASISWA...</span>
-                </div>
-                <div class="grid grid-cols-3 gap-3" aria-hidden="true">
-                    <div class="aspect-square animate-pulse rounded-lg bg-surface-card shadow-xs"><div class="m-3 h-3 w-2/3 rounded bg-primary-900/10"></div><div class="mx-3 h-2 w-1/2 rounded bg-primary-900/5"></div></div>
-                    <div class="aspect-square animate-pulse rounded-lg bg-surface-card shadow-xs"><div class="m-3 h-3 w-2/3 rounded bg-primary-900/10"></div><div class="mx-3 h-2 w-1/2 rounded bg-primary-900/5"></div></div>
-                    <div class="aspect-square animate-pulse rounded-lg bg-surface-card shadow-xs"><div class="m-3 h-3 w-2/3 rounded bg-primary-900/10"></div><div class="mx-3 h-2 w-1/2 rounded bg-primary-900/5"></div></div>
-                </div>
+    {{-- Page Loading Transition Overlay --}}
+    <div id="page-loading-overlay" class="fixed inset-0 z-[100] grid place-items-center bg-surface-canvas/95 px-6 backdrop-blur-xs" role="status" aria-live="polite" aria-label="Memuat profil mahasiswa">
+        <div class="w-full max-w-md">
+            <div class="mb-5 flex items-center justify-center gap-3 text-sm font-semibold text-primary-900">
+                <span class="size-5 animate-spin rounded-full border-2 border-secondary-500/20 border-t-secondary-500" aria-hidden="true"></span>
+                <span class="font-mono text-xs">// MEMUAT_DETAIL_MAHASISWA...</span>
+            </div>
+            <div class="grid grid-cols-3 gap-3" aria-hidden="true">
+                <div class="aspect-square animate-pulse rounded-lg bg-surface-card shadow-xs"><div class="m-3 h-3 w-2/3 rounded bg-primary-900/10"></div><div class="mx-3 h-2 w-1/2 rounded bg-primary-900/5"></div></div>
+                <div class="aspect-square animate-pulse rounded-lg bg-surface-card shadow-xs"><div class="m-3 h-3 w-2/3 rounded bg-primary-900/10"></div><div class="mx-3 h-2 w-1/2 rounded bg-primary-900/5"></div></div>
+                <div class="aspect-square animate-pulse rounded-lg bg-surface-card shadow-xs"><div class="m-3 h-3 w-2/3 rounded bg-primary-900/10"></div><div class="mx-3 h-2 w-1/2 rounded bg-primary-900/5"></div></div>
             </div>
         </div>
-        <noscript><style>#page-loading-overlay { display: none !important; }</style></noscript>
+    </div>
+    <noscript><style>#page-loading-overlay { display: none !important; }</style></noscript>
 
-        <div>
-            {{-- Global Navbar --}}
-            <x-navbar activePage="unlock" />
+    {{-- Main Content: Screen 4 Student Detail Bento Profile (Issue #15) --}}
+    <main id="main-content" tabindex="-1" aria-busy="true" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+        <x-student-profile-bento
+            :student="$student"
+            :prevStudent="$prevStudent"
+            :nextStudent="$nextStudent"
+            :currentPosition="$currentPosition"
+            :totalInClass="$totalInClass"
+        />
+    </main>
 
-            {{-- Main Content: Screen 4 Student Detail Bento Profile (Issue #15) --}}
-            <main id="main-content" tabindex="-1" aria-busy="true" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
-                <x-student-profile-bento
-                    :student="$student"
-                    :prevStudent="$prevStudent"
-                    :nextStudent="$nextStudent"
-                    :currentPosition="$currentPosition"
-                    :totalInClass="$totalInClass"
-                />
-            </main>
-        </div>
-
-        {{-- Global Footer --}}
-        <x-footer activePage="unlock" />
-
-        @livewireScripts
+    @push('scripts')
         <script>
             (() => {
                 const overlay = document.getElementById('page-loading-overlay');
@@ -104,6 +81,6 @@
                 }
             })();
         </script>
+    @endpush
 
-    </body>
-</html>
+</x-layouts.app>
