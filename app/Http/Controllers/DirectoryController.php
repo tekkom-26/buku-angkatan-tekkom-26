@@ -29,13 +29,17 @@ class DirectoryController extends Controller
                 ->orderBy('class_name', 'asc')
                 ->orderBy('name', 'asc');
 
-            // Apply search filter (nim or name)
+            // Apply search filter (nim, nama, panggilan, atau kota asal) — case-insensitive di semua driver DB
             if ($request->filled('search')) {
-                $search = $request->input('search');
-                $query->where(function ($q) use ($search) {
-                    $q->where('nim', 'LIKE', "%{$search}%")
-                        ->orWhere('name', 'LIKE', "%{$search}%")
-                        ->orWhere('nickname', 'LIKE', "%{$search}%");
+                $search = mb_strtolower(trim((string) $request->input('search')));
+                $escaped = addcslashes($search, '\\%_');
+                $pattern = "%{$escaped}%";
+
+                $query->where(function ($q) use ($pattern) {
+                    $q->whereRaw("LOWER(nim) LIKE ? ESCAPE '\\'", [$pattern])
+                        ->orWhereRaw("LOWER(name) LIKE ? ESCAPE '\\'", [$pattern])
+                        ->orWhereRaw("LOWER(nickname) LIKE ? ESCAPE '\\'", [$pattern])
+                        ->orWhereRaw("LOWER(origin_city) LIKE ? ESCAPE '\\'", [$pattern]);
                 });
             }
 
@@ -44,8 +48,8 @@ class DirectoryController extends Controller
                 $query->where('class_name', $request->input('class'));
             }
 
-            // Paginate
-            $students = $query->paginate(15)->through(function ($student) {
+            // Paginate (query string search & class ikut terbawa di link halaman)
+            $students = $query->paginate(15)->withQueryString()->through(function ($student) {
                 $hobbies = $student->hobbies
                     ? (is_string($student->hobbies) ? array_values(array_filter(array_map('trim', explode(',', $student->hobbies)))) : (array) $student->hobbies)
                     : ['Hardware', 'Sistem Digital'];

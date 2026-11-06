@@ -54,7 +54,7 @@ class StudentDirectoryScreenTest extends TestCase
         $response->assertSee('Kelas C');
         $response->assertSee('Kelas D');
         $response->assertSee('#TK26-001');
-        $response->assertSee('[X] [AVATAR: 1:1 — ADWA]');
+        $response->assertSee('Foto Adwa', false);
         $response->assertSee('Adwa');
         $response->assertSee('Adwa Rahmant');
         $response->assertSee('Lihat Profil');
@@ -73,6 +73,56 @@ class StudentDirectoryScreenTest extends TestCase
         $response->assertSee('[X] [ICON: USER_NOT_FOUND]');
         $response->assertSee('Tidak ada hasil ditemukan');
         $response->assertSee('Reset Semua Filter');
+    }
+
+    public function test_search_is_case_insensitive_and_covers_students_beyond_first_page(): void
+    {
+        Student::factory()->count(20)->create(['class_name' => 'B']);
+        Student::factory()->create([
+            'nim' => '21120126129999',
+            'name' => 'Adwa Rahmant',
+            'nickname' => 'Adwa',
+            'class_name' => 'D',
+        ]);
+
+        $response = $this->call('GET', '/directory', ['search' => 'adw'], [
+            'angkatan_session' => $this->sessionCookie,
+        ]);
+
+        $response->assertOk();
+        $response->assertSee('Adwa Rahmant');
+        $response->assertSee('21120126129999');
+        $response->assertDontSee('Tidak ada hasil ditemukan');
+    }
+
+    public function test_class_filter_is_applied_by_server_and_combined_with_search(): void
+    {
+        Student::factory()->create(['name' => 'Adwa Kelas A', 'nickname' => 'AdwaA', 'class_name' => 'A']);
+        Student::factory()->create(['name' => 'Adwa Kelas B', 'nickname' => 'AdwaB', 'class_name' => 'B']);
+
+        $response = $this->call('GET', '/directory', ['search' => 'adw', 'class' => 'A'], [
+            'angkatan_session' => $this->sessionCookie,
+        ]);
+
+        $response->assertOk();
+        $response->assertSee('Adwa Kelas A');
+        $response->assertDontSee('Adwa Kelas B');
+        $response->assertSee('FILTER: KELAS A');
+        $response->assertSee('KATA KUNCI: "adw"', false);
+    }
+
+    public function test_class_chips_keep_search_keyword_and_pagination_keeps_filters(): void
+    {
+        Student::factory()->count(20)->create(['class_name' => 'A', 'name' => 'Rekan Satu']);
+
+        $response = $this->call('GET', '/directory', ['search' => 'rekan', 'class' => 'A'], [
+            'angkatan_session' => $this->sessionCookie,
+        ]);
+
+        $response->assertOk();
+        $response->assertSee('search=rekan&amp;class=A', false);
+        $response->assertSee('search=rekan&amp;class=B', false);
+        $response->assertSee('page=2', false);
     }
 
     public function test_student_card_component_supports_guest_locked_preview_state(): void
