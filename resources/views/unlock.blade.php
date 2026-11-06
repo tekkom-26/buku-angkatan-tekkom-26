@@ -8,8 +8,10 @@
         @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
             @vite(['resources/css/app.css', 'resources/js/app.js'])
         @endif
+        @livewireStyles
     </head>
     <body class="min-h-screen flex flex-col bg-brand-mist text-brand-deep antialiased">
+        <x-navbar />
 
         <main class="flex-1 flex items-center justify-center px-4 py-16 relative overflow-hidden">
 
@@ -135,6 +137,7 @@
             </div>
         </main>
 
+        @livewireScripts
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 const form = document.getElementById('passcode-form');

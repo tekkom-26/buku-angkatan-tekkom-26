@@ -3,7 +3,6 @@ name: Deploy Staging to Vercel (Docker)
 on:
   push:
     branches:
-      - staging
       - main
   workflow_dispatch:
 
