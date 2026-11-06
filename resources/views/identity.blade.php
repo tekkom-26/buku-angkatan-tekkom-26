@@ -17,6 +17,9 @@
         <x-navbar activePage="identity" />
 
         <main class="flex-grow">
+            {{-- Section 3: 4 Official Color Pillars Horizontal Swatch Grid (Issue #24) --}}
+            <x-identity.color-pillars />
+
             {{-- Section 4: Logo Symbolism Split Carousel (50/50 & Layer Breakdown) (Issue #25) --}}
             {{-- <x-identity.logo-carousel /> --}}
 
