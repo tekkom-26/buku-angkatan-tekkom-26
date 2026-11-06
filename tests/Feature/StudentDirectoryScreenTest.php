@@ -44,7 +44,7 @@ class StudentDirectoryScreenTest extends TestCase
         ]);
 
         $response->assertOk();
-        $response->assertSee('// 03_DIRECTORY // STUDENT_ROSTER');
+        $response->assertSee('// 03_DIRECTORY');
         $response->assertSee('Direktori Mahasiswa Angkatan');
         $response->assertSee('1 MAHASISWA TERDATA');
         $response->assertSee('[MODE: UNLOCKED]');

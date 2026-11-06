@@ -62,7 +62,7 @@
                 <div class="flex items-center gap-2 mb-3">
                     <span class="inline-block size-2 rounded-full bg-secondary-500" aria-hidden="true"></span>
                     <span class="font-mono text-[11px] sm:text-xs font-bold uppercase tracking-[0.05em] text-primary-700">
-                        // 03_DIRECTORY // STUDENT_ROSTER
+                        // 03_DIRECTORY // STUDENT_LIST
                     </span>
                 </div>
 

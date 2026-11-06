@@ -45,7 +45,7 @@ class DirectoryController extends Controller
             }
 
             // Paginate
-            $students = $query->paginate(20)->through(function ($student) {
+            $students = $query->paginate(15)->through(function ($student) {
                 $hobbies = $student->hobbies
                     ? (is_string($student->hobbies) ? array_values(array_filter(array_map('trim', explode(',', $student->hobbies)))) : (array) $student->hobbies)
                     : ['Hardware', 'Sistem Digital'];
