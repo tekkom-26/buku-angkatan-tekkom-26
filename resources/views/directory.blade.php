@@ -10,198 +10,298 @@
         @endif
         @livewireStyles
     </head>
-    <body class="bg-brand-mist text-brand-deep antialiased">
+    <body class="min-h-screen overflow-x-hidden bg-surface-canvas text-primary-900 antialiased">
 
-        {{-- Navbar --}}
+        {{-- Global Navbar --}}
         <x-navbar activePage="unlock" />
 
-        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
+        @php
+            $studentItems = collect($students->items())->values();
+            $firstItemIndex = $students->firstItem() ?? 1;
+        @endphp
 
+        <main
+            id="main-content"
+            x-data="{
+                searchQuery: @js((string) request('search', '')),
+                selectedClass: @js((string) request('class', '')),
+                studentsMeta: @js($studentItems->map(fn ($s, $idx) => [
+                    'idx' => $idx,
+                    'nim' => strtolower((string) ($s['nim'] ?? '')),
+                    'name' => strtolower((string) ($s['name'] ?? $s['nickname'] ?? '')),
+                    'nickname' => strtolower((string) ($s['nickname'] ?? '')),
+                    'city' => strtolower((string) ($s['origin_city'] ?? '')),
+                    'class_name' => (string) ($s['class_name'] ?? ''),
+                ])->values()),
+                matchesFilter(idx) {
+                    const item = this.studentsMeta[idx];
+                    if (!item) return true;
+                    const q = this.searchQuery.trim().toLowerCase();
+                    const matchesClass = !this.selectedClass || item.class_name === this.selectedClass;
+                    const matchesSearch = !q
+                        || item.nim.includes(q)
+                        || item.name.includes(q)
+                        || item.nickname.includes(q)
+                        || item.city.includes(q);
+                    return matchesClass && matchesSearch;
+                },
+                get visibleCount() {
+                    return this.studentsMeta.filter((_, idx) => this.matchesFilter(idx)).length;
+                },
+                resetFilters() {
+                    this.searchQuery = '';
+                    this.selectedClass = '';
+                }
+            }"
+            @reset-directory-filter.window="resetFilters()"
+            class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-14"
+        >
 
-            <div class="mb-8">
-                {{-- Terminal-style subtitle --}}
-                <p class="text-xs font-mono text-brand-teal/60 tracking-wider mb-2">
-                    &gt; SELECT * FROM tekkom26
-                </p>
+            {{-- ── 1. PAGE HEADER & ROSTER TELEMETRY ── --}}
+            <header class="mb-8 border-b border-surface-border pb-6">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="inline-block size-2 rounded-full bg-secondary-500" aria-hidden="true"></span>
+                    <span class="font-mono text-[11px] sm:text-xs font-bold uppercase tracking-[0.05em] text-primary-700">
+                        // 03_DIRECTORY // STUDENT_LIST
+                    </span>
+                </div>
 
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
                     <div>
-                        <h1 class="text-2xl sm:text-3xl font-bold text-brand-deep tracking-tight">
-                            Biodata Mahasiswa
+                        <h1 class="text-3xl sm:text-4xl font-bold text-primary-900 tracking-[-0.025em] leading-tight">
+                            Direktori Mahasiswa Angkatan
                         </h1>
-                        <p class="text-sm text-brand-deep/55 mt-1">
-                            Direktori lengkap anggota Teknik Komputer 2026 — Ascent
+                        <p class="mt-2 text-sm sm:text-base text-primary-900/80 max-w-2xl leading-relaxed">
+                            Arsip resmi anggota angkatan Teknik Komputer 2026 — telusuri profil berdasarkan nama, NIM, maupun pembagian kelas.
                         </p>
                     </div>
 
-                    {{-- Badge counter --}}
-                    <span class="inline-flex items-center px-3.5 py-1.5 rounded-full text-sm font-semibold bg-brand-mint/40 text-brand-deep border border-brand-teal/20 shrink-0">
-                        <flux:icon icon="users" class="size-4 me-1.5 text-brand-teal" />
-                        {{ $totalStudents }} Anggota Terdaftar
-                    </span>
-                </div>
-            </div>
-
-
-            <div class="mb-8">
-                <flux:card class="!bg-white !border-brand-teal/15 !p-0 overflow-hidden">
-                    <form method="GET" action="{{ route('directory.index') }}">
-                        <div class="flex flex-col sm:flex-row divide-y sm:divide-y-0 sm:divide-x divide-brand-deep/10">
-
-                            {{-- Search input --}}
-                            <div class="flex-1 min-w-0 flex items-center px-4 py-3">
-                                <flux:icon icon="magnifying-glass" class="size-4 text-brand-deep/40 shrink-0 me-2" />
-                                <input
-                                    type="text"
-                                    name="search"
-                                    value="{{ request('search') }}"
-                                    placeholder="Cari nama atau NIM..."
-                                    class="w-full border-0 p-0 text-sm text-brand-deep placeholder:text-brand-deep/40 focus:outline-none focus:ring-0 bg-transparent"
-                                />
-                            </div>
-
-                            {{-- Class dropdown --}}
-                            <div class="sm:w-48 flex items-center px-4 py-3">
-                                <select
-                                    name="class"
-                                    class="w-full border-0 p-0 text-sm text-brand-deep bg-transparent focus:outline-none focus:ring-0 cursor-pointer"
-                                >
-                                    <option value="">Semua Kelas</option>
-                                    @foreach ($filters as $filter)
-                                        <option value="{{ $filter }}" {{ request('class') === $filter ? 'selected' : '' }}>
-                                            Kelas {{ $filter }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            {{-- Submit button --}}
-                            <div class="shrink-0 flex">
-                                <flux:button
-                                    type="submit"
-                                    variant="primary"
-                                    icon="funnel"
-                                    class="!rounded-none !h-full !px-6 !text-brand-mist"
-                                >
-                                    Filter
-                                </flux:button>
-                            </div>
-                        </div>
-                    </form>
-
-                    {{-- Active filters / reset --}}
-                    @if(request('search') || request('class'))
-                        <div class="flex items-center gap-2 px-4 py-2.5 bg-brand-teal/5 border-t border-brand-deep/10">
-                            <span class="text-xs text-brand-deep/50">Filter aktif:</span>
-                            @if(request('search'))
-                                <span class="inline-flex items-center gap-1 text-xs bg-white border border-brand-deep/10 rounded-full px-2.5 py-1 text-brand-deep">
-                                    "{{ request('search') }}"
-                                </span>
-                            @endif
-                            @if(request('class'))
-                                <span class="inline-flex items-center gap-1 text-xs bg-white border border-brand-deep/10 rounded-full px-2.5 py-1 text-brand-deep">
-                                    Kelas {{ request('class') }}
-                                </span>
-                            @endif
-                            <a href="{{ route('directory.index') }}" class="ms-auto text-xs text-brand-deep/50 hover:text-brand-deep underline underline-offset-2">
-                                Reset semua
-                            </a>
-                        </div>
-                    @endif
-                </flux:card>
-            </div>
-
-            <div class="flex items-center justify-between mb-5">
-                <p class="text-xs text-brand-deep/45">
-                    Menampilkan {{ $students->firstItem() }}–{{ $students->lastItem() }} dari {{ $students->total() }} mahasiswa
-                </p>
-                @if(request('search') || request('class'))
-                    <p class="text-xs text-brand-teal/70 font-medium">
-                        Filter aktif:
-                        @if(request('search')) pencarian "<em>{{ request('search') }}</em>" @endif
-                        @if(request('class')) · Kelas {{ request('class') }} @endif
-                    </p>
-                @endif
-            </div>
-
-
-            @if($students->count() > 0)
-                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-5">
-
-                    @foreach ($students as $student)
-                        <a href="/students/{{ $student['nim'] }}"
-                           class="group block relative rounded-xl overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-brand-teal/40"
-                        >
-
-                            {{-- Avatar image --}}
-                            <div class="aspect-[3/4] w-full overflow-hidden bg-brand-deep/5">
-                                <img
-                                    src="{{ $student['avatar_url'] }}"
-                                    alt="Foto {{ $student['nickname'] }}"
-                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                    loading="lazy"
-                                    onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode($student['nickname']) }}&background=176B70&color=fff&size=400&font-size=0.35&bold=true'"
-                                />
-                            </div>
-
-                            {{-- Gradient overlay --}}
-                            <div class="absolute inset-0 bg-gradient-to-t from-brand-deep/90 via-brand-deep/40 to-transparent"></div>
-
-                            {{-- Card content (overlaid) --}}
-                            <div class="absolute inset-0 flex flex-col justify-end p-3.5 sm:p-4">
-
-                                {{-- Top row: NIM + Class badge --}}
-                                <div class="flex items-center gap-1.5 mb-1.5">
-                                    <span class="text-[10px] sm:text-[11px] font-mono text-white/50 tracking-wider">
-                                        {{ $student['nim'] }}
-                                    </span>
-                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded-md text-[9px] sm:text-[10px] font-bold uppercase tracking-wider bg-brand-cyan/25 text-white/90 border border-white/15 backdrop-blur-sm">
-                                        Kelas {{ $student['class_name'] }}
-                                    </span>
-                                </div>
-
-                                {{-- Name --}}
-                                <h3 class="text-base sm:text-lg font-bold text-white leading-tight truncate">
-                                    {{ $student['nickname'] }}
-                                </h3>
-
-                                {{-- Origin city --}}
-                                <p class="text-xs text-white/65 mt-0.5 flex items-center gap-1">
-                                    <flux:icon icon="map-pin" class="size-3" />
-                                    {{ $student['origin_city'] }}
-                                </p>
-                            </div>
-                        </a>
-                    @endforeach
-
-                </div>
-            @else
-                {{-- Empty state --}}
-                <div class="text-center py-20">
-                    <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-brand-deep/5 flex items-center justify-center">
-                        <flux:icon icon="face-smile" class="size-7 text-brand-deep/25" />
+                    {{-- Monospace Telemetry Badges --}}
+                    <div class="flex flex-wrap items-center gap-2.5 shrink-0">
+                        <span class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-surface-card border border-surface-border font-mono text-xs font-bold uppercase tracking-[0.05em] text-primary-900">
+                            <span>{{ $totalStudents }} MAHASISWA TERDATA</span>
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-highlight-500 text-highlight-900 font-mono text-xs font-bold uppercase tracking-[0.05em]">
+                            <span class="size-2 rounded-full bg-highlight-900" aria-hidden="true"></span>
+                            <span>[MODE: UNLOCKED]</span>
+                        </span>
                     </div>
-                    <h3 class="text-lg font-semibold text-brand-deep/60">Tidak ada hasil ditemukan</h3>
-                    <p class="text-sm text-brand-deep/40 mt-1">Coba ubah kata kunci atau filter yang digunakan.</p>
-                    <a href="{{ route('directory.index') }}" class="inline-flex items-center mt-4 text-sm font-medium text-brand-teal hover:text-brand-deep transition-colors">
-                        <flux:icon icon="arrow-path" class="size-4 me-1.5" />
-                        Reset semua filter
-                    </a>
                 </div>
+            </header>
+
+            {{-- ── 2. INTERACTIVE SEARCH BAR & CLASS FILTER CHIPS (Figma Node 1:872) ── --}}
+            <section aria-label="Pencarian dan filter kelas mahasiswa" class="mb-8">
+                <form
+                    method="GET"
+                    action="{{ route('directory.index') }}"
+                    class="rounded-2xl border border-surface-border bg-white p-4 sm:p-5 shadow-xs space-y-4"
+                >
+                    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+
+                        {{-- Search Input Box (Figma Node 1:872) --}}
+                        <div class="relative flex-1 min-w-0">
+                            <label for="directory-search-input" class="sr-only">
+                                Cari nama, panggilan, atau NIM mahasiswa
+                            </label>
+                            <div class="relative flex items-center">
+                                <svg class="pointer-events-none absolute left-3.5 size-4 stroke-[2] stroke-current text-primary-500" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                                </svg>
+                                <input
+                                    id="directory-search-input"
+                                    type="search"
+                                    name="search"
+                                    x-model.debounce.150ms="searchQuery"
+                                    value="{{ request('search') }}"
+                                    placeholder="Cari nama, panggilan, atau NIM mahasiswa..."
+                                    class="w-full min-h-11 rounded-lg border border-surface-border bg-surface-canvas pl-10 pr-24 py-2.5 text-sm text-primary-900 placeholder:text-primary-500 focus:bg-white focus:border-secondary-500 focus:outline-2 focus:outline-secondary-500 focus:outline-offset-2 transition-colors duration-180"
+                                />
+                                <input type="hidden" name="class" :value="selectedClass" />
+                                <button
+                                    type="submit"
+                                    class="absolute right-1.5 inline-flex items-center justify-center px-3.5 py-1.5 rounded-md bg-secondary-500 text-primary-900 font-semibold text-xs border border-surface-border hover:bg-secondary-700 hover:text-white transition-colors duration-180 cursor-pointer"
+                                >
+                                    Cari
+                                </button>
+                            </div>
+                        </div>
+
+                        {{-- Class Filter Chips Bar: All, Kelas A, Kelas B, Kelas C, Kelas D --}}
+                        <div
+                            role="tablist"
+                            aria-label="Filter berdasarkan kelas"
+                            class="flex flex-wrap items-center gap-2"
+                        >
+                            {{-- All Chip --}}
+                            <button
+                                type="button"
+                                role="tab"
+                                :aria-selected="selectedClass === '' ? 'true' : 'false'"
+                                @click="selectedClass = ''"
+                                :class="selectedClass === ''
+                                    ? 'bg-secondary-500 text-primary-900 border-primary-900/20 font-semibold shadow-2xs'
+                                    : 'bg-surface-card text-primary-700 border-surface-border hover:bg-surface-subtle hover:text-primary-900'"
+                                class="px-3.5 py-2 rounded-lg border font-mono text-xs uppercase tracking-[0.05em] transition-all duration-180 cursor-pointer focus-visible:outline-2 focus-visible:outline-secondary-500 focus-visible:outline-offset-2"
+                            >
+                                All
+                            </button>
+
+                            @foreach ($filters as $filter)
+                                <button
+                                    type="button"
+                                    role="tab"
+                                    :aria-selected="selectedClass === '{{ $filter }}' ? 'true' : 'false'"
+                                    @click="selectedClass = '{{ $filter }}'"
+                                    :class="selectedClass === '{{ $filter }}'
+                                        ? 'bg-secondary-500 text-primary-900 border-primary-900/20 font-semibold shadow-2xs'
+                                        : 'bg-surface-card text-primary-700 border-surface-border hover:bg-surface-subtle hover:text-primary-900'"
+                                    class="px-3.5 py-2 rounded-lg border font-mono text-xs uppercase tracking-[0.05em] transition-all duration-180 cursor-pointer focus-visible:outline-2 focus-visible:outline-secondary-500 focus-visible:outline-offset-2"
+                                >
+                                    Kelas {{ $filter }}
+                                </button>
+                            @endforeach
+                        </div>
+
+                    </div>
+
+                    {{-- Active Filter Summary & Status Strip --}}
+                    <div class="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-surface-border text-xs text-primary-700">
+                        <div class="flex flex-wrap items-center gap-2 font-mono text-[11px]">
+                            <span>
+                                MENAMPILKAN <strong class="text-primary-900" x-text="visibleCount">{{ $students->count() }}</strong> DARI <strong class="text-primary-900">{{ $students->total() }}</strong> MAHASISWA
+                            </span>
+                            <template x-if="selectedClass !== ''">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded bg-surface-card border border-surface-border text-primary-900 font-semibold">
+                                    FILTER: KELAS <span class="ml-1" x-text="selectedClass"></span>
+                                </span>
+                            </template>
+                            <template x-if="searchQuery.trim() !== ''">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded bg-surface-card border border-surface-border text-primary-900 font-semibold">
+                                    KATA KUNCI: "<span x-text="searchQuery.trim()"></span>"
+                                </span>
+                            </template>
+                        </div>
+
+                        <div class="flex items-center gap-3">
+                            <button
+                                type="button"
+                                x-show="searchQuery.trim() !== '' || selectedClass !== ''"
+                                @click="resetFilters()"
+                                style="display: none;"
+                                class="font-mono text-[11px] font-semibold text-secondary-700 hover:text-primary-900 underline underline-offset-2 cursor-pointer"
+                            >
+                                Reset Filter Instan
+                            </button>
+                            @if (request('search') || request('class'))
+                                <a
+                                    href="{{ route('directory.index') }}"
+                                    class="font-mono text-[11px] font-semibold text-primary-700 hover:text-primary-900 underline underline-offset-2"
+                                >
+                                    Reset Semua
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                </form>
+            </section>
+
+            {{-- ── 3. STUDENT DIRECTORY 3-COLUMN CARD GRID & EMPTY STATE ── --}}
+            @if ($students->count() > 0)
+                <section aria-label="Daftar kartu profil mahasiswa">
+                    <div
+                        x-show="visibleCount > 0"
+                        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                    >
+                        @foreach ($studentItems as $idx => $student)
+                            <div
+                                x-show="matchesFilter({{ $idx }})"
+                                x-transition.opacity.duration.150ms
+                            >
+                                <x-student-card
+                                    :student="$student"
+                                    :index="$firstItemIndex + $idx"
+                                />
+                            </div>
+                        @endforeach
+                    </div>
+
+                    {{-- Client-Side Instant Filter Empty State (Figma Node 34:1067) --}}
+                    <div x-show="visibleCount === 0" style="display: none;">
+                        <x-directory-empty-state />
+                    </div>
+                </section>
+            @else
+                {{-- Server-Side Empty State (Figma Node 34:1067) --}}
+                <x-directory-empty-state
+                    :searchQuery="request('search')"
+                    :selectedClass="request('class')"
+                />
             @endif
 
+            {{-- ── 4. CENTERED PAGINATION BAR ── --}}
+            @if ($students->hasPages())
+                <nav
+                    aria-label="Navigasi halaman direktori"
+                    class="mt-10 pt-6 border-t border-surface-border flex flex-col sm:flex-row items-center justify-between gap-4"
+                >
+                    <p class="font-mono text-xs uppercase tracking-[0.05em] text-primary-500">
+                        HALAMAN {{ $students->currentPage() }} DARI {{ $students->lastPage() }}
+                    </p>
 
-            @if($students->hasPages())
-                <div class="mt-10 flex justify-center">
-                    {{ $students->withQueryString()->links('pagination::tailwind') }}
-                </div>
+                    <div class="flex flex-wrap items-center justify-center gap-2">
+                        {{-- Previous Page Link --}}
+                        @if ($students->onFirstPage())
+                            <span class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-surface-border bg-surface-subtle font-mono text-xs text-primary-500 cursor-not-allowed select-none">
+                                ← Sebelumnya
+                            </span>
+                        @else
+                            <a
+                                href="{{ $students-> withQueryString()->previousPageUrl() }}"
+                                class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-surface-border bg-white font-mono text-xs font-semibold text-primary-900 hover:bg-surface-card transition-colors duration-180 focus-visible:outline-2 focus-visible:outline-secondary-500"
+                            >
+                                ← Sebelumnya
+                            </a>
+                        @endif
+
+                        {{-- Page Numbers --}}
+                        @foreach ($students->getUrlRange(max(1, $students->currentPage() - 2), min($students->lastPage(), $students->currentPage() + 2)) as $page => $url)
+                            @if ($page == $students->currentPage())
+                                <span
+                                    aria-current="page"
+                                    class="inline-flex size-9 items-center justify-center rounded-lg bg-secondary-500 border border-surface-border font-mono text-xs font-bold text-primary-900 shadow-2xs"
+                                >
+                                    {{ $page }}
+                                </span>
+                            @else
+                                <a
+                                    href="{{ $students->withQueryString()->url($page) }}"
+                                    class="inline-flex size-9 items-center justify-center rounded-lg bg-surface-card border border-surface-border font-mono text-xs font-medium text-primary-700 hover:bg-white hover:text-primary-900 transition-colors duration-180 focus-visible:outline-2 focus-visible:outline-secondary-500"
+                                >
+                                    {{ $page }}
+                                </a>
+                            @endif
+                        @endforeach
+
+                        {{-- Next Page Link --}}
+                        @if ($students->hasMorePages())
+                            <a
+                                href="{{ $students->withQueryString()->nextPageUrl() }}"
+                                class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-surface-border bg-white font-mono text-xs font-semibold text-primary-900 hover:bg-surface-card transition-colors duration-180 focus-visible:outline-2 focus-visible:outline-secondary-500"
+                            >
+                                Selanjutnya →
+                            </a>
+                        @else
+                            <span class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-surface-border bg-surface-subtle font-mono text-xs text-primary-500 cursor-not-allowed select-none">
+                                Selanjutnya →
+                            </span>
+                        @endif
+                    </div>
+                </nav>
             @endif
-
 
         </main>
 
-
-        {{-- Footer --}}
+        {{-- Global Footer --}}
         <x-footer activePage="unlock" />
 
         @livewireScripts
