@@ -18,29 +18,22 @@
         @php
             $studentItems = collect($students->items())->values();
             $firstItemIndex = $students->firstItem() ?? 1;
-            $activeSearch = (string) request('search', '');
-            $activeClass = (string) request('class', '');
         @endphp
 
-        {{--
-            Filter & pencarian dijalankan di SERVER (query string ?search=&class=&page=)
-            sehingga hasilnya mencakup SELURUH data, bukan hanya 15 kartu di halaman aktif.
-            Alpine.js hanya dipakai untuk debounce submit otomatis saat mengetik.
-        --}}
         <main
             id="main-content"
             x-data="{
-                searchQuery: @js($activeSearch),
-                submitTimer: null,
-                queueSubmit(form) {
-                    clearTimeout(this.submitTimer);
-                    this.submitTimer = setTimeout(() => form.requestSubmit(), 450);
-                },
-                clearSearch(form) {
+                searchQuery: @js((string) request('search', '')),
+                selectedClass: @js((string) request('class', '')),
+                resetFilters() {
                     this.searchQuery = '';
-                    this.$nextTick(() => form.requestSubmit());
+                    this.selectedClass = '';
+                },
+                submitFilters() {
+                    this.$refs.filterForm.requestSubmit();
                 }
             }"
+            @reset-directory-filter.window="resetFilters()"
             class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-14"
         >
 
@@ -76,21 +69,20 @@
                 </div>
             </header>
 
-            {{-- ── 2. SERVER-SIDE SEARCH BAR & CLASS FILTER CHIPS (Figma Node 1:872) ── --}}
+            {{-- ── 2. INTERACTIVE SEARCH BAR & CLASS FILTER CHIPS (Figma Node 1:872) ── --}}
             <section aria-label="Pencarian dan filter kelas mahasiswa" class="mb-8">
-                <div class="rounded-2xl border border-surface-border bg-white p-4 sm:p-5 shadow-xs space-y-4">
+                <form
+                    x-ref="filterForm"
+                    method="GET"
+                    action="{{ route('directory.index') }}"
+                    class="rounded-2xl border border-surface-border bg-white p-4 sm:p-5 shadow-xs space-y-4"
+                >
                     <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
 
-                        {{-- Search Input Box (Figma Node 1:872) — submit otomatis (debounce) ke server --}}
-                        <form
-                            x-ref="searchForm"
-                            method="GET"
-                            action="{{ route('directory.index') }}"
-                            role="search"
-                            class="relative flex-1 min-w-0"
-                        >
+                        {{-- Search Input Box (Figma Node 1:872) --}}
+                        <div class="relative flex-1 min-w-0">
                             <label for="directory-search-input" class="sr-only">
-                                Cari nama, panggilan, kota asal, atau NIM mahasiswa
+                                Cari nama, panggilan, atau NIM mahasiswa
                             </label>
                             <div class="relative flex items-center">
                                 <svg class="pointer-events-none absolute left-3.5 size-4 stroke-[2] stroke-current text-primary-500" fill="none" viewBox="0 0 24 24" aria-hidden="true">
@@ -98,29 +90,14 @@
                                 </svg>
                                 <input
                                     id="directory-search-input"
-                                    type="text"
+                                    type="search"
                                     name="search"
-                                    maxlength="100"
-                                    autocomplete="off"
-                                    x-model="searchQuery"
-                                    @input="queueSubmit($refs.searchForm)"
-                                    x-init="@if ($activeSearch !== '') $el.focus(); $el.setSelectionRange($el.value.length, $el.value.length); @endif"
-                                    placeholder="Cari nama, panggilan, kota asal, atau NIM..."
-                                    class="w-full min-h-11 rounded-lg border border-surface-border bg-surface-canvas pl-10 pr-32 py-2.5 text-sm text-primary-900 placeholder:text-primary-500 focus:bg-white focus:border-secondary-500 focus:outline-2 focus:outline-secondary-500 focus:outline-offset-2 transition-colors duration-180"
+                                    x-model.debounce.150ms="searchQuery"
+                                    value="{{ request('search') }}"
+                                    placeholder="Cari nama, panggilan, atau NIM mahasiswa..."
+                                    class="w-full min-h-11 rounded-lg border border-surface-border bg-surface-canvas pl-10 pr-24 py-2.5 text-sm text-primary-900 placeholder:text-primary-500 focus:bg-white focus:border-secondary-500 focus:outline-2 focus:outline-secondary-500 focus:outline-offset-2 transition-colors duration-180"
                                 />
-                                @if ($activeClass !== '')
-                                    <input type="hidden" name="class" value="{{ $activeClass }}" />
-                                @endif
-                                <button
-                                    type="button"
-                                    x-show="searchQuery !== ''"
-                                    x-cloak
-                                    @click="clearSearch($refs.searchForm)"
-                                    aria-label="Hapus kata kunci pencarian"
-                                    class="absolute right-20 inline-flex size-6 items-center justify-center rounded text-primary-500 hover:text-primary-900 cursor-pointer"
-                                >
-                                    <span aria-hidden="true">×</span>
-                                </button>
+                                <input type="hidden" name="class" :value="selectedClass" />
                                 <button
                                     type="submit"
                                     class="absolute right-1.5 inline-flex items-center justify-center px-3.5 py-1.5 rounded-md bg-secondary-500 text-primary-900 font-semibold text-xs border border-surface-border hover:bg-secondary-700 hover:text-white transition-colors duration-180 cursor-pointer"
@@ -128,34 +105,44 @@
                                     Cari
                                 </button>
                             </div>
-                        </form>
+                        </div>
 
-                        {{-- Class Filter Chips Bar: All, Kelas A, Kelas B, Kelas C, Kelas D (link ke server, ikut membawa kata kunci) --}}
-                        <nav aria-label="Filter berdasarkan kelas" class="flex flex-wrap items-center gap-2">
-                            @php
-                                $chipBase = 'px-3.5 py-2 rounded-lg border font-mono text-xs uppercase tracking-[0.05em] transition-all duration-180 focus-visible:outline-2 focus-visible:outline-secondary-500 focus-visible:outline-offset-2';
-                                $chipActive = 'bg-secondary-500 text-primary-900 border-primary-900/20 font-semibold shadow-2xs';
-                                $chipIdle = 'bg-surface-card text-primary-700 border-surface-border hover:bg-surface-subtle hover:text-primary-900';
-                            @endphp
-
+                        {{-- Class Filter Chips Bar: All, Kelas A, Kelas B, Kelas C, Kelas D --}}
+                        <div
+                            role="tablist"
+                            aria-label="Filter berdasarkan kelas"
+                            class="flex flex-wrap items-center gap-2"
+                        >
+                            {{-- All Chip --}}
                             <a
-                                href="{{ route('directory.index', array_filter(['search' => $activeSearch])) }}"
-                                @if ($activeClass === '') aria-current="true" @endif
-                                class="{{ $chipBase }} {{ $activeClass === '' ? $chipActive : $chipIdle }}"
+                                role="tab"
+                                aria-selected="{{ request('class') ? 'false' : 'true' }}"
+                                href="{{ route('directory.index', array_filter(['search' => request('search')])) }}"
+                                @class([
+                                    'px-3.5 py-2 rounded-lg border font-mono text-xs uppercase tracking-[0.05em] transition-all duration-180 cursor-pointer focus-visible:outline-2 focus-visible:outline-secondary-500 focus-visible:outline-offset-2',
+                                    'bg-secondary-500 text-primary-900 border-primary-900/20 font-semibold shadow-2xs' => ! request('class'),
+                                    'bg-surface-card text-primary-700 border-surface-border hover:bg-surface-subtle hover:text-primary-900' => request('class'),
+                                ])
                             >
                                 All
                             </a>
 
                             @foreach ($filters as $filter)
                                 <a
-                                    href="{{ route('directory.index', array_filter(['search' => $activeSearch, 'class' => $filter])) }}"
-                                    @if ($activeClass === $filter) aria-current="true" @endif
-                                    class="{{ $chipBase }} {{ $activeClass === $filter ? $chipActive : $chipIdle }}"
+                                    role="tab"
+                                    aria-selected="{{ request('class') === $filter ? 'true' : 'false' }}"
+                                    href="{{ route('directory.index', array_filter(['search' => request('search'), 'class' => $filter])) }}"
+                                    @class([
+                                        'px-3.5 py-2 rounded-lg border font-mono text-xs uppercase tracking-[0.05em] transition-all duration-180 cursor-pointer focus-visible:outline-2 focus-visible:outline-secondary-500 focus-visible:outline-offset-2',
+                                        'bg-secondary-500 text-primary-900 border-primary-900/20 font-semibold shadow-2xs' => request('class') === $filter,
+                                        'bg-surface-card text-primary-700 border-surface-border hover:bg-surface-subtle hover:text-primary-900' => request('class') !== $filter,
+                                    ])
                                 >
                                     Kelas {{ $filter }}
+                                    <span class="ml-1 text-[10px] opacity-75">({{ $classCounts[$filter] }})</span>
                                 </a>
                             @endforeach
-                        </nav>
+                        </div>
 
                     </div>
 
@@ -163,44 +150,59 @@
                     <div class="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-surface-border text-xs text-primary-700">
                         <div class="flex flex-wrap items-center gap-2 font-mono text-[11px]">
                             <span>
-                                MENAMPILKAN <strong class="text-primary-900">{{ $students->count() }}</strong> DARI <strong class="text-primary-900">{{ $students->total() }}</strong> HASIL
-                                ({{ $totalStudents }} MAHASISWA TERDATA)
+                                MENAMPILKAN <strong class="text-primary-900">{{ $students->count() }}</strong> DARI <strong class="text-primary-900">{{ $students->total() }}</strong> MAHASISWA
                             </span>
-                            @if ($activeClass !== '')
+                            <template x-if="selectedClass !== ''">
                                 <span class="inline-flex items-center px-2 py-0.5 rounded bg-surface-card border border-surface-border text-primary-900 font-semibold">
-                                    FILTER: KELAS {{ $activeClass }}
+                                    FILTER: KELAS <span class="ml-1" x-text="selectedClass"></span>
                                 </span>
-                            @endif
-                            @if (trim($activeSearch) !== '')
+                            </template>
+                            <template x-if="searchQuery.trim() !== ''">
                                 <span class="inline-flex items-center px-2 py-0.5 rounded bg-surface-card border border-surface-border text-primary-900 font-semibold">
-                                    KATA KUNCI: "{{ $activeSearch }}"
+                                    KATA KUNCI: "<span x-text="searchQuery.trim()"></span>"
                                 </span>
-                            @endif
+                            </template>
                         </div>
 
-                        @if ($activeSearch !== '' || $activeClass !== '')
-                            <a
-                                href="{{ route('directory.index') }}"
-                                class="font-mono text-[11px] font-semibold text-secondary-700 hover:text-primary-900 underline underline-offset-2"
+                        <div class="flex items-center gap-3">
+                            <button
+                                type="button"
+                                x-show="searchQuery.trim() !== '' || selectedClass !== ''"
+                                @click="resetFilters()"
+                                style="display: none;"
+                                class="font-mono text-[11px] font-semibold text-secondary-700 hover:text-primary-900 underline underline-offset-2 cursor-pointer"
                             >
-                                Reset Semua Filter
-                            </a>
-                        @endif
+                                Reset Filter Instan
+                            </button>
+                            @if (request('search') || request('class'))
+                                <a
+                                    href="{{ route('directory.index') }}"
+                                    class="font-mono text-[11px] font-semibold text-primary-700 hover:text-primary-900 underline underline-offset-2"
+                                >
+                                    Reset Semua
+                                </a>
+                            @endif
+                        </div>
                     </div>
-                </div>
+                </form>
             </section>
 
             {{-- ── 3. STUDENT DIRECTORY 3-COLUMN CARD GRID & EMPTY STATE ── --}}
             @if ($students->count() > 0)
                 <section aria-label="Daftar kartu profil mahasiswa">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div
+                        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                    >
                         @foreach ($studentItems as $idx => $student)
-                            <x-student-card
-                                :student="$student"
-                                :index="$firstItemIndex + $idx"
-                            />
+                            <div>
+                                <x-student-card
+                                    :student="$student"
+                                    :index="$firstItemIndex + $idx"
+                                />
+                            </div>
                         @endforeach
                     </div>
+
                 </section>
             @else
                 {{-- Server-Side Empty State (Figma Node 34:1067) --}}

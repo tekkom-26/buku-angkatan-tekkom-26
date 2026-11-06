@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
@@ -29,27 +30,26 @@ class DirectoryController extends Controller
                 ->orderBy('class_name', 'asc')
                 ->orderBy('name', 'asc');
 
-            // Apply search filter (nim, nama, panggilan, atau kota asal) — case-insensitive di semua driver DB
-            if ($request->filled('search')) {
-                $search = mb_strtolower(trim((string) $request->input('search')));
-                $escaped = addcslashes($search, '\\%_');
-                $pattern = "%{$escaped}%";
+            // Apply search filter (nim or name)
+            if (filled($validated['search'] ?? null)) {
+                $search = Str::lower(trim($validated['search']));
+                $query->where(function ($q) use ($search) {
+                    $like = "%{$search}%";
 
-                $query->where(function ($q) use ($pattern) {
-                    $q->whereRaw("LOWER(nim) LIKE ? ESCAPE '\\'", [$pattern])
-                        ->orWhereRaw("LOWER(name) LIKE ? ESCAPE '\\'", [$pattern])
-                        ->orWhereRaw("LOWER(nickname) LIKE ? ESCAPE '\\'", [$pattern])
-                        ->orWhereRaw("LOWER(origin_city) LIKE ? ESCAPE '\\'", [$pattern]);
+                    $q->whereRaw('LOWER(nim) LIKE ?', [$like])
+                        ->orWhereRaw('LOWER(name) LIKE ?', [$like])
+                        ->orWhereRaw('LOWER(nickname) LIKE ?', [$like])
+                        ->orWhereRaw('LOWER(origin_city) LIKE ?', [$like]);
                 });
             }
 
             // Apply class filter
-            if ($request->filled('class')) {
-                $query->where('class_name', $request->input('class'));
+            if (filled($validated['class'] ?? null)) {
+                $query->where('class_name', $validated['class']);
             }
 
-            // Paginate (query string search & class ikut terbawa di link halaman)
-            $students = $query->paginate(15)->withQueryString()->through(function ($student) {
+            // Paginate
+            $students = $query->paginate(15)->through(function ($student) {
                 $hobbies = $student->hobbies
                     ? (is_string($student->hobbies) ? array_values(array_filter(array_map('trim', explode(',', $student->hobbies)))) : (array) $student->hobbies)
                     : ['Hardware', 'Sistem Digital'];
@@ -68,6 +68,11 @@ class DirectoryController extends Controller
 
             // Available filters (all classes)
             $filters = ['A', 'B', 'C', 'D'];
+            $classCounts = Student::query()
+                ->selectRaw('class_name, COUNT(*) AS total')
+                ->whereIn('class_name', $filters)
+                ->groupBy('class_name')
+                ->pluck('total', 'class_name');
 
             // Total students count (without filters)
             $totalStudents = Student::count();
@@ -75,6 +80,9 @@ class DirectoryController extends Controller
             return view('directory', [
                 'students' => $students,
                 'filters' => $filters,
+                'classCounts' => collect($filters)->mapWithKeys(
+                    fn (string $class): array => [$class => (int) ($classCounts[$class] ?? 0)]
+                ),
                 'totalStudents' => $totalStudents,
             ]);
 
