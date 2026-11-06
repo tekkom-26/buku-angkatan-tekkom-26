@@ -35,7 +35,7 @@
 <article
     data-student-card
     data-class="{{ $className }}"
-    class="group relative flex flex-col justify-between rounded-2xl border border-surface-border bg-surface-card p-5 sm:p-6 shadow-xs hover:border-primary-900/30 transition-all duration-180"
+    class="group relative flex flex-col justify-between h-[390px] rounded-2xl border border-surface-border bg-surface-card p-5 sm:p-6 shadow-xs hover:border-primary-900/30 transition-all duration-180"
 >
     <div>
         {{-- Top Metadata Bar: Monospace Index & Class Tag --}}
@@ -75,9 +75,6 @@
                         100x100
                     </span>
                 @else
-                    <span class="w-full text-left font-mono text-[7px] uppercase tracking-wider text-primary-500 leading-tight truncate">
-                        [X] [AVATAR: 1:1 — {{ strtoupper($nickname) }}]
-                    </span>
                     <div class="relative flex-1 w-full flex items-center justify-center overflow-hidden rounded-lg my-0.5">
                         {{--
                             TODO: Jika mahasiswa belum memiliki foto formal ($student['formal_photo_url']),
@@ -101,13 +98,15 @@
                     {{ $nickname }}
                 </h2>
 
-                {{-- Full Name (13px - 14px Medium Deep Plum / 75%) --}}
-                <p class="text-[13px] sm:text-sm font-medium text-primary-900/75 leading-snug line-clamp-2 mt-0.5">
-                    {{ $locked ? 'Nama Lengkap Disamarkan' : $fullName }}
-                </p>
+                {{-- Full Name (Fixed 2-line height reservation to prevent layout shift) --}}
+                <div class="h-9 sm:h-10 mt-0.5 flex items-start">
+                    <p class="text-[13px] sm:text-sm font-medium text-primary-900/75 leading-snug line-clamp-2" title="{{ $fullName }}">
+                        {{ $locked ? 'Nama Lengkap Disamarkan' : $fullName }}
+                    </p>
+                </div>
 
                 {{-- Monospace NIM Identifier --}}
-                <p class="mt-2 inline-flex items-center px-2 py-0.5 rounded bg-white/80 border border-surface-border font-mono text-[11px] font-semibold text-primary-700 tracking-[0.04em]">
+                <p class="mt-1 inline-flex items-center px-2 py-0.5 rounded bg-white/80 border border-surface-border font-mono text-[11px] font-semibold text-primary-700 tracking-[0.04em]">
                     {{ $locked ? 'NIM // 21120126••••••' : 'NIM // ' . $nim }}
                 </p>
             </div>
@@ -117,7 +116,7 @@
         {{-- Origin City & Interest / Tech Tags --}}
         <div class="space-y-3 pt-3 border-t border-surface-border">
             {{-- Origin City with Monoline Pin Icon --}}
-            <div class="flex items-center justify-between gap-2 text-xs text-primary-700">
+            <div class="flex items-center justify-between gap-2 text-xs text-primary-700 h-5">
                 <span class="font-mono text-[10px] uppercase tracking-[0.05em] text-primary-500">
                     DOMISILI:
                 </span>
@@ -126,22 +125,37 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
                     </svg>
-                    <span>{{ $locked ? 'Kota Disamarkan' : $originCity }}</span>
+                    <span class="truncate">{{ $locked ? 'Kota Disamarkan' : $originCity }}</span>
                 </span>
             </div>
 
-            {{-- Tech / Exploration Tags --}}
-            <div class="flex flex-wrap items-center gap-1.5">
+            {{-- Tech / Exploration Tags (Fixed Height & Smart Truncation to guarantee uniform card height) --}}
+            <div class="h-[52px] flex flex-wrap content-start items-center gap-1.5 overflow-hidden">
                 @if ($locked)
                     <span class="inline-flex items-center px-2.5 py-1 rounded-md bg-surface-canvas border border-surface-border font-mono text-[10px] uppercase tracking-wider text-primary-500">
                         [DATA_PRIVAT_TERKUNCI]
                     </span>
                 @else
-                    @foreach (array_slice($hobbies, 0, 3) as $tag)
-                        <span class="inline-flex items-center px-2.5 py-1 rounded-md bg-white border border-surface-border font-mono text-[10px] font-medium uppercase tracking-wider text-primary-800">
+                    @php
+                        $displayedHobbies = array_slice($hobbies, 0, 2);
+                        $remainingCount = count($hobbies) - count($displayedHobbies);
+                    @endphp
+                    @foreach ($displayedHobbies as $tag)
+                        <span
+                            class="inline-flex items-center max-w-[130px] px-2.5 py-1 rounded-md bg-white border border-surface-border font-mono text-[10px] font-medium uppercase tracking-wider text-primary-800 truncate"
+                            title="#{{ $tag }}"
+                        >
                             #{{ $tag }}
                         </span>
                     @endforeach
+                    @if ($remainingCount > 0)
+                        <span
+                            class="inline-flex items-center px-2 py-1 rounded-md bg-surface-subtle border border-surface-border font-mono text-[10px] font-semibold text-primary-700 shrink-0 cursor-default"
+                            title="Hobi lainnya: {{ implode(', ', array_slice($hobbies, 2)) }}"
+                        >
+                            +{{ $remainingCount }}
+                        </span>
+                    @endif
                 @endif
             </div>
         </div>
