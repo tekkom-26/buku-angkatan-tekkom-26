@@ -1,7 +1,15 @@
 @props([
-    'motto' => 'Integrity, Unbreakable, We Are Competent!!!',
-    'visionBody' => 'Menjadi angkatan Teknik Komputer 2026 yang solid, berintegritas tinggi, dan unggul dalam kompetensi rekayasa perangkat keras maupun perangkat lunak, serta mampu memberikan kontribusi nyata bagi kemajuan teknologi dan masyarakat.',
-    'missions' => [
+    'content' => null,
+    'motto' => null,
+    'visionBody' => null,
+    'missions' => null,
+])
+
+@php
+    $c = $content ?? [];
+    $motto = $c['motto'] ?? $motto ?? 'Integrity, Unbreakable, We Are Competent!!!';
+    $visionBody = $c['vision_body'] ?? $visionBody ?? 'Menjadi angkatan Teknik Komputer 2026 yang solid, berintegritas tinggi, dan unggul dalam kompetensi rekayasa perangkat keras maupun perangkat lunak, serta mampu memberikan kontribusi nyata bagi kemajuan teknologi dan masyarakat.';
+    $missions = $c['missions'] ?? $missions ?? [
         [
             'number' => '01.',
             'title' => 'Solidaritas & Inklusivitas Tanpa Sekat',
@@ -17,8 +25,8 @@
             'title' => 'Integritas Karakter & Kontribusi Berkelanjutan',
             'description' => 'Menjaga etika profesional, tanggung jawab sosial, serta meninggalkan jejak kontribusi positif di lingkungan Departemen Teknik Komputer FT Undip.',
         ],
-    ],
-])
+    ];
+@endphp
 
 {{-- ==========================================================================
      SCREEN 5 — SECTION 2: VISI & MISI ASYMMETRIC 2-COLUMN BENTO GRID

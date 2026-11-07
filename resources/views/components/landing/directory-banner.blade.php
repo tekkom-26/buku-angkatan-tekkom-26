@@ -1,13 +1,21 @@
 @props([
-    'headline' => 'Temukan Rekan Satu Angkatan di Direktori Resmi',
-    'description' => 'Akses profil lengkap mahasiswa Teknik Komputer 2026 berdasarkan kelas, domisili, dan minat eksplorasi melalui sistem direktori terverifikasi.',
-    'ctaLabel' => 'Jelajahi 100+ Profil Mahasiswa',
+    'content' => null,
+    'headline' => null,
+    'description' => null,
+    'ctaLabel' => null,
     'directoryUrl' => null,
-    'totalStudents' => '205',
+    'totalStudents' => null,
 ])
 
 @php
-    $resolvedDirectoryUrl = $directoryUrl ?? (
+    $c = $content ?? [];
+    $headline = $c['headline'] ?? $headline ?? 'Temukan Rekan Satu Angkatan di Direktori Resmi';
+    $description = $c['description'] ?? $description ?? 'Akses profil lengkap mahasiswa Teknik Komputer 2026 berdasarkan kelas, domisili, dan minat eksplorasi melalui sistem direktori terverifikasi.';
+    $ctaLabel = $c['cta_label'] ?? $ctaLabel ?? 'Jelajahi 100+ Profil Mahasiswa';
+    $rawDirectoryUrl = $c['directory_url'] ?? $directoryUrl ?? null;
+    $totalStudents = $c['total_students'] ?? $totalStudents ?? '205';
+
+    $resolvedDirectoryUrl = $rawDirectoryUrl ?? (
         \Illuminate\Support\Facades\Route::has('directory.index')
             ? route('directory.index')
             : (\Illuminate\Support\Facades\Route::has('directory') ? route('directory') : '/directory')

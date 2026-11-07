@@ -7,7 +7,7 @@ use App\Http\Controllers\StudentController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [PublicController::class, 'index'])->name('landing');
-Route::view('/identity', 'identity')->name('identity');
+Route::get('/identity', [PublicController::class, 'identity'])->name('identity');
 Route::middleware(['student.epoch', 'student.role'])->group(function () {
     Route::get('/directory', [DirectoryController::class, 'index'])->name('directory.index');
     Route::get('/students/{nim}', [StudentController::class, 'show'])->name('students.show');
