@@ -34,7 +34,7 @@
             'wireframeLabel' => '[X] [PHOTO_MOMENT_16:9 — COHORT_GATHERING]',
             // TODO: Ganti '/assets/Placeholder.png' dengan path foto kebersamaan angkatan asli (misal: '/assets/moments/cohort-gathering.jpg')
             'image' => '/assets/Placeholder.png',
-            'title' => 'Malam Keakraban & Forum Solidaritas Keluarga Besar ASCENT',
+            'title' => 'Malam Keakraban & Forum Solidaritas Keluarga Besar Angkatan',
             'description' => 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Menyatukan visi lintas kelas.',
             'meta' => 'TEMBALANG_CAMPUS // 05 DES 2026',
             'nodeRef' => 'NODE_24:717',

@@ -7,21 +7,20 @@
     $c = $content ?? [];
     $eyebrow = $c['eyebrow'] ?? '// 03_LOGO_ANATOMY';
     $title = $c['title'] ?? 'Bedah Simbolisme';
-    $subtitle = $c['subtitle'] ?? 'Logo ASCENT';
-    $description = $c['description'] ?? 'Setiap lapisan geometri pada lambang ASCENT dirancang dengan presisi untuk merepresentasikan visi, identitas angkatan, keahlian rekayasa, dan solidaritas Teknik Komputer 2026.';
+    $subtitle = $c['subtitle'] ?? ('Lambang ' . ($cohortName ?? 'Angkatan'));
+    $description = $c['description'] ?? 'Setiap lapisan geometri pada lambang dirancang dengan presisi untuk merepresentasikan visi, identitas angkatan, keahlian rekayasa, dan solidaritas Teknik Komputer 2026.';
     $slides = $c['slides'] ?? [
         [
             'number' => '01',
             'eyebrow' => 'ELEVATION LAYER',
-            'title' => 'Sayap Ascent // Elevasi & Ambisi Melambung',
-            'description' => 'Rentang sayap geometris melambangkan semangat elevasi (Ascent) dan ambisi angkatan 2026 untuk terus terbang tinggi melampaui batas kemampuan.',
+            'title' => 'Sayap Angkatan // Elevasi & Ambisi Melambung',
+            'description' => 'Rentang sayap geometris melambangkan semangat elevasi dan ambisi angkatan 2026 untuk terus terbang tinggi melampaui batas kemampuan.',
             'detail' => 'Elevasi // Ambisi Melambung',
             'part' => 'WINGS',
             'accent' => 'highlight',
             'accentClass' => 'text-highlight-900',
-            'wireframeLabel' => '[X] [ASSET: LOGO_COMPONENT_1:1 — ELEMEN_SAYAP_ASCENT]',
+            'wireframeLabel' => '[X] [ASSET: LOGO_COMPONENT_1:1 — ELEMEN_SAYAP]',
             'image' => $logoPlaceholder,
-            // 'image' => '/assets/logo/sayap-ascent.png', // Uncomment & hapus baris di atas jika aset baru sudah siap
         ],
         [
             'number' => '02',
@@ -137,7 +136,7 @@
                             </div>
 
                             {{-- Bottom Technical Label --}}
-                            <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-white/75">ASCENT 2026 // SYMBOLISM STUDY</p>
+                            <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-white/75">{{ $cohortName ?? 'TEKKOM 2026' }} // SYMBOLISM STUDY</p>
                         </div>
                     @endforeach
                 </div>

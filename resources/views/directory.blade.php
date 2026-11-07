@@ -1,4 +1,4 @@
-<x-layouts.app activePage="unlock" title="Direktori Mahasiswa — Ascent Teknik Komputer 2026">
+<x-layouts.app activePage="unlock" :title="'Direktori Mahasiswa — ' . $cohortName">
 
         @php
             $studentItems = collect($students->items())->values();

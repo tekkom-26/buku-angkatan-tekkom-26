@@ -1,4 +1,4 @@
-<x-layouts.app activePage="identity" title="Identitas Angkatan — Teknik Komputer 2026">
+<x-layouts.app activePage="identity" :title="'Identitas Angkatan — ' . $cohortName">
     <main id="main-content" class="flex-grow">
         {{-- Section 1: Editorial Header & 21:9 Batch Hero Banner (Issue #22) --}}
         <x-identity.header-banner :content="$identityContent['header_banner'] ?? null" />

@@ -55,7 +55,7 @@
                         </div>
 
                         <h1 class="text-xl sm:text-2xl font-extrabold text-brand-deep tracking-tight">
-                            Welcome to Ascent
+                            Portal Direktori // {{ $cohortName ?? 'TEKKOM 2026' }}
                         </h1>
                         <p class="text-sm text-brand-deep/60 mt-2 leading-relaxed">
                             Masukkan Passcode Angkatan untuk Mengakses Data

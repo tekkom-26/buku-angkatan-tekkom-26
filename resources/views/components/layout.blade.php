@@ -1,7 +1,7 @@
 @props([
-    'title' => 'Ascent — Teknik Komputer 2026',
+    'title' => null,
     'activePage' => 'home',
-    'description' => 'Website Resmi Angkatan Teknik Komputer 2026 — Universitas Diponegoro.',
+    'description' => null,
     'withNavbar' => true,
     'withFooter' => true,
 ])

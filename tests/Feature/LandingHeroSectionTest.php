@@ -39,11 +39,11 @@ class LandingHeroSectionTest extends TestCase
 
         $response->assertOk();
 
-        // Section 2: Decoding ASCENT
-        $response->assertSee('ASCENT');
-        $response->assertSee('As One Computer Engineering Twenty Six');
-        $response->assertSee('// 01_THE_ASCENT');
-        $response->assertSee('// 02_AS_ONE');
+        // Section 2: Decoding
+        $response->assertSee('TEKKOM 2026');
+        $response->assertSee('Computer Engineering Twenty Six');
+        $response->assertSee('// 01_MOVEMENT_ONE');
+        $response->assertSee('// 02_MOVEMENT_TWO');
         $response->assertSee('[ASSET: LOGO_XXVI_PRIMARY_1:1]');
 
         // Section 3: Moments & Highlights Carousel

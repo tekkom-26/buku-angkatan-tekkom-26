@@ -15,7 +15,7 @@ class IdentityColorPillarsTest extends TestCase
 
         // Section Header
         $response->assertSee('// 02_COLOR_SYSTEM');
-        $response->assertSee('Empat Pilar Warna ASCENT');
+        $response->assertSee('Empat Pilar Warna');
         $response->assertSee('PALETTE // 04_SEMANTIC_TOKENS');
 
         // Pillar 1: Sky Wash

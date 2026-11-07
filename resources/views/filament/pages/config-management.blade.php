@@ -5,7 +5,7 @@
 
         <div>
             <x-filament::button type="submit" icon="heroicon-o-check">
-                Simpan Passcode
+                Simpan Konfigurasi
             </x-filament::button>
         </div>
     </form>

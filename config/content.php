@@ -4,6 +4,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Global Cohort Official Name
+    |--------------------------------------------------------------------------
+    |
+    | Centralized cohort name stored in app_config ('cohort_name') with this
+    | baseline default fallback. Admin can update this via Filament Panel.
+    |
+    */
+
+    'cohort_name' => 'TEKNIK KOMPUTER 2026',
+
+    /*
+    |--------------------------------------------------------------------------
     | Landing Page Dynamic Content Defaults
     |--------------------------------------------------------------------------
     |
@@ -22,12 +34,12 @@ return [
             'mascot_placeholder' => '/assets/Placeholder.png',
         ],
         'decoding' => [
-            'wordmark' => 'ASCENT',
-            'sub_label' => 'As One Computer Engineering Twenty Six',
-            'movement_one_title' => '// 01_THE_ASCENT',
+            'wordmark' => 'TEKKOM 2026',
+            'sub_label' => 'Computer Engineering Twenty Six',
+            'movement_one_title' => '// 01_MOVEMENT_ONE',
             'movement_one_heading' => 'Pendakian Kolektif Menuju Puncak Ekselensi',
             'movement_one_body' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Setiap langkah ke atas adalah komitmen bersama untuk tumbuh melampaui batas kemampuan teknis maupun karakter.',
-            'movement_two_title' => '// 02_AS_ONE',
+            'movement_two_title' => '// 02_MOVEMENT_TWO',
             'movement_two_heading' => 'Satu Frekuensi dalam Spektrum Keberagaman',
             'movement_two_body' => 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Dari berbagai latar belakang daerah, menyatu sebagai keluarga besar Teknik Komputer 2026 yang saling menguatkan.',
             'logo_placeholder' => '/assets/Placeholder.png',
@@ -121,19 +133,19 @@ return [
         'logo_symbolism' => [
             'eyebrow' => '// 03_LOGO_ANATOMY',
             'title' => 'Bedah Simbolisme',
-            'subtitle' => 'Logo ASCENT',
-            'description' => 'Setiap lapisan geometri pada lambang ASCENT dirancang dengan presisi untuk merepresentasikan visi, identitas angkatan, keahlian rekayasa, dan solidaritas Teknik Komputer 2026.',
+            'subtitle' => 'Lambang Angkatan',
+            'description' => 'Setiap lapisan geometri pada lambang dirancang dengan presisi untuk merepresentasikan visi, identitas angkatan, keahlian rekayasa, dan solidaritas Teknik Komputer 2026.',
             'slides' => [
                 [
                     'number' => '01',
                     'eyebrow' => 'ELEVATION LAYER',
-                    'title' => 'Sayap Ascent // Elevasi & Ambisi Melambung',
-                    'description' => 'Rentang sayap geometris melambangkan semangat elevasi (Ascent) dan ambisi angkatan 2026 untuk terus terbang tinggi melampaui batas kemampuan.',
+                    'title' => 'Sayap Angkatan // Elevasi & Ambisi Melambung',
+                    'description' => 'Rentang sayap geometris melambangkan semangat elevasi dan ambisi angkatan 2026 untuk terus terbang tinggi melampaui batas kemampuan.',
                     'detail' => 'Elevasi // Ambisi Melambung',
                     'part' => 'WINGS',
                     'accent' => 'highlight',
                     'accentClass' => 'text-highlight-900',
-                    'wireframeLabel' => '[X] [ASSET: LOGO_COMPONENT_1:1 — ELEMEN_SAYAP_ASCENT]',
+                    'wireframeLabel' => '[X] [ASSET: LOGO_COMPONENT_1:1 — ELEMEN_SAYAP]',
                     'image' => '/assets/Placeholder.png',
                 ],
                 [

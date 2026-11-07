@@ -16,6 +16,8 @@ class AppConfigService
 
     public const KEY_AUTH_EPOCH = 'auth_epoch';
 
+    public const KEY_COHORT_NAME = 'cohort_name';
+
     protected const CACHE_PREFIX = 'app_config:';
 
     public function get(string $key, ?string $default = null): ?string
@@ -55,6 +57,21 @@ class AppConfigService
             ->value('value');
 
         return (int) ($value ?? '1');
+    }
+
+    public function cohortName(): string
+    {
+        return $this->get(self::KEY_COHORT_NAME, config('content.cohort_name', 'TEKNIK KOMPUTER 2026'))
+            ?: config('content.cohort_name', 'TEKNIK KOMPUTER 2026');
+    }
+
+    public function setCohortName(string $name): AppConfig
+    {
+        return $this->set(
+            self::KEY_COHORT_NAME,
+            $name,
+            'Nama resmi angkatan Teknik Komputer Undip 2026',
+        );
     }
 
     /**

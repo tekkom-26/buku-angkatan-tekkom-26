@@ -1,4 +1,4 @@
-<x-layouts.app :title="$student['nickname'] . ' — Ascent Teknik Komputer 2026'" activePage="unlock">
+<x-layouts.app :title="$student['nickname'] . ' — ' . $cohortName" activePage="unlock">
 
     {{-- Page Loading Transition Overlay --}}
     <div id="page-loading-overlay" class="fixed inset-0 z-[100] grid place-items-center bg-surface-canvas/95 px-6 backdrop-blur-xs" role="status" aria-live="polite" aria-label="Memuat profil mahasiswa">

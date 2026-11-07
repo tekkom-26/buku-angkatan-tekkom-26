@@ -18,7 +18,7 @@
             <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-5 sm:px-6 lg:px-8">
                 <a href="{{ route('landing') }}" class="inline-flex items-center gap-3 rounded-lg font-semibold text-primary-900">
                     <span class="grid size-10 place-items-center rounded-lg border border-surface-border bg-surface-card font-mono text-sm text-primary-900" aria-hidden="true">[X]</span>
-                    <span>TEKKOM 2026 <span class="block font-mono text-[10px] uppercase tracking-[0.18em] text-primary-500">Ascent Digital</span></span>
+                    <span>{{ $cohortName ?? 'TEKKOM 2026' }} <span class="block font-mono text-[10px] uppercase tracking-[0.18em] text-primary-500">Buku Angkatan</span></span>
                 </a>
                 <span class="hidden font-mono text-[10px] uppercase tracking-[0.2em] text-primary-500 sm:block">SYSTEM / ERROR HANDLER</span>
             </div>
@@ -54,7 +54,7 @@
                         Halaman ini tidak ditemukan.
                     </h2>
                     <p class="mt-4 max-w-xl text-sm leading-7 text-primary-700 sm:text-base">
-                        Alamat yang kamu cari belum dialokasikan di sistem Ascent. Gunakan jalur pemulihan di bawah untuk kembali ke jaringan utama.
+                        Alamat yang kamu cari belum dialokasikan di sistem. Gunakan jalur pemulihan di bawah untuk kembali ke jaringan utama.
                     </p>
 
                     <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
@@ -112,7 +112,7 @@
 
         <footer class="border-t border-surface-border bg-surface-canvas">
             <div class="mx-auto max-w-7xl px-4 py-5 font-mono text-[10px] uppercase tracking-[0.16em] text-primary-500 sm:px-6 lg:px-8">
-                Ascent — Teknik Komputer 2026
+                {{ $cohortName ?? 'TEKNIK KOMPUTER 2026' }}
             </div>
         </footer>
     </body>

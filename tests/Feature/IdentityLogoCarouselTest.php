@@ -14,18 +14,17 @@ class IdentityLogoCarouselTest extends TestCase
         // 1. Technical Index & Header
         $response->assertSee('// 03_LOGO_ANATOMY');
         $response->assertSee('Bedah Simbolisme');
-        $response->assertSee('Logo ASCENT');
         $response->assertSee('LOGO / 04 LAYERS');
         // 2. Layer Breakdown Header & Slide Counter Badge
         $response->assertSee('LAYER BREAKDOWN');
         $response->assertSee('[ KOMPONEN');
         $response->assertSee('/ 04 ]');
         $response->assertSee('ASSET_LAYER: 01_OF_04 // VECTOR_CONSTRUCT');
-        // 3. Slide 1: Sayap Ascent
-        $response->assertSee('Sayap Ascent // Elevasi & Ambisi Melambung');
+        // 3. Slide 1: Sayap Angkatan
+        $response->assertSee('Sayap Angkatan // Elevasi & Ambisi Melambung');
         $response->assertSee('Elevasi // Ambisi Melambung');
         $response->assertSee('WINGS');
-        $response->assertSee('[X] [ASSET: LOGO_COMPONENT_1:1 — ELEMEN_SAYAP_ASCENT]');
+        $response->assertSee('[X] [ASSET: LOGO_COMPONENT_1:1 — ELEMEN_SAYAP]');
         // 4. Slide 2: Geometri Angka 26
         $response->assertSee('Geometri Angka 26 // Identitas Angkatan');
         $response->assertSee('Identitas // Angkatan 2026');
@@ -58,7 +57,7 @@ class IdentityLogoCarouselTest extends TestCase
         $response->assertViewIs('identity');
 
         // Section 1: Editorial Header & 21:9 Batch Hero Banner (Issue #22)
-        $response->assertSee('// 05_IDENTITY — FILOSOFI & SIMBOLISME ASCENT 2026', false);
+        $response->assertSee('// 05_IDENTITY — FILOSOFI & SIMBOLISME //', false);
         $response->assertSee('Identitas, Filosofi & Nilai Dasar');
         $response->assertSee('[X] [IMAGE: BATCH_HERO_BANNER_21:9 — FOTO_KOLABORATIF_ANGKATAN]');
         $response->assertSee('[ARCHIVE_REF: ID_BANNER_2026] | ASPECT_RATIO: 21:9');
@@ -76,7 +75,7 @@ class IdentityLogoCarouselTest extends TestCase
 
         // Section 3: 4 Official Color Pillars Horizontal Swatch Grid (Issue #24)
         $response->assertSee('// 02_COLOR_SYSTEM');
-        $response->assertSee('Empat Pilar Warna ASCENT');
+        $response->assertSee('Empat Pilar Warna');
         $response->assertSee('PALETTE // 04_SEMANTIC_TOKENS');
         $response->assertSee('Sky Wash');
         $response->assertSee('Butter Cream');
