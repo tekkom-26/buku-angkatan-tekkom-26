@@ -1,9 +1,6 @@
 name: Deploy Staging to Vercel (Docker)
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
@@ -14,7 +11,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
