@@ -1,19 +1,25 @@
 @props([
-    'title' => 'Ascent — Teknik Komputer 2026',
+    'title' => null,
     'activePage' => 'home', // 'home' | 'identity' | 'directory' | 'student' | 'unlock' | 'gallery' | 'contact'
-    'description' => 'Website Resmi Angkatan Teknik Komputer 2026 — Universitas Diponegoro.',
+    'description' => null,
     'withNavbar' => true,
     'withFooter' => true,
 ])
+
+@php
+    $displayCohort = $cohortName ?? 'TEKNIK KOMPUTER 2026';
+    $resolvedTitle = $title ?? ($displayCohort . ' — Buku Angkatan');
+    $resolvedDescription = $description ?? ('Website Resmi Angkatan ' . $displayCohort . ' — Universitas Diponegoro.');
+@endphp
 
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="description" content="{{ $description }}">
+        <meta name="description" content="{{ $resolvedDescription }}">
 
-        <title>{{ $title }}</title>
+        <title>{{ $resolvedTitle }}</title>
 
         @fonts
 

@@ -30,7 +30,7 @@
                 <div class="flex items-center gap-2">
                     <span class="inline-block size-2 rounded-full bg-secondary-500" aria-hidden="true"></span>
                     <span class="font-mono text-xs font-bold uppercase tracking-[0.05em] text-secondary-700">
-                        // 05_IDENTITY — FILOSOFI & SIMBOLISME ASCENT 2026
+                        // 05_IDENTITY — FILOSOFI & SIMBOLISME // {{ $cohortName ?? 'TEKKOM 2026' }}
                     </span>
                 </div>
                 <span class="inline-flex items-center px-3 py-1 rounded-lg bg-surface-card border border-surface-border font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-primary-700">

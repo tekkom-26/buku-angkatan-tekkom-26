@@ -31,7 +31,7 @@
             'hexLabel' => '#514051',
             'tokenName' => 'primary-900',
             'swatchClass' => 'bg-primary-900 text-white',
-            'philosophy' => 'Menjadi jangkar otoritas struktural, kedalaman intelektual, dan keteguhan prinsip yang menjaga keutuhan fondasi keluarga besar ASCENT.',
+            'philosophy' => 'Menjadi jangkar otoritas struktural, kedalaman intelektual, dan keteguhan prinsip yang menjaga keutuhan fondasi keluarga besar angkatan.',
         ],
         [
             'index' => '04',
@@ -67,7 +67,7 @@
                     id="color-pillars-heading"
                     class="text-2xl sm:text-[26px] font-bold text-primary-900 tracking-[-0.02em] leading-tight"
                 >
-                    Empat Pilar Warna ASCENT
+                    Empat Pilar Warna {{ $cohortName ?? 'Angkatan' }}
                 </h2>
             </div>
             <span class="font-mono text-xs uppercase tracking-[0.05em] text-primary-500">

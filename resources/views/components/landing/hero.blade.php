@@ -23,7 +23,7 @@
      Mengacu pada GitHub Issue #18, DESIGN.md, dan prompts/screen-1-landing.md
      Figma Reference: Node 24:505 (Hero Container) & Node 24:553 (Mascot Chibi)
      ========================================================================== --}}
-<section id="hero-section" aria-label="Hero Section Ascent" class="w-full bg-surface-canvas py-8 sm:py-12 lg:py-16">
+<section id="hero-section" aria-label="Hero Section" class="w-full bg-surface-canvas py-8 sm:py-12 lg:py-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {{-- Bento Grid Container (Asymmetric 65% Left / 35% Right) --}}

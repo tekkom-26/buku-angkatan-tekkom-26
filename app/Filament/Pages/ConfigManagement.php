@@ -15,12 +15,13 @@ use Illuminate\Support\Facades\Hash;
 
 /**
  * Halaman admin untuk mengelola konfigurasi sistem di tabel `app_config`:
+ *  - mengubah nama resmi angkatan mahasiswa (cohort_name)
  *  - mengganti passcode angkatan mahasiswa
  *  - merotasi auth_epoch (+1) agar semua sesi mahasiswa aktif tidak berlaku lagi
  */
 class ConfigManagement extends Page
 {
-    protected static string | BackedEnum | null $navigationIcon = Heroicon::OutlinedCog6Tooth;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCog6Tooth;
 
     protected static ?string $navigationLabel = 'Konfigurasi Sistem';
 
@@ -29,34 +30,53 @@ class ConfigManagement extends Page
     protected string $view = 'filament.pages.config-management';
 
     /**
+     * Nama resmi angkatan mahasiswa yang tampil di seluruh platform.
+     */
+    public ?string $cohort_name = null;
+
+    /**
      * Terikat ke input form. Selalu kosong saat halaman dibuka karena
      * passcode di database disimpan sebagai hash bcrypt (tidak bisa dibaca balik).
      */
     public ?string $student_passcode = null;
 
-    public function mount(): void
+    public function mount(AppConfigService $config): void
     {
-        $this->form->fill();
+        $this->cohort_name = $config->cohortName();
+
+        $this->form->fill([
+            'cohort_name' => $this->cohort_name,
+        ]);
     }
 
     public function form(Schema $schema): Schema
     {
         return $schema
             ->components([
+                Section::make('Identitas Resmi Angkatan')
+                    ->description('Nama angkatan resmi yang ditampilkan pada header, judul halaman, dan seluruh platform.')
+                    ->schema([
+                        TextInput::make('cohort_name')
+                            ->label('Nama Resmi Angkatan')
+                            ->required()
+                            ->maxLength(255)
+                            ->helperText('Contoh: TEKKOM 2026 atau nama resmi hasil asistensi.'),
+                    ]),
+
                 Section::make('Passcode Angkatan')
-                    ->description('Passcode bersama yang dipakai mahasiswa untuk membuka situs.')
+                    ->description('Passcode bersama yang dipakai mahasiswa untuk membuka direktori.')
                     ->schema([
                         TextInput::make('student_passcode')
-                            ->label('Passcode Baru')
+                            ->label('Ganti Passcode')
                             ->password()
                             ->revealable()
-                            ->required()
+                            ->nullable()
                             ->minLength(6)
                             ->maxLength(255)
                             ->autocomplete('new-password')
                             ->helperText(
                                 $this->hasPasscode()
-                                    ? 'Passcode saat ini tersimpan aman (terenkripsi) dan tidak bisa ditampilkan. Isi untuk menggantinya.'
+                                    ? 'Passcode saat ini tersimpan aman. Kosongkan jika tidak ingin mengubah passcode.'
                                     : 'Belum ada passcode tersimpan. Isi untuk membuatnya.'
                             ),
                     ]),
@@ -64,24 +84,32 @@ class ConfigManagement extends Page
     }
 
     /**
-     * Simpan passcode baru (sebagai hash bcrypt, sama seperti AuthSeeder).
-     * AppConfigService::set() otomatis membersihkan cache key terkait.
+     * Simpan pembaruan identitas angkatan dan passcode baru (jika diisi).
      */
     public function save(AppConfigService $config): void
     {
         $data = $this->form->getState();
 
-        $config->set(
-            AppConfigService::KEY_STUDENT_PASSCODE,
-            Hash::make($data['student_passcode']),
-            'Bcrypt hash of the shared student passcode',
-        );
+        if (! empty($data['cohort_name'])) {
+            $config->setCohortName($data['cohort_name']);
+            $this->cohort_name = $data['cohort_name'];
+        }
+
+        if (! empty($data['student_passcode'])) {
+            $config->set(
+                AppConfigService::KEY_STUDENT_PASSCODE,
+                Hash::make($data['student_passcode']),
+                'Bcrypt hash of the shared student passcode',
+            );
+        }
 
         $this->student_passcode = null;
-        $this->form->fill();
+        $this->form->fill([
+            'cohort_name' => $this->cohort_name,
+        ]);
 
         Notification::make()
-            ->title('Passcode Berhasil Diperbarui')
+            ->title('Konfigurasi Berhasil Diperbarui')
             ->success()
             ->send();
     }

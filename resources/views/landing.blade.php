@@ -1,4 +1,4 @@
-<x-layouts.app activePage="home" title="Ascent — Teknik Komputer 2026">
+<x-layouts.app activePage="home" :title="$cohortName . ' — Buku Angkatan'">
     <x-in-page-nav
         :items="[
             ['id' => 'hero-section', 'label' => '[1. HERO]'],
@@ -12,7 +12,7 @@
         {{-- Section 1: Hero Asymmetric Bento Grid (Issue #18) --}}
         <x-landing.hero :content="$landingContent['hero'] ?? null" />
 
-        {{-- Section 2: Decoding ASCENT 2-Column Editorial Split (Issue #19) --}}
+        {{-- Section 2: Decoding 2-Column Editorial Split (Issue #19) --}}
         <x-landing.decoding-ascent :content="$landingContent['decoding'] ?? null" />
 
         {{-- Section 3: Moments & Highlights Carousel (Issue #20) --}}

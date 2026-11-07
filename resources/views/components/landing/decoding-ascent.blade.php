@@ -14,9 +14,9 @@
 @php
     $c = $content ?? [];
     $logoPlaceholder = $c['logo_placeholder'] ?? $logoPlaceholder ?? '/assets/Placeholder.png';
-    $wordmark = $c['wordmark'] ?? $wordmark ?? 'ASCENT';
-    $subLabel = $c['sub_label'] ?? $subLabel ?? 'As One Computer Engineering Twenty Six';
-    $movementOneTitle = $c['movement_one_title'] ?? $movementOneTitle ?? '// 01_THE_ASCENT';
+    $wordmark = $c['wordmark'] ?? $wordmark ?? ($cohortName ?? 'TEKKOM 2026');
+    $subLabel = $c['sub_label'] ?? $subLabel ?? 'Computer Engineering Twenty Six';
+    $movementOneTitle = $c['movement_one_title'] ?? $movementOneTitle ?? '// 01_MOVEMENT_ONE';
     $movementOneHeading = $c['movement_one_heading'] ?? $movementOneHeading ?? 'Pendakian Kolektif Menuju Puncak Ekselensi';
     $movementOneBody = $c['movement_one_body'] ?? $movementOneBody ?? 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Setiap langkah ke atas adalah komitmen bersama untuk tumbuh melampaui batas kemampuan teknis maupun karakter.';
     $movementTwoTitle = $c['movement_two_title'] ?? $movementTwoTitle ?? '// 02_AS_ONE';
@@ -25,11 +25,11 @@
 @endphp
 
 {{-- ==========================================================================
-     SECTION 2: DECODING ASCENT (2-Column Asymmetric Editorial Split)
+     SECTION 2: DECODING (2-Column Asymmetric Editorial Split)
      Mengacu pada GitHub Issue #19 & #12, DESIGN.md, dan DOCS_COLOR_CONVENTION.md
      Figma Reference: Node 24:584 (Section Decoding), 24:612 (Logo 140x140), 24:635 (Divider)
      ========================================================================== --}}
-<section id="decoding-section" aria-labelledby="decoding-ascent-heading" class="w-full bg-surface-canvas py-6 sm:py-10">
+<section id="decoding-section" aria-labelledby="decoding-heading" class="w-full bg-surface-canvas py-6 sm:py-10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {{-- Section Blueprint Divider Top with Crosshair Ticks (Figma Node 24:635) --}}
@@ -81,7 +81,7 @@
 
                         {{-- Massive Display Wordmark "ASCENT" --}}
                         <h2
-                            id="decoding-ascent-heading"
+                            id="decoding-heading"
                             class="text-5xl sm:text-6xl font-bold text-primary-900 tracking-[-0.03em] leading-none mb-3"
                         >
                             {{ $wordmark }}
