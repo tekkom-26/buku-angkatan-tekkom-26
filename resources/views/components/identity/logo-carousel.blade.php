@@ -1,9 +1,15 @@
 @props([
+    'content' => null,
     'logoPlaceholder' => '/assets/Placeholder.png',
 ])
 
 @php
-    $slides = [
+    $c = $content ?? [];
+    $eyebrow = $c['eyebrow'] ?? '// 03_LOGO_ANATOMY';
+    $title = $c['title'] ?? 'Bedah Simbolisme';
+    $subtitle = $c['subtitle'] ?? 'Logo ASCENT';
+    $description = $c['description'] ?? 'Setiap lapisan geometri pada lambang ASCENT dirancang dengan presisi untuk merepresentasikan visi, identitas angkatan, keahlian rekayasa, dan solidaritas Teknik Komputer 2026.';
+    $slides = $c['slides'] ?? [
         [
             'number' => '01',
             'eyebrow' => 'ELEVATION LAYER',
@@ -80,13 +86,13 @@
         {{-- Section Header --}}
         <div class="mb-10 flex flex-col gap-5 border-b border-surface-border pb-8 md:mb-14 md:flex-row md:items-end md:justify-between">
             <div class="max-w-2xl">
-                <p class="mb-3 font-mono text-xs uppercase tracking-[0.24em] text-secondary-500">// 03_LOGO_ANATOMY</p>
+                <p class="mb-3 font-mono text-xs uppercase tracking-[0.24em] text-secondary-500">{{ $eyebrow }}</p>
                 <h2 class="text-[26px] font-bold tracking-tight text-primary-900 sm:text-4xl">
-                    Bedah Simbolisme
-                    <span class="block text-secondary-500">Logo ASCENT</span>
+                    {{ $title }}
+                    <span class="block text-secondary-500">{!! $subtitle !!}</span>
                 </h2>
                 <p class="mt-4 max-w-xl text-sm leading-relaxed text-primary-700 sm:text-base">
-                    Setiap lapisan geometri pada lambang ASCENT dirancang dengan presisi untuk merepresentasikan visi, identitas angkatan, keahlian rekayasa, dan solidaritas Teknik Komputer 2026.
+                    {{ $description }}
                 </p>
             </div>
             <p class="font-mono text-xs uppercase tracking-[0.2em] text-primary-500">LOGO / 04 LAYERS</p>

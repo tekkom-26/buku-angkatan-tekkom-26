@@ -1,11 +1,22 @@
 @props([
-    'title' => 'ANGKATAN // TEKKOM 2026',
-    'motto' => 'LOREM IPSUM DOLOR!!!',
-    'narrative' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.',
-    'directoryUrl' => '/directory',
-    'identityUrl' => '/identity',
-    'mascotPlaceholder' => '/assets/Placeholder.png',
+    'content' => null,
+    'title' => null,
+    'motto' => null,
+    'narrative' => null,
+    'directoryUrl' => null,
+    'identityUrl' => null,
+    'mascotPlaceholder' => null,
 ])
+
+@php
+    $c = $content ?? [];
+    $title = $c['title'] ?? $title ?? 'ANGKATAN // TEKKOM 2026';
+    $motto = $c['motto'] ?? $motto ?? 'LOREM IPSUM DOLOR!!!';
+    $narrative = $c['narrative'] ?? $narrative ?? 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.';
+    $directoryUrl = $c['directory_url'] ?? $directoryUrl ?? '/directory';
+    $identityUrl = $c['identity_url'] ?? $identityUrl ?? '/identity';
+    $mascotPlaceholder = $c['mascot_placeholder'] ?? $mascotPlaceholder ?? '/assets/Placeholder.png';
+@endphp
 
 {{-- ==========================================================================
      SECTION 1: HERO ASYMMETRIC BENTO GRID (65% Left / 35% Right)

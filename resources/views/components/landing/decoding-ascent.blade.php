@@ -1,14 +1,28 @@
 @props([
-    'logoPlaceholder' => '/assets/Placeholder.png',
-    'wordmark' => 'ASCENT',
-    'subLabel' => 'As One Computer Engineering Twenty Six',
-    'movementOneTitle' => '// 01_THE_ASCENT',
-    'movementOneHeading' => 'Pendakian Kolektif Menuju Puncak Ekselensi',
-    'movementOneBody' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Setiap langkah ke atas adalah komitmen bersama untuk tumbuh melampaui batas kemampuan teknis maupun karakter.',
-    'movementTwoTitle' => '// 02_AS_ONE',
-    'movementTwoHeading' => 'Satu Frekuensi dalam Spektrum Keberagaman',
-    'movementTwoBody' => 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Dari berbagai latar belakang daerah, menyatu sebagai keluarga besar Teknik Komputer 2026 yang saling menguatkan.',
+    'content' => null,
+    'logoPlaceholder' => null,
+    'wordmark' => null,
+    'subLabel' => null,
+    'movementOneTitle' => null,
+    'movementOneHeading' => null,
+    'movementOneBody' => null,
+    'movementTwoTitle' => null,
+    'movementTwoHeading' => null,
+    'movementTwoBody' => null,
 ])
+
+@php
+    $c = $content ?? [];
+    $logoPlaceholder = $c['logo_placeholder'] ?? $logoPlaceholder ?? '/assets/Placeholder.png';
+    $wordmark = $c['wordmark'] ?? $wordmark ?? 'ASCENT';
+    $subLabel = $c['sub_label'] ?? $subLabel ?? 'As One Computer Engineering Twenty Six';
+    $movementOneTitle = $c['movement_one_title'] ?? $movementOneTitle ?? '// 01_THE_ASCENT';
+    $movementOneHeading = $c['movement_one_heading'] ?? $movementOneHeading ?? 'Pendakian Kolektif Menuju Puncak Ekselensi';
+    $movementOneBody = $c['movement_one_body'] ?? $movementOneBody ?? 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Setiap langkah ke atas adalah komitmen bersama untuk tumbuh melampaui batas kemampuan teknis maupun karakter.';
+    $movementTwoTitle = $c['movement_two_title'] ?? $movementTwoTitle ?? '// 02_AS_ONE';
+    $movementTwoHeading = $c['movement_two_heading'] ?? $movementTwoHeading ?? 'Satu Frekuensi dalam Spektrum Keberagaman';
+    $movementTwoBody = $c['movement_two_body'] ?? $movementTwoBody ?? 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Dari berbagai latar belakang daerah, menyatu sebagai keluarga besar Teknik Komputer 2026 yang saling menguatkan.';
+@endphp
 
 {{-- ==========================================================================
      SECTION 2: DECODING ASCENT (2-Column Asymmetric Editorial Split)

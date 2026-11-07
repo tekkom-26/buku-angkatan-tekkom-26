@@ -14,30 +14,30 @@ return [
 
     'landing' => [
         'hero' => [
-            'title' => 'TEKNIK KOMPUTER 2026',
-            'motto' => 'LOREM IPSUM DOLOR SIT AMET',
-            'narrative' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
+            'title' => 'ANGKATAN // TEKKOM 2026',
+            'motto' => 'LOREM IPSUM DOLOR!!!',
+            'narrative' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.',
             'directory_url' => '/directory',
             'identity_url' => '/identity',
             'mascot_placeholder' => '/assets/Placeholder.png',
         ],
         'decoding' => [
-            'wordmark' => 'TEKKOM 2026',
-            'sub_label' => 'Computer Engineering Twenty Six',
-            'movement_one_title' => '// 01_MOVEMENT_ONE',
-            'movement_one_heading' => 'Komitmen Kolektif Menuju Ekselensi',
-            'movement_one_body' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-            'movement_two_title' => '// 02_MOVEMENT_TWO',
+            'wordmark' => 'ASCENT',
+            'sub_label' => 'As One Computer Engineering Twenty Six',
+            'movement_one_title' => '// 01_THE_ASCENT',
+            'movement_one_heading' => 'Pendakian Kolektif Menuju Puncak Ekselensi',
+            'movement_one_body' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Setiap langkah ke atas adalah komitmen bersama untuk tumbuh melampaui batas kemampuan teknis maupun karakter.',
+            'movement_two_title' => '// 02_AS_ONE',
             'movement_two_heading' => 'Satu Frekuensi dalam Spektrum Keberagaman',
-            'movement_two_body' => 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+            'movement_two_body' => 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Dari berbagai latar belakang daerah, menyatu sebagai keluarga besar Teknik Komputer 2026 yang saling menguatkan.',
             'logo_placeholder' => '/assets/Placeholder.png',
         ],
         'directory_banner' => [
             'headline' => 'Temukan Rekan Satu Angkatan di Direktori Resmi',
             'description' => 'Akses profil lengkap mahasiswa Teknik Komputer 2026 berdasarkan kelas, domisili, dan minat eksplorasi melalui sistem direktori terverifikasi.',
-            'cta_label' => 'Jelajahi Direktori Mahasiswa',
+            'cta_label' => 'Jelajahi 100+ Profil Mahasiswa',
             'directory_url' => '/directory',
-            'total_students' => '100+',
+            'total_students' => '205',
         ],
     ],
 
@@ -58,7 +58,7 @@ return [
             'banner_placeholder' => '/assets/Placeholder.png',
         ],
         'vision_mission' => [
-            'motto' => 'Integrity, Unbreakable, We Are Competent',
+            'motto' => 'Integrity, Unbreakable, We Are Competent!!!',
             'vision_body' => 'Menjadi angkatan Teknik Komputer 2026 yang solid, berintegritas tinggi, dan unggul dalam kompetensi rekayasa perangkat keras maupun perangkat lunak, serta mampu memberikan kontribusi nyata bagi kemajuan teknologi dan masyarakat.',
             'missions' => [
                 [
@@ -121,19 +121,19 @@ return [
         'logo_symbolism' => [
             'eyebrow' => '// 03_LOGO_ANATOMY',
             'title' => 'Bedah Simbolisme',
-            'subtitle' => 'Lambang Angkatan',
-            'description' => 'Setiap lapisan geometri pada lambang dirancang dengan presisi untuk merepresentasikan visi, identitas angkatan, keahlian rekayasa, dan solidaritas Teknik Komputer 2026.',
+            'subtitle' => 'Logo ASCENT',
+            'description' => 'Setiap lapisan geometri pada lambang ASCENT dirancang dengan presisi untuk merepresentasikan visi, identitas angkatan, keahlian rekayasa, dan solidaritas Teknik Komputer 2026.',
             'slides' => [
                 [
                     'number' => '01',
                     'eyebrow' => 'ELEVATION LAYER',
-                    'title' => 'Sayap Angkatan // Elevasi & Ambisi Melambung',
-                    'description' => 'Rentang sayap geometris melambangkan semangat elevasi dan ambisi angkatan 2026 untuk terus terbang tinggi melampaui batas kemampuan.',
+                    'title' => 'Sayap Ascent // Elevasi & Ambisi Melambung',
+                    'description' => 'Rentang sayap geometris melambangkan semangat elevasi (Ascent) dan ambisi angkatan 2026 untuk terus terbang tinggi melampaui batas kemampuan.',
                     'detail' => 'Elevasi // Ambisi Melambung',
                     'part' => 'WINGS',
                     'accent' => 'highlight',
                     'accentClass' => 'text-highlight-900',
-                    'wireframeLabel' => '[X] [ASSET: LOGO_COMPONENT_1:1 — ELEMEN_SAYAP]',
+                    'wireframeLabel' => '[X] [ASSET: LOGO_COMPONENT_1:1 — ELEMEN_SAYAP_ASCENT]',
                     'image' => '/assets/Placeholder.png',
                 ],
                 [

@@ -1,8 +1,16 @@
 @props([
-    'title' => 'Identitas, Filosofi & Nilai Dasar',
-    'subhead' => 'Dokumentasi komprehensif mengenai arsitektur visual, arah gerak strategis, empat pilar warna, serta pembedahan simbolisme lambang dan maskot resmi angkatan Teknik Komputer 2026 — ASCENT.',
-    'bannerPlaceholder' => '/assets/Placeholder.png',
+    'content' => null,
+    'title' => null,
+    'subhead' => null,
+    'bannerPlaceholder' => null,
 ])
+
+@php
+    $c = $content ?? [];
+    $title = $c['title'] ?? $title ?? 'Identitas, Filosofi & Nilai Dasar';
+    $subhead = $c['subhead'] ?? $subhead ?? 'Dokumentasi komprehensif mengenai arsitektur visual, arah gerak strategis, empat pilar warna, serta pembedahan simbolisme lambang dan maskot resmi angkatan Teknik Komputer 2026.';
+    $bannerPlaceholder = $c['banner_placeholder'] ?? $bannerPlaceholder ?? '/assets/Placeholder.png';
+@endphp
 
 {{-- ==========================================================================
      SCREEN 5 — SECTION 1: EDITORIAL HEADER & 21:9 BATCH HERO BANNER

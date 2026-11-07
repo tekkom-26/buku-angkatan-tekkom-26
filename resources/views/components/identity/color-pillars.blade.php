@@ -1,5 +1,11 @@
 @props([
-    'pillars' => [
+    'content' => null,
+    'pillars' => null,
+])
+
+@php
+    $c = $content ?? [];
+    $pillars = $c['pillars'] ?? $pillars ?? [
         [
             'index' => '01',
             'name' => 'Sky Wash',
@@ -36,8 +42,8 @@
             'swatchClass' => 'bg-surface-card text-primary-900 border border-surface-border',
             'philosophy' => 'Mewujudkan ruang kanvas yang bersih, inklusif, dan harmonis sebagai wadah tumbuhnya gagasan serta dokumentasi jejak seluruh anggota.',
         ],
-    ],
-])
+    ];
+@endphp
 
 {{-- ==========================================================================
      SCREEN 5 — SECTION 3: 4 OFFICIAL COLOR PILLARS (HORIZONTAL SWATCH GRID)

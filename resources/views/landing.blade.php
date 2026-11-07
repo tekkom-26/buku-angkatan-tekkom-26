@@ -10,15 +10,15 @@
 
     <main id="main-content">
         {{-- Section 1: Hero Asymmetric Bento Grid (Issue #18) --}}
-        <x-landing.hero />
+        <x-landing.hero :content="$landingContent['hero'] ?? null" />
 
         {{-- Section 2: Decoding ASCENT 2-Column Editorial Split (Issue #19) --}}
-        <x-landing.decoding-ascent />
+        <x-landing.decoding-ascent :content="$landingContent['decoding'] ?? null" />
 
         {{-- Section 3: Moments & Highlights Carousel (Issue #20) --}}
         <x-landing.moments />
 
         {{-- Section 4: Directory Quick Discovery Banner Plate (Issue #21) --}}
-        <x-landing.directory-banner />
+        <x-landing.directory-banner :content="$landingContent['directory_banner'] ?? null" />
     </main>
 </x-layouts.app>

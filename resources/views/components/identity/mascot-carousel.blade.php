@@ -1,9 +1,15 @@
 @props([
+    'content' => null,
     'mascotPlaceholder' => '/assets/Placeholder.png',
 ])
 
 @php
-    $slides = [
+    $c = $content ?? [];
+    $eyebrow = $c['eyebrow'] ?? '// 04_MASCOT_ANATOMY';
+    $title = $c['title'] ?? 'Bedah Karakter';
+    $subtitle = $c['subtitle'] ?? '& Anatomi Maskot';
+    $description = $c['description'] ?? 'Setiap bagian dari gajah Tekkom membawa cerita tentang cara kita berpikir, terhubung, dan tumbuh sebagai satu angkatan.';
+    $slides = $c['slides'] ?? [
         [
             'number' => '01',
             'eyebrow' => 'CORE ATTRIBUTE',
@@ -80,13 +86,13 @@
         {{-- Section Header --}}
         <div class="mb-10 flex flex-col gap-5 border-b border-surface-border pb-8 md:mb-14 md:flex-row md:items-end md:justify-between">
             <div class="max-w-2xl">
-                <p class="mb-3 font-mono text-xs uppercase tracking-[0.24em] text-secondary-500">// 04_MASCOT_ANATOMY</p>
+                <p class="mb-3 font-mono text-xs uppercase tracking-[0.24em] text-secondary-500">{{ $eyebrow }}</p>
                 <h2 class="text-3xl font-extrabold tracking-tight text-primary-900 sm:text-4xl">
-                    Bedah Karakter
-                    <span class="block text-secondary-500">& Anatomi Maskot</span>
+                    {{ $title }}
+                    <span class="block text-secondary-500">{!! $subtitle !!}</span>
                 </h2>
                 <p class="mt-4 max-w-xl text-sm leading-relaxed text-primary-700 sm:text-base">
-                    Setiap bagian dari gajah Tekkom membawa cerita tentang cara kita berpikir, terhubung, dan tumbuh sebagai satu angkatan.
+                    {{ $description }}
                 </p>
             </div>
             <p class="font-mono text-xs uppercase tracking-[0.2em] text-primary-500">MASCOT / 04 ATTRIBUTES</p>
