@@ -5,6 +5,7 @@ namespace App\Services;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -13,6 +14,8 @@ use JsonException;
 class StudentSessionService
 {
     public const COOKIE_NAME = 'angkatan_session';
+
+    protected const CACHE_PREFIX = 'student_session:';
 
     public function __construct(protected AppConfigService $config) {}
 
@@ -28,6 +31,8 @@ class StudentSessionService
             'created_at' => now(),
             'updated_at' => now(),
         ]);
+
+        Cache::put(self::CACHE_PREFIX.$sessionId, $expiresAt->getTimestamp(), $expiresAt);
 
         return Crypt::encryptString(json_encode([
             'role' => 'student',
@@ -67,6 +72,7 @@ class StudentSessionService
             return;
         }
 
+        Cache::forget(self::CACHE_PREFIX.$sessionId);
         DB::table('student_sessions')->where('id', $sessionId)->delete();
     }
 
@@ -92,10 +98,26 @@ class StudentSessionService
             return false;
         }
 
-        return DB::table('student_sessions')
+        $cacheKey = self::CACHE_PREFIX.$sessionId;
+        $cachedExpiry = Cache::get($cacheKey);
+
+        if (is_int($cachedExpiry)) {
+            return $cachedExpiry > Carbon::now()->getTimestamp();
+        }
+
+        $record = DB::table('student_sessions')
             ->where('id', $sessionId)
             ->where('expires_at', '>', now())
-            ->exists();
+            ->first(['expires_at']);
+
+        if ($record === null) {
+            return false;
+        }
+
+        $expiresAt = Carbon::parse($record->expires_at);
+        Cache::put($cacheKey, $expiresAt->getTimestamp(), $expiresAt);
+
+        return true;
     }
 
     private function isSessionId(mixed $sessionId): bool

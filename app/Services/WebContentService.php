@@ -19,12 +19,23 @@ class WebContentService
     protected const CACHE_PREFIX = 'web_content:';
 
     /**
+     * In-request memoized content sections.
+     *
+     * @var array<string, array<string, mixed>>
+     */
+    protected array $memo = [];
+
+    /**
      * Get dynamic content for the Landing page.
      *
      * @return array<string, mixed>
      */
     public function getLandingContent(): array
     {
+        if (isset($this->memo['landing'])) {
+            return $this->memo['landing'];
+        }
+
         $cached = Cache::rememberForever(
             self::CACHE_PREFIX.'landing',
             fn (): array => $this->fetchFromDatabase(self::KEY_LANDING, 'content.landing'),
@@ -32,7 +43,7 @@ class WebContentService
 
         $defaults = config('content.landing', []);
 
-        return is_array($cached) ? $this->mergeRecursive($defaults, $cached) : $defaults;
+        return $this->memo['landing'] = is_array($cached) ? $this->mergeRecursive($defaults, $cached) : $defaults;
     }
 
     /**
@@ -42,6 +53,10 @@ class WebContentService
      */
     public function getIdentityContent(): array
     {
+        if (isset($this->memo['identity'])) {
+            return $this->memo['identity'];
+        }
+
         $cached = Cache::rememberForever(
             self::CACHE_PREFIX.'identity',
             fn (): array => $this->fetchFromDatabase(self::KEY_IDENTITY, 'content.identity'),
@@ -49,7 +64,7 @@ class WebContentService
 
         $defaults = config('content.identity', []);
 
-        return is_array($cached) ? $this->mergeRecursive($defaults, $cached) : $defaults;
+        return $this->memo['identity'] = is_array($cached) ? $this->mergeRecursive($defaults, $cached) : $defaults;
     }
 
     /**
@@ -81,12 +96,14 @@ class WebContentService
     public function clearCache(?string $section = null): void
     {
         if ($section === null) {
+            $this->memo = [];
             Cache::forget(self::CACHE_PREFIX.'landing');
             Cache::forget(self::CACHE_PREFIX.'identity');
 
             return;
         }
 
+        unset($this->memo[$section]);
         Cache::forget(self::CACHE_PREFIX.$section);
     }
 
