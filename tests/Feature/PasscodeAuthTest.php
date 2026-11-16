@@ -6,7 +6,6 @@ use App\Models\Student;
 use App\Services\AppConfigService;
 use Database\Seeders\AuthSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
@@ -127,13 +126,13 @@ class PasscodeAuthTest extends TestCase
             ->assertJsonPath('data.role', 'guest');
     }
 
-    public function test_direct_database_epoch_update_revokes_existing_sessions(): void
+    public function test_epoch_rotation_revokes_existing_sessions(): void
     {
         $cookie = $this->postJson('/api/auth/passcode', ['passcode' => 'secret-pass'])
             ->getCookie('angkatan_session', false);
 
         $this->assertSame(1, app(AppConfigService::class)->authEpoch());
-        DB::table('app_config')->where('key', 'auth_epoch')->update(['value' => '2']);
+        $this->assertSame(2, app(AppConfigService::class)->rotateAuthEpoch());
 
         $this->sessionWithCookie($cookie->getValue())
             ->assertJsonPath('data.role', 'guest');

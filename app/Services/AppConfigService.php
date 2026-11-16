@@ -20,14 +20,23 @@ class AppConfigService
 
     protected const CACHE_PREFIX = 'app_config:';
 
+    /**
+     * In-request memoized values keyed by config key.
+     *
+     * @var array<string, string|null>
+     */
+    protected array $memo = [];
+
     public function get(string $key, ?string $default = null): ?string
     {
-        $value = Cache::rememberForever(
-            self::CACHE_PREFIX.$key,
-            fn (): ?string => AppConfig::query()->where('key', $key)->value('value'),
-        );
+        if (! array_key_exists($key, $this->memo)) {
+            $this->memo[$key] = Cache::rememberForever(
+                self::CACHE_PREFIX.$key,
+                fn (): ?string => AppConfig::query()->where('key', $key)->value('value'),
+            );
+        }
 
-        return $value ?? $default;
+        return $this->memo[$key] ?? $default;
     }
 
     public function set(string $key, string $value, ?string $description = null): AppConfig
@@ -41,22 +50,25 @@ class AppConfigService
         $config = AppConfig::query()->updateOrCreate(['key' => $key], $attributes);
 
         $this->forget($key);
+        $this->memo[$key] = $value;
 
         return $config;
     }
 
     public function forget(string $key): void
     {
+        unset($this->memo[$key]);
         Cache::forget(self::CACHE_PREFIX.$key);
+    }
+
+    public function clearMemo(): void
+    {
+        $this->memo = [];
     }
 
     public function authEpoch(): int
     {
-        $value = AppConfig::query()
-            ->where('key', self::KEY_AUTH_EPOCH)
-            ->value('value');
-
-        return (int) ($value ?? '1');
+        return (int) ($this->get(self::KEY_AUTH_EPOCH, '1') ?? '1');
     }
 
     public function cohortName(): string
