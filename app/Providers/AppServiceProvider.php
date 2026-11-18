@@ -2,7 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Student;
+use App\Observers\StudentObserver;
 use App\Services\AppConfigService;
+use App\Services\StudentDirectoryService;
 use App\Services\WebContentService;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
@@ -18,6 +21,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->scoped(AppConfigService::class);
         $this->app->scoped(WebContentService::class);
+        $this->app->scoped(StudentDirectoryService::class);
     }
 
     /**
@@ -28,6 +32,8 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->environment('staging', 'production') || env('APP_ENV') !== 'local') {
             URL::forceScheme('https');
         }
+
+        Student::observe(StudentObserver::class);
 
         View::composer('*', function ($view): void {
             try {
