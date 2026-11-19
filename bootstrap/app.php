@@ -17,8 +17,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->trustProxies(at: '*');
-
+        // Trusted proxies dikelola secara eksplisit melalui config/trustedproxy.php (env TRUSTED_PROXIES).
+        // Jangan gunakan wildcard '*' agar X-Forwarded-For tidak dapat dipalsukan untuk bypass rate limit.
         $middleware->encryptCookies(except: [StudentSessionService::COOKIE_NAME]);
 
         $middleware->alias([
