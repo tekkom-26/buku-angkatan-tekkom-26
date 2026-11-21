@@ -115,6 +115,52 @@ class PasscodeAuthTest extends TestCase
         $this->postJson('/api/auth/passcode', ['passcode' => 'secret-pass'])->assertStatus(429);
     }
 
+    public function test_rotating_x_forwarded_for_header_from_untrusted_ip_cannot_bypass_rate_limit(): void
+    {
+        config(['trustedproxy.proxies' => []]);
+
+        for ($i = 1; $i <= 5; $i++) {
+            $this->withHeader('X-Forwarded-For', "198.51.100.{$i}")
+                ->postJson('/api/auth/passcode', ['passcode' => 'nope'])
+                ->assertUnauthorized();
+        }
+
+        $this->withHeader('X-Forwarded-For', '198.51.100.6')
+            ->postJson('/api/auth/passcode', ['passcode' => 'secret-pass'])
+            ->assertTooManyRequests();
+    }
+
+    public function test_x_forwarded_for_is_honored_only_when_remote_addr_matches_trusted_proxy(): void
+    {
+        config(['trustedproxy.proxies' => ['10.0.0.1']]);
+
+        for ($i = 1; $i <= 5; $i++) {
+            $this->withServerVariables(['REMOTE_ADDR' => '10.0.0.1'])
+                ->withHeader('X-Forwarded-For', "198.51.100.{$i}")
+                ->postJson('/api/auth/passcode', ['passcode' => 'nope'])
+                ->assertUnauthorized();
+        }
+
+        // Request ke-6 dari client IP baru di balik trusted proxy 10.0.0.1 tetap diproses (bukan 429)
+        $this->withServerVariables(['REMOTE_ADDR' => '10.0.0.1'])
+            ->withHeader('X-Forwarded-For', '198.51.100.6')
+            ->postJson('/api/auth/passcode', ['passcode' => 'nope'])
+            ->assertUnauthorized();
+
+        // Request dari untrusted proxy 203.0.113.50 tetap tidak bisa memalsukan X-Forwarded-For
+        for ($i = 1; $i <= 5; $i++) {
+            $this->withServerVariables(['REMOTE_ADDR' => '203.0.113.50'])
+                ->withHeader('X-Forwarded-For', "198.51.100.1{$i}")
+                ->postJson('/api/auth/passcode', ['passcode' => 'nope'])
+                ->assertUnauthorized();
+        }
+
+        $this->withServerVariables(['REMOTE_ADDR' => '203.0.113.50'])
+            ->withHeader('X-Forwarded-For', '198.51.100.199')
+            ->postJson('/api/auth/passcode', ['passcode' => 'secret-pass'])
+            ->assertTooManyRequests();
+    }
+
     public function test_epoch_bump_revokes_existing_sessions(): void
     {
         $cookie = $this->postJson('/api/auth/passcode', ['passcode' => 'secret-pass'])
