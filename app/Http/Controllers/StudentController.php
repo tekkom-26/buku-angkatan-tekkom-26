@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Student;
+use App\Services\StudentDirectoryService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
@@ -10,94 +10,26 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class StudentController extends Controller
 {
+    public function __construct(protected StudentDirectoryService $directory) {}
+
     /**
      * Display a single student's profile page.
      */
     public function show(string $nim): View
     {
         try {
-            // Validate NIM format (must be numeric, typically 8 digits)
+            // Validate NIM format (must be numeric, typically 14 digits)
             if (! preg_match('/^\d{14}$/', $nim)) {
                 abort(404, 'Format NIM tidak valid. NIM harus 8 digit angka.');
             }
 
-            // Find student by NIM with only PUBLIC fields
-            $student = Student::query()
-                ->public()
-                ->where('nim', $nim)
-                ->first();
+            $payload = $this->directory->getStudentProfilePayload($nim);
 
-            // Student not found
-            if (! $student) {
+            if ($payload === null) {
                 abort(404, "Mahasiswa dengan NIM {$nim} tidak ditemukan.");
             }
 
-            // Transform data for view
-            $spotify = $this->extractSpotifyTrackId($student->spotify_song_url);
-
-            $studentData = [
-                'nim' => $student->nim,
-                'name' => $student->name,
-                'nickname' => $student->nickname ?? $student->name,
-                'class_name' => $student->class_name,
-                'religion' => $student->religion ?? 'Tidak tersedia',
-                'birth_place' => $student->birth_place ?? 'Tidak tersedia',
-                'birth_date' => $student->birth_date ? $student->birth_date->format('d F Y') : 'Tidak tersedia',
-                'age' => $student->birth_date ? $student->birth_date->age : null,
-                'origin_city' => $student->origin_city ?? 'Tidak tersedia',
-                'instagram_username' => $student->instagram_username ?? 'unknown',
-                'instagram_url' => $student->instagram_username
-                    ? 'https://instagram.com/'.$student->instagram_username
-                    : 'https://instagram.com',
-                'formal_photo_url' => $student->formal_photo_url ?? 'https://ui-avatars.com/api/?name='.urlencode($student->nickname ?? $student->name).'&background=176B70&color=fff&size=800',
-                'casual_photo_url' => $student->casual_photo_url ?? 'https://ui-avatars.com/api/?name='.urlencode($student->nickname ?? $student->name).'&background=4A8B8C&color=fff&size=800',
-                'bio_quote' => $student->bio_quote ?? 'Hidup ini indah, nikmati setiap momennya.',
-                'hobbies' => $student->hobbies ? (is_string($student->hobbies) ? array_map('trim', explode(',', $student->hobbies)) : $student->hobbies) : ['Membaca', 'Olahraga'],
-                'favorite_food_place' => $student->favorite_food_place ?? 'Warung favorit',
-                'spotify_song_url' => $student->spotify_song_url ?? null,
-                'spotify_track_id' => $spotify['id'] ?? null,
-                'spotify_type' => $spotify['type'] ?? null,
-                'spotify_item' => $spotify,
-            ];
-
-            // Find previous and next student for navigation
-            $prevStudent = Student::query()
-                ->select('nim', 'nickname')
-                ->where('class_name', $student->class_name)
-                ->where('nim', '<', $student->nim)
-                ->orderBy('nim', 'desc')
-                ->first();
-
-            $nextStudent = Student::query()
-                ->select('nim', 'nickname')
-                ->where('class_name', $student->class_name)
-                ->where('nim', '>', $student->nim)
-                ->orderBy('nim', 'asc')
-                ->first();
-
-            // Get current position in class
-            $currentPosition = Student::query()
-                ->where('class_name', $student->class_name)
-                ->where('nim', '<=', $student->nim)
-                ->count();
-
-            $totalInClass = Student::query()
-                ->where('class_name', $student->class_name)
-                ->count();
-
-            return view('students.show', [
-                'student' => $studentData,
-                'prevStudent' => $prevStudent ? [
-                    'nim' => $prevStudent->nim,
-                    'nickname' => $prevStudent->nickname ?? 'Student',
-                ] : null,
-                'nextStudent' => $nextStudent ? [
-                    'nim' => $nextStudent->nim,
-                    'nickname' => $nextStudent->nickname ?? 'Student',
-                ] : null,
-                'currentPosition' => $currentPosition,
-                'totalInClass' => $totalInClass,
-            ]);
+            return view('students.show', $payload);
 
         } catch (ModelNotFoundException $e) {
             // Model not found (shouldn't happen with first() but just in case)
@@ -118,33 +50,5 @@ class StudentController extends Controller
             // Show user-friendly error
             abort(500, 'Terjadi kesalahan saat memuat profil mahasiswa. Silakan coba lagi nanti.');
         }
-    }
-
-    /**
-     * Extract Spotify item ID and type (track, playlist, or album) from a Spotify URL or URI.
-     *
-     * @return array{id: string, type: string}|null
-     */
-    private function extractSpotifyTrackId(?string $url): ?array
-    {
-        if (! $url) {
-            return null;
-        }
-
-        if (preg_match('/(track|playlist|album)\/([a-zA-Z0-9]+)/i', $url, $matches)) {
-            return [
-                'id' => $matches[2],
-                'type' => strtolower($matches[1]),
-            ];
-        }
-
-        if (preg_match('/spotify:(track|playlist|album):([a-zA-Z0-9]+)/i', $url, $matches)) {
-            return [
-                'id' => $matches[2],
-                'type' => strtolower($matches[1]),
-            ];
-        }
-
-        return null;
     }
 }

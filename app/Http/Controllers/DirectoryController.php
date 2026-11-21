@@ -2,89 +2,38 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Student;
+use App\Services\StudentDirectoryService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class DirectoryController extends Controller
 {
+    public function __construct(protected StudentDirectoryService $directory) {}
+
     /**
      * Display the student directory with filtering & pagination.
      */
-    public function index(Request $request): View
+    public function index(Request $request): View|RedirectResponse
     {
         try {
-            // Validate query parameters
             $validated = $request->validate([
                 'search' => 'nullable|string|max:100',
                 'class' => 'nullable|string|in:A,B,C,D',
                 'page' => 'nullable|integer|min:1',
             ]);
 
-            // Query builder
-            $query = Student::query()
-                ->public()
-                ->orderBy('class_name', 'asc')
-                ->orderBy('name', 'asc');
+            $payload = $this->directory->getDirectoryPayload(
+                search: $validated['search'] ?? null,
+                classFilter: $validated['class'] ?? null,
+                perPage: 15,
+                page: (int) ($validated['page'] ?? 1),
+                query: $request->query(),
+            );
 
-            // Apply search filter (nim or name)
-            if (filled($validated['search'] ?? null)) {
-                $search = Str::lower(trim($validated['search']));
-                $query->where(function ($q) use ($search) {
-                    $like = "%{$search}%";
-
-                    $q->whereRaw('LOWER(nim) LIKE ?', [$like])
-                        ->orWhereRaw('LOWER(name) LIKE ?', [$like])
-                        ->orWhereRaw('LOWER(nickname) LIKE ?', [$like])
-                        ->orWhereRaw('LOWER(origin_city) LIKE ?', [$like]);
-                });
-            }
-
-            // Apply class filter
-            if (filled($validated['class'] ?? null)) {
-                $query->where('class_name', $validated['class']);
-            }
-
-            // Paginate
-            $students = $query->paginate(15)->through(function ($student) {
-                $hobbies = $student->hobbies
-                    ? (is_string($student->hobbies) ? array_values(array_filter(array_map('trim', explode(',', $student->hobbies)))) : (array) $student->hobbies)
-                    : ['Hardware', 'Sistem Digital'];
-
-                return [
-                    'nim' => $student->nim,
-                    'name' => $student->name,
-                    'nickname' => $student->nickname ?? $student->name,
-                    'class_name' => $student->class_name,
-                    'origin_city' => $student->origin_city ?? 'Semarang',
-                    'hobbies' => array_slice($hobbies, 0, 3),
-                    'formal_photo_url' => $student->formal_photo_url ?: asset('/assets/Placeholder.png'),
-                    'avatar_url' => $student->formal_photo_url ?: asset('/assets/Placeholder.png'),
-                ];
-            });
-
-            // Available filters (all classes)
-            $filters = ['A', 'B', 'C', 'D'];
-            $classCounts = Student::query()
-                ->selectRaw('class_name, COUNT(*) AS total')
-                ->whereIn('class_name', $filters)
-                ->groupBy('class_name')
-                ->pluck('total', 'class_name');
-
-            // Total students count (without filters)
-            $totalStudents = Student::count();
-
-            return view('directory', [
-                'students' => $students,
-                'filters' => $filters,
-                'classCounts' => collect($filters)->mapWithKeys(
-                    fn (string $class): array => [$class => (int) ($classCounts[$class] ?? 0)]
-                ),
-                'totalStudents' => $totalStudents,
-            ]);
+            return view('directory', $payload);
 
         } catch (ValidationException $e) {
             // Validation error - redirect back with errors

@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\AppConfig;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 /**
  * Reads and writes key/value settings stored in the `app_config` table,
@@ -17,6 +18,8 @@ class AppConfigService
     public const KEY_AUTH_EPOCH = 'auth_epoch';
 
     public const KEY_COHORT_NAME = 'cohort_name';
+
+    public const KEY_STATE_VERSION = 'app_state_version';
 
     protected const CACHE_PREFIX = 'app_config:';
 
@@ -59,11 +62,43 @@ class AppConfigService
     {
         unset($this->memo[$key]);
         Cache::forget(self::CACHE_PREFIX.$key);
+
+        if ($key !== self::KEY_STATE_VERSION) {
+            $this->bumpStateVersion();
+        }
     }
 
     public function clearMemo(): void
     {
         $this->memo = [];
+    }
+
+    /**
+     * Ambil token versi state aplikasi saat ini untuk perhitungan Early ETag.
+     */
+    public function stateVersion(): string
+    {
+        if (! array_key_exists(self::KEY_STATE_VERSION, $this->memo) || $this->memo[self::KEY_STATE_VERSION] === null) {
+            $this->memo[self::KEY_STATE_VERSION] = (string) Cache::rememberForever(
+                self::KEY_STATE_VERSION,
+                static fn (): string => 'v1',
+            );
+        }
+
+        return (string) $this->memo[self::KEY_STATE_VERSION];
+    }
+
+    /**
+     * Perbarui token versi state aplikasi setiap kali data AppConfig atau Student berubah.
+     */
+    public function bumpStateVersion(): string
+    {
+        $version = (string) Str::uuid();
+
+        Cache::forever(self::KEY_STATE_VERSION, $version);
+        $this->memo[self::KEY_STATE_VERSION] = $version;
+
+        return $version;
     }
 
     public function authEpoch(): int

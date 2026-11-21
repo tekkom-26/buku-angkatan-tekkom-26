@@ -99,12 +99,14 @@ class WebContentService
             $this->memo = [];
             Cache::forget(self::CACHE_PREFIX.'landing');
             Cache::forget(self::CACHE_PREFIX.'identity');
+            app(AppConfigService::class)->bumpStateVersion();
 
             return;
         }
 
         unset($this->memo[$section]);
         Cache::forget(self::CACHE_PREFIX.$section);
+        app(AppConfigService::class)->bumpStateVersion();
     }
 
     /**

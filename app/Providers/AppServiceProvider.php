@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Services\AppConfigService;
+use App\Services\StudentDirectoryService;
 use App\Services\WebContentService;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
@@ -18,6 +19,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->scoped(AppConfigService::class);
         $this->app->scoped(WebContentService::class);
+        $this->app->scoped(StudentDirectoryService::class);
     }
 
     /**
