@@ -206,7 +206,7 @@ class StudentDirectoryService
 
         $classMates = $all
             ->where('class_name', $student['class_name'])
-            ->sortBy('nim')
+            ->sortBy('nim', SORT_STRING)
             ->values();
 
         $currentIndex = $classMates->search(fn (array $item): bool => $item['nim'] === $nim);
@@ -238,6 +238,7 @@ class StudentDirectoryService
     {
         $this->memo = null;
         Cache::forget(self::CACHE_KEY);
+        app(AppConfigService::class)->bumpStateVersion();
     }
 
     /**
