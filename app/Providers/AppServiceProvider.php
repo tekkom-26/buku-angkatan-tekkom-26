@@ -2,8 +2,6 @@
 
 namespace App\Providers;
 
-use App\Models\Student;
-use App\Observers\StudentObserver;
 use App\Services\AppConfigService;
 use App\Services\StudentDirectoryService;
 use App\Services\WebContentService;
@@ -32,8 +30,6 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->environment('staging', 'production') || env('APP_ENV') !== 'local') {
             URL::forceScheme('https');
         }
-
-        Student::observe(StudentObserver::class);
 
         View::composer('*', function ($view): void {
             try {
