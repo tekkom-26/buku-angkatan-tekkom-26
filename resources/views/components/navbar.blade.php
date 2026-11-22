@@ -9,10 +9,12 @@
         || app(\App\Services\StudentSessionService::class)->resolveRequestRole(request()) === 'student'
     );
 
-    $isDirectoryContext = in_array($activePage, ['directory', 'student', 'students.show', 'unlock'])
+    $isDirectoryContext = $activePage !== 'error' && (
+        in_array($activePage, ['directory', 'student', 'students.show', 'unlock'])
         || request()->routeIs('directory.*')
         || request()->routeIs('students.*')
-        || request()->routeIs('unlock');
+        || request()->routeIs('unlock')
+    );
 @endphp
 
 <header

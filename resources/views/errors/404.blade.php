@@ -1,97 +1,99 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Halaman Tidak Ditemukan — Tekkom 26</title>
-        @fonts
-        @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
-            @vite(['resources/css/app.css', 'resources/js/app.js'])
-        @endif
-    </head>
-    <body class="min-h-screen overflow-x-hidden bg-surface-canvas text-primary-900 antialiased">
-        <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-10 focus:rounded-lg focus:bg-surface-canvas focus:px-4 focus:py-3 focus:font-semibold focus:text-primary-900 focus:shadow-lg">
-            Lewati ke konten utama
-        </a>
+<x-layouts.app activePage="error" :title="'Halaman Tidak Ditemukan — Tekkom 26'">
+    <main id="main-content" tabindex="-1" class="relative grow w-full bg-ambient-hero py-10 sm:py-16 overflow-hidden">
+        <div class="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
-        <header class="border-b border-surface-border bg-surface-canvas">
-            <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-5 sm:px-6 lg:px-8">
-                <a href="{{ route('landing') }}" class="inline-flex items-center gap-3 rounded-lg font-semibold text-primary-900">
-                    <span class="grid size-10 place-items-center rounded-lg border border-surface-border bg-surface-card font-mono text-sm text-primary-900" aria-hidden="true">[X]</span>
-                    <span>{{ $cohortName ?? 'TEKKOM 2026' }} <span class="block font-mono text-[10px] uppercase tracking-[0.18em] text-primary-500">Buku Angkatan</span></span>
-                </a>
-                <span class="hidden font-mono text-[10px] uppercase tracking-[0.2em] text-primary-500 sm:block">SYSTEM / ERROR HANDLER</span>
-            </div>
-        </header>
-
-        <main id="main-content" tabindex="-1" class="mx-auto max-w-7xl px-4 py-10 sm:px-6 md:py-16 lg:px-8">
-            <div class="mb-8 grid grid-cols-2 border-y border-surface-border sm:grid-cols-4">
-                <div class="border-r border-surface-border px-4 py-4 sm:px-5">
-                    <p class="font-mono text-[9px] uppercase tracking-[0.18em] text-primary-500">STATUS</p>
-                    <p class="mt-2 text-xs font-semibold text-primary-900">404 / NOT FOUND</p>
+            {{-- Telemetry Status Strip --}}
+            <div class="mb-8 grid grid-cols-2 rounded-xl border border-white/10 bg-surface-card/90 sm:grid-cols-4 overflow-hidden">
+                <div class="border-r border-b sm:border-b-0 border-white/10 px-4 py-4 sm:px-5">
+                    <p class="font-mono text-[10px] uppercase tracking-wider text-text-muted">STATUS</p>
+                    <p class="mt-1.5 font-mono text-xs font-bold text-brand-red-hover">404 / NOT FOUND</p>
                 </div>
-                <div class="border-r border-surface-border px-4 py-4 sm:px-5">
-                    <p class="font-mono text-[9px] uppercase tracking-[0.18em] text-primary-500">MEMORY</p>
-                    <p class="mt-2 text-xs font-semibold text-primary-900">UNALLOCATED</p>
+                <div class="border-b sm:border-b-0 sm:border-r border-white/10 px-4 py-4 sm:px-5">
+                    <p class="font-mono text-[10px] uppercase tracking-wider text-text-muted">MEMORY</p>
+                    <p class="mt-1.5 font-mono text-xs font-bold text-text-primary">UNALLOCATED</p>
                 </div>
-                <div class="border-r border-surface-border px-4 py-4 sm:px-5">
-                    <p class="font-mono text-[9px] uppercase tracking-[0.18em] text-primary-500">NODE</p>
-                    <p class="mt-2 text-xs font-semibold text-primary-900">SCREEN_07</p>
+                <div class="border-r border-white/10 px-4 py-4 sm:px-5">
+                    <p class="font-mono text-[10px] uppercase tracking-wider text-text-muted">NODE</p>
+                    <p class="mt-1.5 font-mono text-xs font-bold text-brand-gold">COMETS_ERR_07</p>
                 </div>
                 <div class="px-4 py-4 sm:px-5">
-                    <p class="font-mono text-[9px] uppercase tracking-[0.18em] text-primary-500">RECOVERY</p>
-                    <p class="mt-2 text-xs font-semibold text-secondary-700">AVAILABLE</p>
+                    <p class="font-mono text-[10px] uppercase tracking-wider text-text-muted">RECOVERY</p>
+                    <p class="mt-1.5 font-mono text-xs font-bold text-brand-gold">AVAILABLE</p>
                 </div>
             </div>
 
-            <div class="grid overflow-hidden rounded-2xl border border-surface-border bg-surface-card lg:grid-cols-[1.5fr_1fr]">
-                <section class="border-b border-surface-border p-7 sm:p-10 lg:border-b-0 lg:border-r">
-                    <p class="font-mono text-[10px] uppercase tracking-[0.22em] text-secondary-700">// 07_ERR_404 // MEMORY_SEGMENTATION_FAULT</p>
-                    <h1 class="mt-5 max-w-2xl text-6xl font-black leading-[0.82] tracking-[-0.09em] text-primary-900 sm:text-8xl">
-                        404<span class="text-secondary-500">.</span>
+            {{-- Main 404 Split Bento Card --}}
+            <div class="grid overflow-hidden rounded-xl border border-brand-red-hover/60 bg-surface-card/90 lg:grid-cols-[1.5fr_1fr] glow-red-subtle relative">
+                {{-- Top Dual Circuit Bar --}}
+                <div class="absolute inset-x-0 top-0 h-1 flex" aria-hidden="true">
+                    <div class="w-1/2 bg-brand-red"></div>
+                    <div class="w-1/2 bg-brand-gold"></div>
+                </div>
+
+                <section class="border-b border-white/10 p-7 sm:p-10 lg:border-b-0 lg:border-r">
+                    <p class="font-mono text-xs font-bold uppercase tracking-wider text-brand-gold">
+                        &gt; // 07_ERR_404 // MEMORY_SEGMENTATION_FAULT
+                    </p>
+                    <h1 class="mt-4 max-w-2xl font-display text-6xl font-bold leading-none tracking-tight text-text-primary sm:text-8xl">
+                        404<span class="text-brand-gold">.</span>
                     </h1>
-                    <h2 class="mt-8 max-w-xl text-2xl font-bold leading-tight tracking-[-0.04em] text-primary-900 sm:text-3xl">
+                    <h2 class="mt-6 max-w-xl font-display text-2xl font-bold leading-tight tracking-tight text-text-primary sm:text-3xl">
                         Halaman ini tidak ditemukan.
                     </h2>
-                    <p class="mt-4 max-w-xl text-sm leading-7 text-primary-700 sm:text-base">
-                        Alamat yang kamu cari belum dialokasikan di sistem. Gunakan jalur pemulihan di bawah untuk kembali ke jaringan utama.
+                    <p class="mt-3 max-w-xl font-body text-sm leading-relaxed text-text-secondary sm:text-base">
+                        Simpul alamat yang kamu cari belum dialokasikan di jaringan koloni COMETS 2026. Gunakan jalur pemulihan di bawah untuk kembali ke sistem utama.
                     </p>
 
                     <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                        <a href="{{ route('landing') }}" class="inline-flex min-h-11 items-center justify-center rounded-lg bg-primary-900 px-5 text-sm font-semibold text-white transition hover:bg-secondary-500 hover:text-primary-900">
-                            ← Kembali ke Beranda Utama
+                        <a
+                            href="{{ route('landing') }}"
+                            class="inline-flex min-h-11 items-center justify-center rounded-lg bg-brand-red hover:bg-brand-red-hover border border-brand-red-hover px-5 font-display text-sm font-semibold text-text-primary transition-colors glow-red-subtle"
+                        >
+                            &larr; Kembali ke Beranda Utama
                         </a>
-                        <a href="{{ route('directory.index') }}" class="inline-flex min-h-11 items-center justify-center rounded-lg border border-surface-border bg-surface-canvas px-5 text-sm font-semibold text-primary-900 transition hover:bg-surface-subtle">
-                            Jelajahi Direktori Mahasiswa →
+                        <a
+                            href="{{ route('directory.index') }}"
+                            class="inline-flex min-h-11 items-center justify-center rounded-lg border border-brand-gold/40 bg-brand-gold/10 hover:bg-brand-gold/20 px-5 font-display text-sm font-semibold text-brand-gold transition-colors"
+                        >
+                            Jelajahi Direktori Mahasiswa &rarr;
                         </a>
                     </div>
 
-                    <form method="GET" action="{{ route('directory.index') }}" role="search" class="mt-10 flex flex-col gap-3 border-t border-surface-border pt-6 sm:flex-row">
+                    <form method="GET" action="{{ route('directory.index') }}" role="search" class="mt-10 flex flex-col gap-3 border-t border-white/10 pt-6 sm:flex-row">
                         <label for="student-search" class="sr-only">Cari nama atau NIM mahasiswa</label>
-                        <input id="student-search" name="search" type="search" placeholder="Cari nama atau NIM mahasiswa" class="min-h-11 min-w-0 flex-1 rounded-lg border border-surface-border bg-surface-canvas px-4 text-sm text-primary-900 placeholder:text-primary-500 focus:border-secondary-500 focus:outline-none">
-                        <button type="submit" class="min-h-11 rounded-lg bg-secondary-500 px-5 text-sm font-semibold text-primary-900 transition hover:bg-highlight-500">
+                        <input
+                            id="student-search"
+                            name="search"
+                            type="search"
+                            placeholder="Cari nama atau NIM mahasiswa"
+                            class="min-h-11 min-w-0 flex-1 rounded-lg border border-white/15 bg-surface-elevated px-4 font-mono text-sm text-text-primary placeholder:text-text-muted focus:border-brand-gold focus:outline-none"
+                        >
+                        <button
+                            type="submit"
+                            class="min-h-11 rounded-lg bg-brand-red hover:bg-brand-red-hover border border-brand-red-hover px-5 font-display text-sm font-semibold text-text-primary transition-colors cursor-pointer"
+                        >
                             Cari di Direktori
                         </button>
                     </form>
                 </section>
 
-                <aside class="flex flex-col justify-between bg-surface-canvas p-7 sm:p-10">
+                <aside class="flex flex-col justify-between bg-canvas-base/85 p-7 sm:p-10">
                     <div>
-                        <div class="flex items-center justify-between border-b border-surface-border pb-5">
-                            <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-primary-500">ERROR_DIAGNOSTIC</p>
-                            <span class="rounded-full bg-highlight-500 px-3 py-1 font-mono text-[10px] font-medium text-primary-900">TRACE_404</span>
+                        <div class="flex items-center justify-between border-b border-white/10 pb-5">
+                            <p class="font-mono text-[10px] uppercase tracking-wider text-text-muted">ERROR_DIAGNOSTIC</p>
+                            <span class="rounded-md bg-brand-red border border-brand-red-hover px-3 py-1 font-mono text-[10px] font-bold text-text-primary">
+                                TRACE_404
+                            </span>
                         </div>
 
-                        <div class="mx-auto mt-8 flex aspect-square w-full max-w-[180px] flex-col items-center justify-between rounded-xl border border-surface-border bg-surface-card p-3">
-                            <span class="w-full text-left font-mono text-[7px] uppercase tracking-wider text-primary-500">[X] [ILLUSTRATION: 404_MASCOT_LOST_1:1]</span>
-                            <div class="relative flex size-full items-center justify-center overflow-hidden rounded-lg border border-dashed border-surface-border p-2">
-                                {{--
-                                    TODO: Ganti '/assets/Placeholder.png' dengan path gambar PNG/JPG maskot 404 saat aset final tersedia:
-                                    contoh: asset('/assets/mascot/404-lost.png')
-                                --}}
+                        <div class="mx-auto mt-8 flex aspect-square w-full max-w-[190px] flex-col items-center justify-between rounded-xl border border-brand-gold/30 bg-surface-card p-3 glow-gold-subtle">
+                            <span class="w-full text-left font-mono text-[8px] uppercase tracking-wider text-brand-gold">
+                                [X] [ILLUSTRATION: 404_MASCOT_LOST_1:1]
+                            </span>
+                            <div class="relative flex size-full items-center justify-center overflow-hidden rounded-lg border border-dashed border-white/15 p-2">
                                 <img
                                     src="{{ asset('/assets/Placeholder.png') }}"
-                                    alt="Maskot Gajah 404 — Halaman Tidak Ditemukan"
+                                    alt="[X: Bee-ner Mascot 404 — Halaman Tidak Ditemukan]"
                                     class="h-full w-full object-contain select-none"
                                     loading="lazy"
                                 />
@@ -99,21 +101,18 @@
                         </div>
                     </div>
 
-                    <div class="mt-8 space-y-3 font-mono text-[10px] leading-5 text-primary-700">
-                        <p class="text-primary-500">[ERR_STATUS // 0x0194_NOT_FOUND]</p>
-                        <p><span class="text-secondary-700">TRACE</span> / route_not_found</p>
-                        <p><span class="text-secondary-700">CAUSE</span> / unallocated_address</p>
-                        <p><span class="text-secondary-700">ACTION</span> / reroute_to_home</p>
-                        <p class="border-t border-surface-border pt-3 text-primary-900">SYSTEM STATUS: <span class="text-secondary-700">RECOVERABLE</span></p>
+                    <div class="mt-8 space-y-2.5 font-mono text-[11px] leading-5 text-text-secondary">
+                        <p class="text-brand-gold">[ERR_STATUS // 0x0194_NOT_FOUND]</p>
+                        <p><span class="text-brand-gold">TRACE</span> / route_not_found</p>
+                        <p><span class="text-brand-gold">CAUSE</span> / unallocated_address</p>
+                        <p><span class="text-brand-gold">ACTION</span> / reroute_to_home</p>
+                        <p class="border-t border-white/10 pt-3 text-text-primary">
+                            SYSTEM STATUS: <span class="text-brand-gold font-bold">RECOVERABLE</span>
+                        </p>
                     </div>
                 </aside>
             </div>
-        </main>
 
-        <footer class="border-t border-surface-border bg-surface-canvas">
-            <div class="mx-auto max-w-7xl px-4 py-5 font-mono text-[10px] uppercase tracking-[0.16em] text-primary-500 sm:px-6 lg:px-8">
-                {{ $cohortName ?? 'TEKNIK KOMPUTER 2026' }}
-            </div>
-        </footer>
-    </body>
-</html>
+        </div>
+    </main>
+</x-layouts.app>
