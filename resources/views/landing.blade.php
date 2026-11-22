@@ -8,17 +8,14 @@
         ]"
     />
 
-    <main id="main-content">
-        {{-- Section 1: Hero Asymmetric Bento Grid (Issue #18) --}}
+    <main id="main-content" class="grow">
+        {{-- Section 1: COMETS Hero Section with Embedded Media Carousel (PRD §3.1.1) --}}
         <x-landing.hero :content="$landingContent['hero'] ?? null" />
 
-        {{-- Section 2: Decoding 2-Column Editorial Split (Issue #19) --}}
+        {{-- Section 2: Bee-ner Mascot & Jargon Identity Section (PRD §3.1.2) --}}
         <x-landing.decoding-ascent :content="$landingContent['decoding'] ?? null" />
 
-        {{-- Section 3: Moments & Highlights Carousel (Issue #20) --}}
-        <x-landing.moments />
-
-        {{-- Section 4: Directory Quick Discovery Banner Plate (Issue #21) --}}
+        {{-- Section 3: Member Angkatan & Stats Matrix Banner (PRD §3.1.3) --}}
         <x-landing.directory-banner :content="$landingContent['directory_banner'] ?? null" />
     </main>
 </x-layouts.app>
