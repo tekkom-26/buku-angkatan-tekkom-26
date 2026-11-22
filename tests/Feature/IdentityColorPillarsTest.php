@@ -6,7 +6,7 @@ use Tests\TestCase;
 
 class IdentityColorPillarsTest extends TestCase
 {
-    public function test_identity_page_renders_color_pillars_section_with_all_four_swatches(): void
+    public function test_identity_page_renders_color_pillars_section_with_all_three_comets_swatches_and_chant(): void
     {
         $response = $this->get('/identity');
 
@@ -15,36 +15,36 @@ class IdentityColorPillarsTest extends TestCase
 
         // Section Header
         $response->assertSee('// 02_COLOR_SYSTEM');
-        $response->assertSee('Empat Pilar Warna');
-        $response->assertSee('PALETTE // 04_SEMANTIC_TOKENS');
+        $response->assertSee('Tiga Pilar Warna Resmi');
+        $response->assertSee('PALETTE // 03_SEMANTIC_TOKENS');
 
-        // Pillar 1: Sky Wash
+        // Pillar 1: Charcoal
         $response->assertSee('PILLAR_01');
-        $response->assertSee('Sky Wash');
-        $response->assertSee('Primary Interactive');
-        $response->assertSee('#80bab2');
-        $response->assertSee('--color-secondary-500');
-
-        // Pillar 2: Butter Cream
-        $response->assertSee('PILLAR_02');
-        $response->assertSee('Butter Cream');
-        $response->assertSee('Accent & Alert');
-        $response->assertSee('#d4d86a');
-        $response->assertSee('--color-highlight-500');
-
-        // Pillar 3: Deep Plum
-        $response->assertSee('PILLAR_03');
-        $response->assertSee('Deep Plum');
-        $response->assertSee('Structural Grounding');
-        $response->assertSee('#514051');
-        $response->assertSee('--color-primary-900');
-
-        // Pillar 4: Snow White
-        $response->assertSee('PILLAR_04');
-        $response->assertSee('Snow White');
-        $response->assertSee('Surface Canvas');
-        $response->assertSee('#e6e3e8');
+        $response->assertSee('Charcoal');
+        $response->assertSee('Kebersamaan');
+        $response->assertSee('#252525');
         $response->assertSee('--color-surface-card');
+
+        // Pillar 2: Tech Gold
+        $response->assertSee('PILLAR_02');
+        $response->assertSee('Tech Gold');
+        $response->assertSee('Potensi Diri');
+        $response->assertSee('#D4AF37');
+        $response->assertSee('--color-brand-gold');
+
+        // Pillar 3: Blood Red
+        $response->assertSee('PILLAR_03');
+        $response->assertSee('Blood Red');
+        $response->assertSee('Ketangguhan');
+        $response->assertSee('#690F1D');
+        $response->assertSee('--color-brand-red');
+
+        // Audio Card & 3-Stanza Yel-Yel Chants
+        $response->assertSee('// COLONY_CHANT // AUDIO_CARD');
+        $response->assertSee('SOLID LIKE A BEE, BE LIKE WE WANT TO BE, STRONG AND FREE!');
+        $response->assertSee('Ada cerita tentang sebuah canda dan tawa');
+        $response->assertSee('Inilah kami Comets');
+        $response->assertSee('Akan kami buktikan!');
     }
 
     public function test_color_pillars_section_does_not_contain_arbitrary_hex_in_classes(): void

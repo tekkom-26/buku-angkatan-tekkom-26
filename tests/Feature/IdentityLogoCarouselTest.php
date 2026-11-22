@@ -6,47 +6,40 @@ use Tests\TestCase;
 
 class IdentityLogoCarouselTest extends TestCase
 {
-    public function test_identity_page_renders_logo_symbolism_carousel_with_all_layers(): void
+    public function test_identity_page_renders_logo_symbolism_carousel_with_all_five_comets_layers(): void
     {
         $response = $this->get('/identity');
         $response->assertOk();
         $response->assertViewIs('identity');
+
         // 1. Technical Index & Header
         $response->assertSee('// 03_LOGO_ANATOMY');
-        $response->assertSee('Bedah Simbolisme');
-        $response->assertSee('LOGO / 04 LAYERS');
+        $response->assertSee('LOGO / 05 LAYERS');
+
         // 2. Layer Breakdown Header & Slide Counter Badge
         $response->assertSee('LAYER BREAKDOWN');
         $response->assertSee('[ KOMPONEN');
-        $response->assertSee('/ 04 ]');
-        $response->assertSee('ASSET_LAYER: 01_OF_04 // VECTOR_CONSTRUCT');
-        // 3. Slide 1: Sayap Angkatan
-        $response->assertSee('Sayap Angkatan // Elevasi & Ambisi Melambung');
-        $response->assertSee('Elevasi // Ambisi Melambung');
-        $response->assertSee('WINGS');
-        $response->assertSee('[X] [ASSET: LOGO_COMPONENT_1:1 — ELEMEN_SAYAP]');
-        // 4. Slide 2: Geometri Angka 26
-        $response->assertSee('Geometri Angka 26 // Identitas Angkatan');
-        $response->assertSee('Identitas // Angkatan 2026');
-        $response->assertSee('NUMERAL 26');
-        $response->assertSee('[X] [ASSET: LOGO_COMPONENT_1:1 — GEOMETRI_ANGKA_26]');
-        // 5. Slide 3: Sirkuit Logika Komputasi
-        $response->assertSee('Sirkuit Logika Komputasi // Keahlian Rekayasa');
-        $response->assertSee('Keahlian // Rekayasa Komputasi');
-        $response->assertSee('CIRCUIT');
-        $response->assertSee('[X] [ASSET: LOGO_COMPONENT_1:1 — SIRKUIT_LOGIKA_KOMPUTASI]');
-        // 6. Slide 4: Lambang Utuh Terintegrasi
-        $response->assertSee('Lambang Utuh Terintegrasi // Solidaritas Kolektif');
-        $response->assertSee('Solidaritas // Kesatuan Kolektif');
-        $response->assertSee('FULL EMBLEM');
-        $response->assertSee('[X] [ASSET: LOGO_COMPONENT_1:1 — LAMBANG_UTUH_TERINTEGRASI]');
+        $response->assertSee('/ 05 ]');
+        $response->assertSee('ASSET_LAYER: 01_OF_05 // COMETS_VECTOR');
 
-        // 7. Navigation Controls & Alpine State
+        // 3. 5 COMETS Logo Elements (PRD §3.2.3)
+        $response->assertSee('Lingkaran // Kesetaraan Tanpa Awal & Akhir');
+        $response->assertSee('LINGKARAN');
+        $response->assertSee('Lebah // Satu Koloni Membangun Sarang Kokoh');
+        $response->assertSee('LEBAH');
+        $response->assertSee('Sayap Bersirkuit // Identitas Teknik Komputer & Daya Juang');
+        $response->assertSee('SAYAP BERSIRKUIT');
+        $response->assertSee('Belang & Sengat // Masa Terang-Gelap & Ketangguhan');
+        $response->assertSee('BELANG & SENGAT');
+        $response->assertSee('26 Segi Enam // 26 Simpul Terhubung Membentuk Rumah Bersama');
+        $response->assertSee('26 SEGI ENAM');
+
+        // 4. Navigation Controls & Alpine State
         $response->assertSee('Pilih slide komponen logo');
         $response->assertSee('Slide logo sebelumnya');
         $response->assertSee('Slide logo berikutnya');
         $response->assertSee('activeSlide: 1');
-        $response->assertSee('totalSlides: 4');
+        $response->assertSee('totalSlides: 5');
         $response->assertSee('/assets/Placeholder.png');
     }
 
@@ -56,35 +49,24 @@ class IdentityLogoCarouselTest extends TestCase
         $response->assertOk();
         $response->assertViewIs('identity');
 
-        // Section 1: Editorial Header & 21:9 Batch Hero Banner (Issue #22)
-        $response->assertSee('// 05_IDENTITY — FILOSOFI & SIMBOLISME //', false);
-        $response->assertSee('Identitas, Filosofi & Nilai Dasar');
+        // Section 1: Header Banner
+        $response->assertSee('// 05_IDENTITY — FILOSOFI &amp; SIMBOLISME //', false);
+        $response->assertSee('Anatomi Identitas COMETS');
         $response->assertSee('[X] [IMAGE: BATCH_HERO_BANNER_21:9 — FOTO_KOLABORATIF_ANGKATAN]');
         $response->assertSee('[ARCHIVE_REF: ID_BANNER_2026] | ASPECT_RATIO: 21:9');
         $response->assertSee('BATCH_XXVI // SPECIFICATION');
 
-        // Section 2: Visi & Misi Asymmetric 2-Column Bento Grid (Issue #23)
+        // Section 2: Visi & Misi Bento Grid
         $response->assertSee('// 01_VISION_MISSION');
-        $response->assertSee('Arah Gerak & Komitmen Angkatan', false);
-        $response->assertSee('Integrity, Unbreakable, We Are Competent!!!');
+        $response->assertSee('Arah Gerak &amp; Komitmen Angkatan', false);
+        $response->assertSee('SOLID LIKE A BEE, BE LIKE WE WANT TO BE, STRONG AND FREE!');
         $response->assertSee('[ VISI_UTAMA ]');
         $response->assertSee('[ MISI_EKSEKUSI ]');
-        $response->assertSee('Solidaritas & Inklusivitas Tanpa Sekat');
-        $response->assertSee('Akselerasi Kompetensi Akademik & Rekayasa');
-        $response->assertSee('Integritas Karakter & Kontribusi Berkelanjutan');
 
-        // Section 3: 4 Official Color Pillars Horizontal Swatch Grid (Issue #24)
-        $response->assertSee('// 02_COLOR_SYSTEM');
-        $response->assertSee('Empat Pilar Warna');
-        $response->assertSee('PALETTE // 04_SEMANTIC_TOKENS');
-        $response->assertSee('Sky Wash');
-        $response->assertSee('Butter Cream');
-        $response->assertSee('Deep Plum');
-        $response->assertSee('Snow White');
-
-        // Section 4 & Section 5 headers
+        // Section 3, 4, 5 Headers
         $response->assertSee('// 03_LOGO_ANATOMY');
         $response->assertSee('// 04_MASCOT_ANATOMY');
+        $response->assertSee('// 02_COLOR_SYSTEM');
     }
 
     public function test_logo_carousel_does_not_contain_arbitrary_hex_in_classes(): void
