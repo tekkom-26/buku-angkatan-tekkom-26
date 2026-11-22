@@ -14,7 +14,7 @@ class IdentityMascotCarouselTest extends TestCase
         $response->assertViewIs('identity');
     }
 
-    public function test_identity_page_renders_mascot_anatomy_carousel_with_all_attributes(): void
+    public function test_identity_page_renders_mascot_anatomy_carousel_with_all_five_beener_attributes(): void
     {
         $response = $this->get('/identity');
 
@@ -22,47 +22,31 @@ class IdentityMascotCarouselTest extends TestCase
 
         // 1. Technical Index & Header
         $response->assertSee('// 04_MASCOT_ANATOMY');
-        $response->assertSee('Bedah Karakter');
-        $response->assertSee('& Anatomi Maskot', false);
-        $response->assertSee('MASCOT / 04 ATTRIBUTES');
+        $response->assertSee('MASCOT / 05 ATTRIBUTES');
 
         // 2. Attribute Breakdown Header & Slide Counter Badge
         $response->assertSee('ATTRIBUTE BREAKDOWN');
         $response->assertSee('[ KOMPONEN');
-        $response->assertSee('/ 04 ]');
+        $response->assertSee('/ 05 ]');
 
-        // 3. Slide 1: Gading Komputasi
-        $response->assertSee('Gading Komputasi');
-        $response->assertSee('Memori // Daya Ingat Kuat');
-        $response->assertSee('TUSK');
-        $response->assertSee('[X] [ASSET: MASCOT_COMPONENT_1:1 — ANATOMI_GADING]');
+        // 3. 5 Bee-ner Mascot Attributes (PRD §3.2.4)
+        $response->assertSee('Strip Hitam-Emas // Logika Biner 0 & 1');
+        $response->assertSee('STRIP HITAM-EMAS');
+        $response->assertSee('Mata Hexagon // Potensi Diri yang Menyala');
+        $response->assertSee('MATA HEXAGON');
+        $response->assertSee('Ring Bahu // Kuat Memikul Beban Bersama');
+        $response->assertSee('RING BAHU');
+        $response->assertSee('Antena // Peka & Peduli Terhadap Sesama');
+        $response->assertSee('ANTENA');
+        $response->assertSee('Senyum Ramah // Inklusivitas & Keterbukaan Koloni');
+        $response->assertSee('SENYUM RAMAH');
 
-        // 4. Slide 2: Belalai Ramah
-        $response->assertSee('Belalai Ramah');
-        $response->assertSee('Sinergi // Komunikasi Tanpa Sekat');
-        $response->assertSee('TRUNK');
-        $response->assertSee('[X] [ASSET: MASCOT_COMPONENT_1:1 — ANATOMI_BELALAI]');
-
-        // 5. Slide 3: Almamater / Hardware
-        $response->assertSee('Almamater / Hardware');
-        $response->assertSee('Identitas // Teknik Komputer');
-        $response->assertSee('JACKET');
-        $response->assertSee('[X] [ASSET: MASCOT_COMPONENT_1:1 — ANATOMI_ALMAMATER]');
-
-        // 6. Slide 4: Pose Penuh Karakter Chibi
-        $response->assertSee('Pose Penuh Karakter');
-        $response->assertSee('Semangat // Angkatan 2026');
-        $response->assertSee('FULL BODY');
-        $response->assertSee('[X] [ASSET: MASCOT_COMPONENT_1:1 — POSE_LENGKAP_CHIBI]');
-
-        // 7. Navigation Controls
+        // 4. Navigation Controls & Alpine State
         $response->assertSee('Pilih slide maskot');
         $response->assertSee('Slide sebelumnya');
         $response->assertSee('Slide berikutnya');
-
-        // 8. Alpine.js State & Placeholder Image
         $response->assertSee('activeSlide: 1');
-        $response->assertSee('totalSlides: 4');
+        $response->assertSee('totalSlides: 5');
         $response->assertSee('/assets/Placeholder.png');
     }
 
@@ -71,7 +55,6 @@ class IdentityMascotCarouselTest extends TestCase
         $response = $this->get('/identity');
         $content = $response->getContent();
 
-        // Ensure no arbitrary hex in class attributes
         $this->assertDoesNotMatchRegularExpression('/class="[^"]*#[0-9a-fA-F]{3,8}[^"]*"/', $content);
         $this->assertStringNotContainsString('bg-[#', $content);
         $this->assertStringNotContainsString('text-[#', $content);

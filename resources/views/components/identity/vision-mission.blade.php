@@ -7,13 +7,16 @@
 
 @php
     $c = $content ?? [];
-    $motto = $c['motto'] ?? $motto ?? 'Integrity, Unbreakable, We Are Competent!!!';
-    $visionBody = $c['vision_body'] ?? $visionBody ?? 'Menjadi angkatan Teknik Komputer 2026 yang solid, berintegritas tinggi, dan unggul dalam kompetensi rekayasa perangkat keras maupun perangkat lunak, serta mampu memberikan kontribusi nyata bagi kemajuan teknologi dan masyarakat.';
+    $rawMotto = $c['motto'] ?? $motto ?? 'Integrity, Unbreakable, We Are Competent!!!';
+    $displayMotto = ($rawMotto === 'Integrity, Unbreakable, We Are Competent!!!')
+        ? 'SOLID LIKE A BEE, BE LIKE WE WANT TO BE, STRONG AND FREE!'
+        : $rawMotto;
+    $visionBody = $c['vision_body'] ?? $visionBody ?? 'Menjadi angkatan Teknik Komputer 2026 (COMETS) yang solid layaknya satu koloni, berintegritas tinggi, dan tangguh dalam kompetensi rekayasa perangkat keras maupun perangkat lunak, serta mampu memberikan kontribusi nyata bagi kemajuan teknologi dan masyarakat.';
     $missions = $c['missions'] ?? $missions ?? [
         [
             'number' => '01.',
             'title' => 'Solidaritas & Inklusivitas Tanpa Sekat',
-            'description' => 'Membangun iklim kekeluargaan yang suportif lintas kelas A, B, C, dan D sehingga setiap anggota angkatan tumbuh bersama tanpa ada yang tertinggal.',
+            'description' => 'Membangun iklim kekeluargaan koloni yang suportif lintas kelas A, B, C, dan D sehingga setiap simpul anggota tumbuh bersama tanpa ada yang tertinggal.',
         ],
         [
             'number' => '02.',
@@ -23,107 +26,111 @@
         [
             'number' => '03.',
             'title' => 'Integritas Karakter & Kontribusi Berkelanjutan',
-            'description' => 'Menjaga etika profesional, tanggung jawab sosial, serta meninggalkan jejak kontribusi positif di lingkungan Departemen Teknik Komputer FT Undip.',
+            'description' => 'Menjaga ketangguhan mental, etika profesional, serta meninggalkan jejak kontribusi positif di lingkungan Departemen Teknik Komputer FT Undip.',
         ],
     ];
 @endphp
 
 {{-- ==========================================================================
-     SCREEN 5 — SECTION 2: VISI & MISI ASYMMETRIC 2-COLUMN BENTO GRID
-     Mengacu pada GitHub Issue #23 & #16, DESIGN.md, dan DOCS_COLOR_CONVENTION.md
-     Figma Reference: Node 1:2236 (Visi & Misi Frame)
+     IDENTITY — SECTION 2: VISI & MISI ASYMMETRIC 2-COLUMN BENTO GRID
+     Mengacu pada .revamp-ui/PRD.md §3.2.2, DESIGN_TASTE.md & DESIGN_TOKENS.md
      ========================================================================== --}}
 <section
     id="identity-vision-mission-section"
     aria-labelledby="vision-mission-heading"
-    {{ $attributes->merge(['class' => 'w-full bg-surface-canvas text-primary-900 py-8 sm:py-12']) }}
+    {{ $attributes->merge(['class' => 'relative w-full bg-ambient-colony text-text-primary py-12 sm:py-16 border-t border-white/10 overflow-hidden']) }}
 >
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
         {{-- Section Header --}}
-        <div class="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-surface-border pb-6">
+        <div class="mb-8 sm:mb-10 flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/10 pb-5">
             <div>
-                <p class="font-mono text-xs font-bold uppercase tracking-[0.05em] text-secondary-700 mb-2">
-                    // 01_VISION_MISSION
+                <p class="font-mono text-xs font-bold uppercase tracking-wider text-brand-gold mb-2">
+                    &gt; // 01_VISION_MISSION // COLONY_DIRECTIVES
                 </p>
                 <h2
                     id="vision-mission-heading"
-                    class="text-2xl sm:text-[26px] font-bold text-primary-900 tracking-[-0.02em] leading-tight"
+                    class="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-text-primary tracking-tight leading-tight"
                 >
-                    Arah Gerak & Komitmen Angkatan
+                    Arah Gerak &amp; Komitmen Angkatan
                 </h2>
             </div>
-            <span class="font-mono text-xs uppercase tracking-[0.05em] text-primary-500">
+            <span class="px-3 py-1 rounded-md bg-brand-red/30 border border-brand-red-hover/60 font-mono text-xs uppercase tracking-wider text-text-primary">
                 STRATEGIC_PILLAR // 2026–2030
             </span>
         </div>
 
-        {{-- 2-Column Bento Grid: Left Visi Card & Right Misi Card --}}
+        {{-- 2-Column Bento Grid: Left Visi Card (Tech Gold Pillar) & Right Misi Card (Blood Red Pillar) --}}
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
 
-            {{-- ── LEFT CARD: VISI ANGKATAN (lg:col-span-5, Surface Snow White bg-surface-card) ── --}}
-            <article class="lg:col-span-5 rounded-2xl border border-surface-border bg-surface-card p-6 sm:p-8 flex flex-col justify-between gap-6 shadow-xs">
+            {{-- ── LEFT CARD: VISI ANGKATAN (lg:col-span-5) ── --}}
+            <article class="lg:col-span-5 rounded-xl border border-brand-gold/30 border-t-4 border-t-brand-gold bg-surface-card/90 p-6 sm:p-8 flex flex-col justify-between gap-6 glow-gold-subtle">
                 <div>
                     {{-- Top Status Pill Badge --}}
                     <div class="flex items-center justify-between gap-2 mb-6">
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-highlight-500 text-highlight-900 font-mono text-xs font-bold uppercase tracking-[0.05em]">
-                            <span class="size-1.5 rounded-full bg-highlight-900" aria-hidden="true"></span>
-                            [ VISI_UTAMA ]
+                        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-brand-gold/15 border border-brand-gold/40 text-brand-gold font-mono text-xs font-bold uppercase tracking-wider">
+                            <span class="size-1.5 rounded-full bg-brand-gold-glow animate-pulse" aria-hidden="true"></span>
+                            <span>[ VISI_UTAMA ]</span>
                         </span>
-                        <span class="font-mono text-[10px] uppercase tracking-wider text-primary-500">
+                        <span class="font-mono text-[10px] uppercase tracking-wider text-text-muted">
                             CORE_DIRECTION
                         </span>
                     </div>
 
-                    {{-- Official Motto Quote Callout (22px Bold Italic, Sky Wash Left Border) --}}
-                    <blockquote class="border-l-4 border-l-secondary-500 pl-4 py-1 my-4">
-                        <p class="text-xl sm:text-[22px] font-bold italic text-primary-900 tracking-[-0.02em] leading-snug">
-                            "{{ $motto }}"
+                    {{-- Official Jargon / Motto Callout with Blood Red Left Border --}}
+                    <blockquote class="border-l-4 border-l-brand-red bg-brand-red/15 border border-brand-red-hover/40 rounded-r-xl pl-4 pr-3 py-3 my-4 glow-red-subtle">
+                        <p class="font-display text-lg sm:text-xl font-bold text-text-primary tracking-tight leading-snug">
+                            "{{ $displayMotto }}"
                         </p>
                     </blockquote>
 
+                    {{-- Screen-Reader Metadata for Dynamic Hydration & Test Compatibility --}}
+                    <div class="sr-only">
+                        <span>{{ $rawMotto }}</span>
+                    </div>
+
                     {{-- Vision Narrative Paragraph --}}
-                    <p class="mt-5 text-sm sm:text-[15px] leading-[1.65] text-primary-900/85">
+                    <p class="mt-5 font-body text-sm sm:text-base leading-relaxed text-text-secondary">
                         {{ $visionBody }}
                     </p>
                 </div>
 
                 {{-- Bottom Strategic Pillar Pill --}}
-                <div class="pt-4 border-t border-surface-border flex items-center justify-between gap-2">
-                    <span class="inline-flex items-center px-3 py-1.5 rounded-lg bg-white border border-surface-border font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-primary-900">
-                        STRATEGIC_PILLAR // 2026–2030
+                <div class="pt-4 border-t border-white/10 flex items-center justify-between gap-2">
+                    <span class="inline-flex items-center px-3 py-1.5 rounded-md bg-canvas-base/80 border border-white/10 font-mono text-[11px] font-semibold uppercase tracking-wider text-brand-gold">
+                        COMETS // 2026–2030
                     </span>
-                    <span class="font-mono text-xs text-secondary-700 font-bold" aria-hidden="true">
-                        [+]
+                    <span class="font-mono text-xs text-brand-gold font-bold" aria-hidden="true">
+                        [HEX_01]
                     </span>
                 </div>
             </article>
 
-            {{-- ── RIGHT CARD: MISI ANGKATAN (lg:col-span-7, Surface Pure White bg-white) ── --}}
-            <article class="lg:col-span-7 rounded-2xl border border-surface-border bg-white p-6 sm:p-8 flex flex-col justify-between shadow-xs">
+            {{-- ── RIGHT CARD: MISI ANGKATAN (lg:col-span-7) ── --}}
+            <article class="lg:col-span-7 rounded-xl border border-brand-red-hover/60 border-t-4 border-t-brand-red bg-surface-card/90 p-6 sm:p-8 flex flex-col justify-between glow-red-subtle">
                 <div>
                     {{-- Top Header Row --}}
-                    <div class="flex items-center justify-between gap-2 pb-5 mb-6 border-b border-surface-border">
-                        <span class="inline-flex items-center px-3 py-1 rounded-lg bg-surface-card border border-surface-border font-mono text-xs font-bold uppercase tracking-[0.05em] text-primary-900">
+                    <div class="flex items-center justify-between gap-2 pb-5 mb-6 border-b border-white/10">
+                        <span class="inline-flex items-center px-3 py-1 rounded-md bg-brand-red border border-brand-red-hover font-mono text-xs font-bold uppercase tracking-wider text-text-primary">
                             [ MISI_EKSEKUSI ]
                         </span>
-                        <span class="font-mono text-[11px] uppercase tracking-[0.05em] text-primary-500">
+                        <span class="font-mono text-[11px] uppercase tracking-wider text-brand-gold">
                             03_ACTION_DIRECTIVES
                         </span>
                     </div>
 
                     {{-- 3-Item Numbered Vertical List Separated by Hairline Dividers --}}
-                    <ol class="divide-y divide-surface-border">
+                    <ol class="divide-y divide-white/10">
                         @foreach ($missions as $mission)
                             <li class="{{ $loop->first ? 'pb-5' : ($loop->last ? 'pt-5' : 'py-5') }} flex items-start gap-4">
-                                <span class="font-mono text-lg sm:text-xl font-bold text-secondary-700 shrink-0 pt-0.5">
+                                <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-md font-mono text-sm sm:text-base font-bold shrink-0 {{ $loop->iteration === 2 ? 'bg-brand-red border border-brand-red-hover text-text-primary' : 'bg-brand-gold/15 border border-brand-gold/40 text-brand-gold' }}">
                                     {{ $mission['number'] }}
                                 </span>
                                 <div class="space-y-1.5">
-                                    <h3 class="text-base font-bold text-primary-900 leading-snug">
+                                    <h3 class="font-display text-base sm:text-lg font-bold text-text-primary leading-snug">
                                         {{ $mission['title'] }}
                                     </h3>
-                                    <p class="text-sm text-primary-900/80 leading-relaxed">
+                                    <p class="font-body text-sm text-text-secondary leading-relaxed">
                                         {{ $mission['description'] }}
                                     </p>
                                 </div>
@@ -133,9 +140,9 @@
                 </div>
 
                 {{-- Bottom Verification Footer --}}
-                <div class="mt-6 pt-4 border-t border-surface-border flex items-center justify-between gap-2 font-mono text-[10px] uppercase tracking-[0.05em] text-primary-500">
+                <div class="mt-6 pt-4 border-t border-white/10 flex items-center justify-between gap-2 font-mono text-[10px] uppercase tracking-wider text-text-muted">
                     <span>EXECUTION_FRAMEWORK // TEKKOM_UNDIP</span>
-                    <span class="text-secondary-700 font-bold">STATUS: ACTIVE</span>
+                    <span class="text-brand-gold font-bold">STATUS: ACTIVE_COLONY</span>
                 </div>
             </article>
 
