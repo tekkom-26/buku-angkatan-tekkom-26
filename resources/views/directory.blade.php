@@ -1,91 +1,111 @@
-<x-layouts.app activePage="unlock" :title="'Direktori Mahasiswa — ' . $cohortName">
+<x-layouts.app activePage="directory" :title="'Direktori Mahasiswa — ' . $cohortName">
 
-        @php
-            $studentItems = collect($students->items())->values();
-            $firstItemIndex = $students->firstItem() ?? 1;
-        @endphp
+    @php
+        $studentItems = collect($students->items())->values();
+        $firstItemIndex = $students->firstItem() ?? 1;
+    @endphp
 
-        <main
-            id="main-content"
-            x-data="{
-                searchQuery: @js((string) request('search', '')),
-                selectedClass: @js((string) request('class', '')),
-                resetFilters() {
-                    this.searchQuery = '';
-                    this.selectedClass = '';
-                },
-                submitFilters() {
-                    this.$refs.filterForm.requestSubmit();
-                }
-            }"
-            @reset-directory-filter.window="resetFilters()"
-            class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-14"
-        >
+    <main
+        id="main-content"
+        x-data="{
+            searchQuery: @js((string) request('search', '')),
+            selectedClass: @js((string) request('class', '')),
+            resetFilters() {
+                this.searchQuery = '';
+                this.selectedClass = '';
+            },
+            submitFilters() {
+                this.$refs.filterForm.requestSubmit();
+            }
+        }"
+        @reset-directory-filter.window="resetFilters()"
+        class="relative grow w-full bg-ambient-hero py-8 sm:py-12 lg:py-16 overflow-hidden"
+    >
+        {{-- Decorative Background Circuit Traces --}}
+        <div class="pointer-events-none absolute inset-0 overflow-hidden select-none" aria-hidden="true">
+            <svg class="hidden lg:block absolute right-0 top-6 w-80 h-80 text-brand-gold/20" viewBox="0 0 320 320" fill="none">
+                <path d="M320 60 H210 L175 95 H105" stroke="currentColor" stroke-width="1.25" />
+                <path d="M320 140 H240 L205 175 H145" stroke="currentColor" stroke-width="1" stroke-dasharray="4 4" class="text-brand-red-hover/40" />
+                <circle cx="105" cy="95" r="3.5" class="fill-brand-gold" />
+                <circle cx="145" cy="175" r="3.5" class="fill-brand-red-hover" />
+            </svg>
+        </div>
+
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
             {{-- ── 1. PAGE HEADER & ROSTER TELEMETRY ── --}}
-            <header class="mb-8 border-b border-surface-border pb-6">
+            <header class="mb-8 border-b border-white/10 pb-6">
                 <div class="flex items-center gap-2 mb-3">
-                    <span class="inline-block size-2 rounded-full bg-secondary-500" aria-hidden="true"></span>
-                    <span class="font-mono text-[11px] sm:text-xs font-bold uppercase tracking-[0.05em] text-primary-700">
-                        // 03_DIRECTORY // STUDENT_LIST
+                    <span class="inline-block size-2 rounded-full bg-brand-gold-glow animate-pulse" aria-hidden="true"></span>
+                    <span class="font-mono text-[11px] sm:text-xs font-bold uppercase tracking-wider text-brand-gold">
+                        &gt; // 03_DIRECTORY // STUDENT_LIST
                     </span>
                 </div>
 
                 <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
                     <div>
-                        <h1 class="text-3xl sm:text-4xl font-bold text-primary-900 tracking-[-0.025em] leading-tight">
+                        <h1 class="font-display text-3xl sm:text-5xl font-bold text-text-primary tracking-tight leading-tight">
                             Direktori Mahasiswa Angkatan
                         </h1>
-                        <p class="mt-2 text-sm sm:text-base text-primary-900/80 max-w-2xl leading-relaxed">
-                            Arsip resmi anggota angkatan Teknik Komputer 2026 — telusuri profil berdasarkan nama, NIM, maupun pembagian kelas.
-                        </p>
+                        <div class="mt-3 border-l-4 border-l-brand-red pl-4 py-0.5 max-w-2xl">
+                            <p class="font-body text-sm sm:text-base text-text-secondary leading-relaxed">
+                                Arsip resmi koloni mahasiswa Teknik Komputer 2026 (COMETS) — telusuri simpul profil berdasarkan nama lengkap, nama panggilan, NIM, kota domisili, maupun pembagian kelas.
+                            </p>
+                        </div>
                     </div>
 
                     {{-- Monospace Telemetry Badges --}}
                     <div class="flex flex-wrap items-center gap-2.5 shrink-0">
-                        <span class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-surface-card border border-surface-border font-mono text-xs font-bold uppercase tracking-[0.05em] text-primary-900">
-                            <span>{{ $totalStudents }} MAHASISWA TERDATA</span>
+                        <span class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-surface-card/90 border border-brand-gold/40 font-mono text-xs font-bold uppercase tracking-wider text-brand-gold glow-gold-subtle">
+                            <span>Total: {{ $totalStudents }} Mahasiswa</span>
+                            <span class="sr-only">{{ $totalStudents }} MAHASISWA TERDATA</span>
                         </span>
-                        <span class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-highlight-500 text-highlight-900 font-mono text-xs font-bold uppercase tracking-[0.05em]">
-                            <span class="size-2 rounded-full bg-highlight-900" aria-hidden="true"></span>
+                        <span class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-brand-red border border-brand-red-hover text-text-primary font-mono text-xs font-bold uppercase tracking-wider glow-red-subtle">
+                            <span class="size-2 rounded-full bg-brand-gold animate-pulse" aria-hidden="true"></span>
                             <span>[MODE: UNLOCKED]</span>
                         </span>
                     </div>
                 </div>
             </header>
 
-            {{-- ── 2. INTERACTIVE SEARCH BAR & CLASS FILTER CHIPS (Figma Node 1:872) ── --}}
+            {{-- ── 2. INTERACTIVE TERMINAL SEARCH BAR & CLASS FILTER CHIPS ── --}}
             <section aria-label="Pencarian dan filter kelas mahasiswa" class="mb-8">
                 <form
                     x-ref="filterForm"
                     method="GET"
                     action="{{ route('directory.index') }}"
-                    class="rounded-2xl border border-surface-border bg-white p-4 sm:p-5 shadow-xs space-y-4"
+                    class="relative overflow-hidden rounded-xl border border-brand-gold/30 bg-surface-card/90 p-4 sm:p-6 space-y-4 glow-gold-subtle"
                 >
-                    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                    {{-- Top Dual-Tone Circuit Line --}}
+                    <div class="absolute inset-x-0 top-0 h-1 flex" aria-hidden="true">
+                        <div class="w-2/3 bg-brand-gold"></div>
+                        <div class="w-1/3 bg-brand-red"></div>
+                    </div>
 
-                        {{-- Search Input Box (Figma Node 1:872) --}}
+                    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pt-1">
+
+                        {{-- Terminal Monospace Search Input Box --}}
                         <div class="relative flex-1 min-w-0">
                             <label for="directory-search-input" class="sr-only">
                                 Cari nama, panggilan, atau NIM mahasiswa
                             </label>
                             <div class="relative flex items-center">
-                                <svg class="pointer-events-none absolute left-3.5 size-4 stroke-[2] stroke-current text-primary-500" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                                </svg>
+                                <span class="pointer-events-none absolute left-3.5 font-mono text-sm font-bold text-brand-gold" aria-hidden="true">
+                                    &gt;_
+                                </span>
                                 <input
                                     id="directory-search-input"
                                     type="search"
                                     name="search"
                                     x-model.debounce.150ms="searchQuery"
                                     value="{{ request('search') }}"
-                                    placeholder="Cari nama, panggilan, atau NIM mahasiswa..."
-                                    class="w-full min-h-11 rounded-lg border border-surface-border bg-surface-canvas pl-10 pr-24 py-2.5 text-sm text-primary-900 placeholder:text-primary-500 focus:bg-white focus:border-secondary-500 focus:outline-2 focus:outline-secondary-500 focus:outline-offset-2 transition-colors duration-180"
+                                    placeholder="Cari nama, panggilan, NIM, atau kota asal..."
+                                    class="w-full min-h-11 rounded-lg border border-white/15 bg-surface-elevated pl-10 pr-24 py-2.5 font-mono text-xs sm:text-sm text-text-primary placeholder:text-text-muted focus:border-brand-gold focus:outline-none transition-colors"
                                 />
                                 <input type="hidden" name="class" :value="selectedClass" />
                                 <button
                                     type="submit"
-                                    class="absolute right-1.5 inline-flex items-center justify-center px-3.5 py-1.5 rounded-md bg-secondary-500 text-primary-900 font-semibold text-xs border border-surface-border hover:bg-secondary-700 hover:text-white transition-colors duration-180 cursor-pointer"
+                                    class="absolute right-1.5 inline-flex items-center justify-center px-4 py-1.5 rounded-md bg-brand-red hover:bg-brand-red-hover text-text-primary font-display font-semibold text-xs border border-brand-red-hover transition-colors cursor-pointer"
                                 >
                                     Cari
                                 </button>
@@ -104,9 +124,9 @@
                                 aria-selected="{{ request('class') ? 'false' : 'true' }}"
                                 href="{{ route('directory.index', array_filter(['search' => request('search')])) }}"
                                 @class([
-                                    'px-3.5 py-2 rounded-lg border font-mono text-xs uppercase tracking-[0.05em] transition-all duration-180 cursor-pointer focus-visible:outline-2 focus-visible:outline-secondary-500 focus-visible:outline-offset-2',
-                                    'bg-secondary-500 text-primary-900 border-primary-900/20 font-semibold shadow-2xs' => ! request('class'),
-                                    'bg-surface-card text-primary-700 border-surface-border hover:bg-surface-subtle hover:text-primary-900' => request('class'),
+                                    'px-3.5 py-2 rounded-lg border font-mono text-xs uppercase tracking-wider transition-all duration-180 cursor-pointer',
+                                    'bg-brand-red text-text-primary border-brand-red-hover font-bold glow-red-subtle' => ! request('class'),
+                                    'bg-surface-elevated text-text-secondary border-white/10 hover:border-brand-gold/40 hover:text-text-primary' => request('class'),
                                 ])
                             >
                                 All
@@ -118,13 +138,13 @@
                                     aria-selected="{{ request('class') === $filter ? 'true' : 'false' }}"
                                     href="{{ route('directory.index', array_filter(['search' => request('search'), 'class' => $filter])) }}"
                                     @class([
-                                        'px-3.5 py-2 rounded-lg border font-mono text-xs uppercase tracking-[0.05em] transition-all duration-180 cursor-pointer focus-visible:outline-2 focus-visible:outline-secondary-500 focus-visible:outline-offset-2',
-                                        'bg-secondary-500 text-primary-900 border-primary-900/20 font-semibold shadow-2xs' => request('class') === $filter,
-                                        'bg-surface-card text-primary-700 border-surface-border hover:bg-surface-subtle hover:text-primary-900' => request('class') !== $filter,
+                                        'px-3.5 py-2 rounded-lg border font-mono text-xs uppercase tracking-wider transition-all duration-180 cursor-pointer',
+                                        'bg-brand-red text-text-primary border-brand-red-hover font-bold glow-red-subtle' => request('class') === $filter,
+                                        'bg-surface-elevated text-text-secondary border-white/10 hover:border-brand-gold/40 hover:text-text-primary' => request('class') !== $filter,
                                     ])
                                 >
                                     Kelas {{ $filter }}
-                                    <span class="ml-1 text-[10px] opacity-75">({{ $classCounts[$filter] }})</span>
+                                    <span class="ml-1 text-[10px] text-brand-gold">({{ $classCounts[$filter] }})</span>
                                 </a>
                             @endforeach
                         </div>
@@ -132,18 +152,18 @@
                     </div>
 
                     {{-- Active Filter Summary & Status Strip --}}
-                    <div class="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-surface-border text-xs text-primary-700">
+                    <div class="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-white/10 text-xs text-text-secondary">
                         <div class="flex flex-wrap items-center gap-2 font-mono text-[11px]">
                             <span>
-                                MENAMPILKAN <strong class="text-primary-900">{{ $students->count() }}</strong> DARI <strong class="text-primary-900">{{ $students->total() }}</strong> MAHASISWA
+                                MENAMPILKAN <strong class="text-brand-gold">{{ $students->count() }}</strong> DARI <strong class="text-text-primary">{{ $students->total() }}</strong> MAHASISWA
                             </span>
                             <template x-if="selectedClass !== ''">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded bg-surface-card border border-surface-border text-primary-900 font-semibold">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded bg-brand-gold/15 border border-brand-gold/40 text-brand-gold font-semibold">
                                     FILTER: KELAS <span class="ml-1" x-text="selectedClass"></span>
                                 </span>
                             </template>
                             <template x-if="searchQuery.trim() !== ''">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded bg-surface-card border border-surface-border text-primary-900 font-semibold">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded bg-brand-red/30 border border-brand-red-hover text-text-primary font-semibold">
                                     KATA KUNCI: "<span x-text="searchQuery.trim()"></span>"
                                 </span>
                             </template>
@@ -155,14 +175,14 @@
                                 x-show="searchQuery.trim() !== '' || selectedClass !== ''"
                                 @click="resetFilters()"
                                 style="display: none;"
-                                class="font-mono text-[11px] font-semibold text-secondary-700 hover:text-primary-900 underline underline-offset-2 cursor-pointer"
+                                class="font-mono text-[11px] font-semibold text-brand-gold hover:text-brand-gold-glow underline underline-offset-2 cursor-pointer"
                             >
                                 Reset Filter Instan
                             </button>
                             @if (request('search') || request('class'))
                                 <a
                                     href="{{ route('directory.index') }}"
-                                    class="font-mono text-[11px] font-semibold text-primary-700 hover:text-primary-900 underline underline-offset-2"
+                                    class="font-mono text-[11px] font-semibold text-brand-gold hover:text-brand-gold-glow underline underline-offset-2"
                                 >
                                     Reset Semua
                                 </a>
@@ -172,12 +192,10 @@
                 </form>
             </section>
 
-            {{-- ── 3. STUDENT DIRECTORY 3-COLUMN CARD GRID & EMPTY STATE ── --}}
+            {{-- ── 3. STUDENT DIRECTORY 3:4 PORTRAIT CARD GRID & EMPTY STATE ── --}}
             @if ($students->count() > 0)
                 <section aria-label="Daftar kartu profil mahasiswa">
-                    <div
-                        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-                    >
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         @foreach ($studentItems as $idx => $student)
                             <div>
                                 <x-student-card
@@ -187,10 +205,9 @@
                             </div>
                         @endforeach
                     </div>
-
                 </section>
             @else
-                {{-- Server-Side Empty State (Figma Node 34:1067) --}}
+                {{-- Server-Side Empty State (Bee-ner Mascot Theme) --}}
                 <x-directory-empty-state
                     :searchQuery="request('search')"
                     :selectedClass="request('class')"
@@ -201,24 +218,24 @@
             @if ($students->hasPages())
                 <nav
                     aria-label="Navigasi halaman direktori"
-                    class="mt-10 pt-6 border-t border-surface-border flex flex-col sm:flex-row items-center justify-between gap-4"
+                    class="mt-10 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4"
                 >
-                    <p class="font-mono text-xs uppercase tracking-[0.05em] text-primary-500">
-                        HALAMAN {{ $students->currentPage() }} DARI {{ $students->lastPage() }}
+                    <p class="font-mono text-xs uppercase tracking-wider text-text-muted">
+                        HALAMAN <span class="text-brand-gold font-bold">{{ $students->currentPage() }}</span> DARI <span class="text-text-primary">{{ $students->lastPage() }}</span>
                     </p>
 
                     <div class="flex flex-wrap items-center justify-center gap-2">
                         {{-- Previous Page Link --}}
                         @if ($students->onFirstPage())
-                            <span class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-surface-border bg-surface-subtle font-mono text-xs text-primary-500 cursor-not-allowed select-none">
-                                ← Sebelumnya
+                            <span class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-white/10 bg-surface-card/50 font-mono text-xs text-text-muted cursor-not-allowed select-none">
+                                &larr; Sebelumnya
                             </span>
                         @else
                             <a
-                                href="{{ $students-> withQueryString()->previousPageUrl() }}"
-                                class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-surface-border bg-white font-mono text-xs font-semibold text-primary-900 hover:bg-surface-card transition-colors duration-180 focus-visible:outline-2 focus-visible:outline-secondary-500"
+                                href="{{ $students->withQueryString()->previousPageUrl() }}"
+                                class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-white/15 bg-surface-card font-mono text-xs font-semibold text-text-primary hover:border-brand-gold hover:text-brand-gold transition-colors"
                             >
-                                ← Sebelumnya
+                                &larr; Sebelumnya
                             </a>
                         @endif
 
@@ -227,14 +244,14 @@
                             @if ($page == $students->currentPage())
                                 <span
                                     aria-current="page"
-                                    class="inline-flex size-9 items-center justify-center rounded-lg bg-secondary-500 border border-surface-border font-mono text-xs font-bold text-primary-900 shadow-2xs"
+                                    class="inline-flex size-9 items-center justify-center rounded-lg bg-brand-red border border-brand-red-hover font-mono text-xs font-bold text-text-primary glow-red-subtle"
                                 >
                                     {{ $page }}
                                 </span>
                             @else
                                 <a
                                     href="{{ $students->withQueryString()->url($page) }}"
-                                    class="inline-flex size-9 items-center justify-center rounded-lg bg-surface-card border border-surface-border font-mono text-xs font-medium text-primary-700 hover:bg-white hover:text-primary-900 transition-colors duration-180 focus-visible:outline-2 focus-visible:outline-secondary-500"
+                                    class="inline-flex size-9 items-center justify-center rounded-lg bg-surface-card border border-white/10 font-mono text-xs font-medium text-text-secondary hover:border-brand-gold/50 hover:text-brand-gold transition-colors"
                                 >
                                     {{ $page }}
                                 </a>
@@ -245,18 +262,19 @@
                         @if ($students->hasMorePages())
                             <a
                                 href="{{ $students->withQueryString()->nextPageUrl() }}"
-                                class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-surface-border bg-white font-mono text-xs font-semibold text-primary-900 hover:bg-surface-card transition-colors duration-180 focus-visible:outline-2 focus-visible:outline-secondary-500"
+                                class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-white/15 bg-surface-card font-mono text-xs font-semibold text-text-primary hover:border-brand-gold hover:text-brand-gold transition-colors"
                             >
-                                Selanjutnya →
+                                Selanjutnya &rarr;
                             </a>
                         @else
-                            <span class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-surface-border bg-surface-subtle font-mono text-xs text-primary-500 cursor-not-allowed select-none">
-                                Selanjutnya →
+                            <span class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-white/10 bg-surface-card/50 font-mono text-xs text-text-muted cursor-not-allowed select-none">
+                                Selanjutnya &rarr;
                             </span>
                         @endif
                     </div>
                 </nav>
             @endif
 
-        </main>
+        </div>
+    </main>
 </x-layouts.app>

@@ -1,166 +1,219 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Buka Akses — Tekkom 26</title>
-        @fonts
-        @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
-            @vite(['resources/css/app.css', 'resources/js/app.js'])
-        @endif
-        @livewireStyles
-    </head>
-    <body class="min-h-screen flex flex-col bg-brand-mist text-brand-deep antialiased">
-        <x-navbar />
-
-        <main class="flex-1 flex items-center justify-center px-4 py-16 relative overflow-hidden">
-
-            {{-- ── Decorative organic wave shapes ── --}}
-            {{-- Top-right large blob --}}
-            <div class="absolute -top-32 -right-24 w-[420px] h-[420px] rounded-full bg-brand-cyan/12 blur-3xl"></div>
-            {{-- Bottom-left medium blob --}}
-            <div class="absolute -bottom-20 -left-20 w-[340px] h-[340px] rounded-full bg-brand-mint/18 blur-3xl"></div>
-            {{-- Top-left small accent --}}
-            <div class="absolute top-1/4 -left-10 w-[180px] h-[180px] rounded-full bg-brand-teal/8 blur-2xl"></div>
-            {{-- Bottom-right subtle accent --}}
-            <div class="absolute bottom-1/3 -right-10 w-[200px] h-[200px] rounded-full bg-brand-cyan/8 blur-2xl"></div>
-
-            {{-- Organic wave SVG overlay (bottom) --}}
-            <svg class="absolute bottom-0 left-0 right-0 w-full" viewBox="0 0 1440 200" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-                <path d="M0,120 C360,180 720,40 1080,100 C1260,130 1380,160 1440,170 L1440,200 L0,200 Z" fill="url(#wave-gradient)" opacity="0.35"/>
-                <path d="M0,150 C480,80 960,190 1440,140 L1440,200 L0,200 Z" fill="url(#wave-gradient-2)" opacity="0.25"/>
-                <defs>
-                    <linearGradient id="wave-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stop-color="#38BFC3" />
-                        <stop offset="50%" stop-color="#176B70" />
-                        <stop offset="100%" stop-color="#A5E6DF" />
-                    </linearGradient>
-                    <linearGradient id="wave-gradient-2" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stop-color="#A5E6DF" />
-                        <stop offset="100%" stop-color="#38BFC3" />
-                    </linearGradient>
-                </defs>
+<x-layouts.app activePage="unlock" :title="'Buka Akses Direktori — ' . ($cohortName ?? 'COMETS 2026')">
+    <main
+        id="main-content"
+        class="relative grow flex items-center justify-center px-4 py-12 sm:py-16 lg:py-20 bg-ambient-hero overflow-hidden"
+    >
+        {{-- Decorative Background SVG: Hexagonal Security Shield & Circuit Traces --}}
+        <div class="pointer-events-none absolute inset-0 overflow-hidden select-none" aria-hidden="true">
+            {{-- Left Circuit Traces --}}
+            <svg class="hidden lg:block absolute left-0 top-1/4 w-80 h-80 text-brand-gold/20" viewBox="0 0 320 320" fill="none">
+                <path d="M0 80 H120 L160 120 H240" stroke="currentColor" stroke-width="1.25" />
+                <path d="M0 170 H90 L130 210 H200" stroke="currentColor" stroke-width="1" stroke-dasharray="4 4" class="text-brand-red-hover/35" />
+                <circle cx="240" cy="120" r="4" class="fill-brand-gold" />
+                <circle cx="200" cy="210" r="3.5" class="fill-brand-red-hover" />
             </svg>
 
-            {{-- ── Glassmorphism Card ── --}}
-            <div class="relative z-10 w-full max-w-md">
+            {{-- Right Circuit Traces --}}
+            <svg class="hidden lg:block absolute right-0 bottom-1/4 w-80 h-80 text-brand-red-hover/30" viewBox="0 0 320 320" fill="none">
+                <path d="M320 100 H200 L160 140 H80" stroke="currentColor" stroke-width="1.25" />
+                <path d="M320 190 H230 L190 230 H120" stroke="currentColor" stroke-width="1" stroke-dasharray="4 4" class="text-brand-gold/25" />
+                <circle cx="80" cy="140" r="4" class="fill-brand-red-hover" />
+                <circle cx="120" cy="230" r="3.5" class="fill-brand-gold" />
+            </svg>
 
-                <div class="backdrop-blur-md bg-white/70 border border-brand-teal/20 shadow-xl rounded-2xl p-8 sm:p-10">
+            {{-- Center Concentric Hexagon Watermark --}}
+            <svg class="absolute inset-0 m-auto size-[520px] text-brand-gold/10" viewBox="0 0 260 260" fill="none">
+                <polygon points="130,10 234,70 234,190 130,250 26,190 26,70" stroke="currentColor" stroke-width="1" />
+                <polygon points="130,36 211,83 211,177 130,224 49,177 49,83" stroke="currentColor" stroke-width="1" stroke-dasharray="6 6" />
+            </svg>
+        </div>
 
-                    {{-- Card Header --}}
-                    <div class="text-center mb-8">
-                        {{-- Icon circle --}}
-                        <div class="w-16 h-16 mx-auto mb-5 rounded-2xl bg-gradient-to-br from-brand-teal to-brand-cyan flex items-center justify-center shadow-lg shadow-brand-teal/20">
-                            <flux:icon icon="lock-closed" class="size-7 text-white" />
-                        </div>
+        {{-- ── Colony Security Terminal Card ── --}}
+        <div
+            x-data="{ showPassword: false }"
+            class="relative z-10 w-full max-w-md"
+        >
+            <div
+                id="unlock-terminal-card"
+                class="rounded-xl border border-brand-gold/35 bg-surface-card/90 backdrop-blur-md p-6 sm:p-9 relative overflow-hidden glow-gold-subtle transition-all duration-200"
+            >
+                {{-- Top Dual-Tone Circuit Line (Tech Gold + Blood Red) --}}
+                <div class="absolute inset-x-0 top-0 h-1 flex" aria-hidden="true">
+                    <div class="w-2/3 bg-brand-gold"></div>
+                    <div class="w-1/3 bg-brand-red"></div>
+                </div>
 
-                        <h1 class="text-xl sm:text-2xl font-extrabold text-brand-deep tracking-tight">
-                            Portal Direktori // {{ $cohortName ?? 'TEKKOM 2026' }}
-                        </h1>
-                        <p class="text-sm text-brand-deep/60 mt-2 leading-relaxed">
-                            Masukkan Passcode Angkatan untuk Mengakses Data
-                        </p>
+                {{-- Top Security Telemetry Strip --}}
+                <div class="flex items-center justify-between gap-2 pb-4 mb-6 border-b border-white/10 font-mono text-[11px] uppercase tracking-wider">
+                    <span class="text-brand-gold font-bold">
+                        &gt; // 02_SECURITY_GATE
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-brand-red border border-brand-red-hover text-text-primary font-bold">
+                        <span class="size-1.5 rounded-full bg-brand-gold animate-pulse" aria-hidden="true"></span>
+                        <span>[CLEARANCE: LOCKED]</span>
+                    </span>
+                </div>
+
+                {{-- Card Header & Hexagonal Lock Emblem --}}
+                <div class="text-center mb-7">
+                    <div class="relative size-16 mx-auto mb-5 rounded-xl bg-canvas-base border border-brand-gold/40 flex items-center justify-center glow-gold-subtle">
+                        <svg class="size-7 text-brand-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                        </svg>
                     </div>
 
-                    {{-- Error Alert (hidden by default) --}}
-                    <div id="error-alert" class="hidden mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3">
-                        <div class="flex items-start gap-3">
-                            <flux:icon icon="exclamation-circle" class="size-5 text-red-500 shrink-0 mt-0.5" />
-                            <div>
-                                <p class="text-sm font-semibold text-red-700">Passcode tidak valid</p>
-                                <p class="text-xs text-red-500/80 mt-0.5">Silakan coba lagi.</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Success Alert (hidden by default) --}}
-                    <div id="success-alert" class="hidden mb-5 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3">
-                        <div class="flex items-start gap-3">
-                            <flux:icon icon="check-circle" class="size-5 text-emerald-500 shrink-0 mt-0.5" />
-                            <div>
-                                <p class="text-sm font-semibold text-emerald-700">Passcode benar!</p>
-                                <p class="text-xs text-emerald-500/80 mt-0.5">Mengalihkan ke Buku Angkatan...</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Passcode Form --}}
-                    <form id="passcode-form" method="POST" class="space-y-5">
-
-                        @csrf
-
-                        {{-- Single Password Input --}}
-
-                        <flux:field>
-                            <flux:label class="!text-brand-deep/75 !text-xs font-medium">
-                                Passcode Angkatan
-                            </flux:label>
-
-                            <flux:input
-                                id="passcode-input"
-                                name="passcode"
-                                type="password"
-                                viewable
-                                placeholder="Masukkan passcode angkatan..."
-                                autocomplete="off"
-                                class="!rounded-xl !bg-white !border-gray-200 !shadow-sm focus:!shadow-md focus:!border-brand-teal/40 transition-all duration-200"
-                                class:input="focus:outline-none"
-                            />
-                        </flux:field>
-
-
-                        {{-- Submit Button --}}
-                        <flux:button
-                            id="submit-btn"
-                            type="submit"
-                            variant="primary"
-                            class="w-full !py-3 !text-sm !text-brand-mist !font-semibold"
-                            icon-trailing="arrow-right"
-                        >
-                            Masuk ke Buku Angkatan
-                        </flux:button>
-                    </form>
-
-                    {{-- Helper text --}}
-                    <p class="mt-6 text-center text-[11px] text-brand-deep/35 leading-relaxed">
-                        Passcode dapat diperoleh dari koordinator angkatan atau panitia Buku Angkatan Teknik Komputer 2026.
+                    <h1 class="font-display text-2xl sm:text-3xl font-bold text-text-primary tracking-tight">
+                        Portal Direktori // {{ $cohortName ?? 'TEKKOM 2026' }}
+                    </h1>
+                    <p class="font-body text-sm text-text-secondary mt-2 leading-relaxed">
+                        Masukkan Passcode Angkatan untuk Mengakses Data Koloni COMETS 2026
                     </p>
                 </div>
 
-                {{-- Back link --}}
-                <div class="text-center mt-6">
-                    <a href="/" class="inline-flex items-center gap-1.5 text-xs font-medium text-brand-deep/45 hover:text-brand-teal transition-colors">
-                        <flux:icon icon="arrow-left" class="size-3.5" />
-                        Kembali ke Beranda
-                    </a>
+                {{-- Error Alert (hidden by default) --}}
+                <div
+                    id="error-alert"
+                    role="alert"
+                    class="hidden mb-5 rounded-r-lg rounded-l-xs border border-brand-red-hover border-l-4 border-l-brand-red bg-brand-red/30 px-4 py-3 text-left glow-red-subtle"
+                >
+                    <div class="flex items-start gap-3">
+                        <svg class="size-5 text-brand-gold shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="12" y1="8" x2="12" y2="12" />
+                            <line x1="12" y1="16" x2="12.01" y2="16" />
+                        </svg>
+                        <div>
+                            <p id="error-alert-title" class="font-display text-sm font-bold text-text-primary">
+                                Passcode tidak valid
+                            </p>
+                            <p id="error-alert-desc" class="font-body text-xs text-text-secondary mt-0.5">
+                                Silakan periksa kembali passcode angkatan dan coba lagi.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Success Alert (hidden by default) --}}
+                <div
+                    id="success-alert"
+                    role="status"
+                    class="hidden mb-5 rounded-r-lg rounded-l-xs border border-brand-gold border-l-4 border-l-brand-gold bg-brand-gold/15 px-4 py-3 text-left glow-gold-subtle"
+                >
+                    <div class="flex items-start gap-3">
+                        <svg class="size-5 text-brand-gold shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                            <polyline points="22 4 12 14.01 9 11.01" />
+                        </svg>
+                        <div>
+                            <p class="font-display text-sm font-bold text-brand-gold">
+                                Passcode benar! Akses dibuka
+                            </p>
+                            <p class="font-body text-xs text-text-primary mt-0.5">
+                                Mengalihkan ke Direktori Mahasiswa COMETS 2026...
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Passcode Verification Form --}}
+                <form id="passcode-form" method="POST" class="space-y-5">
+                    @csrf
+
+                    <div>
+                        <label
+                            for="passcode-input"
+                            class="block font-mono text-xs font-bold uppercase tracking-wider text-brand-gold mb-2"
+                        >
+                            &gt; Passcode Angkatan
+                        </label>
+
+                        <div class="relative flex items-center">
+                            <input
+                                id="passcode-input"
+                                name="passcode"
+                                :type="showPassword ? 'text' : 'password'"
+                                placeholder="Masukkan passcode angkatan..."
+                                autocomplete="off"
+                                class="w-full min-h-12 rounded-lg border border-white/15 bg-surface-elevated pl-4 pr-12 py-3 font-mono text-sm text-text-primary placeholder:text-text-muted focus:border-brand-gold focus:outline-none transition-colors"
+                            />
+
+                            {{-- Toggle Password Visibility Button --}}
+                            <button
+                                type="button"
+                                @click="showPassword = !showPassword"
+                                class="absolute right-3 p-1.5 rounded-md text-text-muted hover:text-brand-gold transition-colors cursor-pointer"
+                                :aria-label="showPassword ? 'Sembunyikan passcode' : 'Tampilkan passcode'"
+                            >
+                                <svg x-show="!showPassword" class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                                    <circle cx="12" cy="12" r="3" />
+                                </svg>
+                                <svg x-cloak x-show="showPassword" class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
+                                    <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
+                                    <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
+                                    <line x1="2" x2="22" y1="2" y2="22" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    {{-- Submit Button (Primary Blood Red) --}}
+                    <button
+                        id="submit-btn"
+                        type="submit"
+                        class="w-full py-3.5 px-6 rounded-lg bg-brand-red hover:bg-brand-red-hover border border-brand-red-hover text-text-primary font-display font-semibold text-sm sm:text-base inline-flex items-center justify-center gap-2 transition-colors glow-red-subtle cursor-pointer"
+                    >
+                        <span>Masuk ke Buku Angkatan</span>
+                        <span class="font-mono text-base leading-none" aria-hidden="true">&rarr;</span>
+                    </button>
+                </form>
+
+                {{-- Helper Footer Note --}}
+                <div class="mt-6 pt-4 border-t border-white/10 text-center space-y-2">
+                    <p class="font-body text-xs text-text-muted leading-relaxed">
+                        Passcode dapat diperoleh dari koordinator angkatan atau panitia Buku Angkatan Teknik Komputer 2026.
+                    </p>
                 </div>
             </div>
-        </main>
 
-        @livewireScripts
+            {{-- Back to Landing Link --}}
+            <div class="text-center mt-6">
+                <a
+                    href="{{ route('landing') }}"
+                    class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-surface-card/80 border border-white/10 hover:border-brand-gold/40 font-mono text-xs uppercase tracking-wider text-text-secondary hover:text-brand-gold transition-colors"
+                >
+                    <span aria-hidden="true">&larr;</span>
+                    <span>Kembali ke Beranda</span>
+                </a>
+            </div>
+        </div>
+    </main>
+
+    @push('scripts')
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 const form = document.getElementById('passcode-form');
                 const submitBtn = document.getElementById('submit-btn');
                 const errorAlert = document.getElementById('error-alert');
+                const errorTitle = document.getElementById('error-alert-title');
+                const errorDesc = document.getElementById('error-alert-desc');
                 const successAlert = document.getElementById('success-alert');
                 const passcodeInput = document.getElementById('passcode-input');
+                const card = document.getElementById('unlock-terminal-card');
 
                 form.addEventListener('submit', async function (e) {
                     e.preventDefault();
 
                     const passcode = passcodeInput.value.trim();
 
-                    // Basic validation
                     if (!passcode) {
-                        showError();
+                        showError('Passcode wajib diisi', 'Silakan masukkan passcode angkatan terlebih dahulu.');
                         return;
                     }
 
-                    // Hide previous alerts
                     hideAlerts();
-
-                    // Show loading state on button
                     setLoading(true);
 
                     try {
@@ -172,26 +225,21 @@
                         });
 
                         if (response.ok) {
-                            // Success
                             showSuccess();
 
-                            // Redirect to directory after short delay
                             setTimeout(function () {
                                 window.location.href = '/directory';
-                            }, 1200);
-                        } else if (response.status === 401 || response.status === 422) {
-                            // Invalid passcode
-                            showError();
+                            }, 900);
+                        } else if (response.status === 429) {
+                            showError('Terlalu banyak percobaan', 'Batas percobaan terlampaui. Silakan tunggu beberapa menit lagi.');
+                        } else {
+                            showError('Passcode tidak valid', 'Silakan periksa kembali passcode angkatan dan coba lagi.');
                             passcodeInput.value = '';
                             passcodeInput.focus();
-                        } else {
-                            // Other error
-                            showError();
                         }
                     } catch (err) {
-                        // Network or server error — still show error for now
                         console.error('Passcode verification error:', err);
-                        showError();
+                        showError('Gangguan jaringan', 'Tidak dapat menghubungi server verifikasi. Silakan coba lagi.');
                     } finally {
                         setLoading(false);
                     }
@@ -200,20 +248,22 @@
                 function setLoading(loading) {
                     if (loading) {
                         submitBtn.setAttribute('disabled', 'true');
-                        submitBtn.innerHTML = '<span class="inline-flex items-center gap-2"><svg class="animate-spin size-4" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="32" stroke-dashoffset="32" stroke-linecap="round"/></svg> Memverifikasi...</span>';
+                        submitBtn.innerHTML = '<span class="inline-flex items-center gap-2"><svg class="animate-spin size-4 text-brand-gold" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="32" stroke-dashoffset="32" stroke-linecap="round"/></svg><span>Memverifikasi...</span></span>';
                     } else {
                         submitBtn.removeAttribute('disabled');
-                        submitBtn.innerHTML = 'Masuk ke Buku Angkatan';
+                        submitBtn.innerHTML = '<span>Masuk ke Buku Angkatan</span><span class="font-mono text-base leading-none" aria-hidden="true">&rarr;</span>';
                     }
                 }
 
-                function showError() {
+                function showError(title, desc) {
+                    if (errorTitle && title) errorTitle.textContent = title;
+                    if (errorDesc && desc) errorDesc.textContent = desc;
                     errorAlert.classList.remove('hidden');
                     successAlert.classList.add('hidden');
-                    // Shake animation on card
-                    const card = form.closest('.rounded-2xl');
-                    card.classList.add('animate-pulse');
-                    setTimeout(() => card.classList.remove('animate-pulse'), 500);
+                    if (card) {
+                        card.classList.add('animate-pulse');
+                        setTimeout(() => card.classList.remove('animate-pulse'), 500);
+                    }
                 }
 
                 function showSuccess() {
@@ -227,6 +277,5 @@
                 }
             });
         </script>
-        @fluxScripts
-    </body>
-</html>
+    @endpush
+</x-layouts.app>
