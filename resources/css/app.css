@@ -130,6 +130,108 @@
         inset 0 1px 0 0 color-mix(in srgb, var(--color-brand-red-hover) 35%, transparent);
 }
 
+/* ==========================================================================
+   7. PURE GPU-ACCELERATED FLOATING COLONY PARTICLES (PLAN A — ~0% CPU)
+   Only animates transform (translate3d) & opacity on GPU compositor thread.
+   ========================================================================== */
+
+@keyframes colony-float-up {
+    0% {
+        transform: translate3d(0, 28px, 0) scale(0.92);
+        opacity: 0;
+    }
+    20% {
+        opacity: 0.75;
+    }
+    50% {
+        transform: translate3d(18px, -42px, 0) scale(1.06);
+        opacity: 0.95;
+    }
+    80% {
+        opacity: 0.65;
+    }
+    100% {
+        transform: translate3d(-14px, -115px, 0) scale(0.9);
+        opacity: 0;
+    }
+}
+
+@keyframes colony-drift-diagonal {
+    0%, 100% {
+        transform: translate3d(0, 0, 0) rotate(0deg);
+        opacity: 0.25;
+    }
+    50% {
+        transform: translate3d(-24px, -36px, 0) rotate(12deg);
+        opacity: 0.85;
+    }
+}
+
+@keyframes colony-pulse-orbit {
+    0%, 100% {
+        transform: translate3d(0, 0, 0) scale(0.9);
+        opacity: 0.3;
+    }
+    33% {
+        transform: translate3d(16px, -22px, 0) scale(1.12);
+        opacity: 0.9;
+    }
+    66% {
+        transform: translate3d(-12px, -38px, 0) scale(0.96);
+        opacity: 0.55;
+    }
+}
+
+.colony-particle {
+    will-change: transform, opacity;
+    pointer-events: none;
+    user-select: none;
+}
+
+.colony-particle-gold {
+    background-color: var(--color-brand-gold-glow);
+    box-shadow:
+        0 0 10px 2px color-mix(in srgb, var(--color-brand-gold) 70%, transparent),
+        0 0 22px 4px color-mix(in srgb, var(--color-brand-gold) 35%, transparent);
+}
+
+.colony-particle-red {
+    background-color: var(--color-brand-red-hover);
+    box-shadow:
+        0 0 12px 2px color-mix(in srgb, var(--color-brand-red-hover) 85%, transparent),
+        0 0 24px 5px color-mix(in srgb, var(--color-brand-red) 55%, transparent);
+}
+
+.anim-colony-up-slow {
+    animation: colony-float-up 16s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.anim-colony-up-med {
+    animation: colony-float-up 12s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.anim-colony-up-fast {
+    animation: colony-float-up 9s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.anim-colony-drift {
+    animation: colony-drift-diagonal 14s ease-in-out infinite;
+}
+
+.anim-colony-orbit {
+    animation: colony-pulse-orbit 11s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .anim-colony-up-slow,
+    .anim-colony-up-med,
+    .anim-colony-up-fast,
+    .anim-colony-drift,
+    .anim-colony-orbit {
+        animation: none !important;
+    }
+}
+
 :where(a, button, input, select, textarea, iframe):focus-visible {
     outline: 2px solid var(--color-brand-gold);
     outline-offset: 2px;
