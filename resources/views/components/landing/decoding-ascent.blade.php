@@ -16,144 +16,141 @@
     $logoPlaceholder = $c['logo_placeholder'] ?? $logoPlaceholder ?? '/assets/Placeholder.png';
     $wordmark = $c['wordmark'] ?? $wordmark ?? ($cohortName ?? 'TEKKOM 2026');
     $subLabel = $c['sub_label'] ?? $subLabel ?? 'Computer Engineering Twenty Six';
+    $jargon = $c['jargon'] ?? 'SOLID LIKE A BEE, BE LIKE WE WANT TO BE, STRONG AND FREE!';
     $movementOneTitle = $c['movement_one_title'] ?? $movementOneTitle ?? '// 01_MOVEMENT_ONE';
-    $movementOneHeading = $c['movement_one_heading'] ?? $movementOneHeading ?? 'Pendakian Kolektif Menuju Puncak Ekselensi';
-    $movementOneBody = $c['movement_one_body'] ?? $movementOneBody ?? 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Setiap langkah ke atas adalah komitmen bersama untuk tumbuh melampaui batas kemampuan teknis maupun karakter.';
-    $movementTwoTitle = $c['movement_two_title'] ?? $movementTwoTitle ?? '// 02_AS_ONE';
-    $movementTwoHeading = $c['movement_two_heading'] ?? $movementTwoHeading ?? 'Satu Frekuensi dalam Spektrum Keberagaman';
-    $movementTwoBody = $c['movement_two_body'] ?? $movementTwoBody ?? 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Dari berbagai latar belakang daerah, menyatu sebagai keluarga besar Teknik Komputer 2026 yang saling menguatkan.';
+    $movementOneHeading = $c['movement_one_heading'] ?? $movementOneHeading ?? 'Kebersamaan // Solidaritas Koloni Lebah Biner';
+    $movementOneBody = $c['movement_one_body'] ?? $movementOneBody ?? 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Layaknya satu koloni lebah yang membangun sarang heksagonal dengan presisi tinggi, setiap mahasiswa Teknik Komputer 2026 saling terhubung dan menopang tanpa ada satu pun simpul yang tertinggal.';
+    $movementTwoTitle = $c['movement_two_title'] ?? $movementTwoTitle ?? '// 02_MOVEMENT_TWO';
+    $movementTwoHeading = $c['movement_two_heading'] ?? $movementTwoHeading ?? 'Ketangguhan // Daya Juang Melampaui Tantangan';
+    $movementTwoBody = $c['movement_two_body'] ?? $movementTwoBody ?? 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Memadukan logika komputasi keras dengan daya tahan pantang menyerah dalam melewati masa terang maupun gelap bersama-sama.';
 @endphp
 
 {{-- ==========================================================================
-     SECTION 2: DECODING (2-Column Asymmetric Editorial Split)
-     Mengacu pada GitHub Issue #19 & #12, DESIGN.md, dan DOCS_COLOR_CONVENTION.md
-     Figma Reference: Node 24:584 (Section Decoding), 24:612 (Logo 140x140), 24:635 (Divider)
+     SECTION 2: BEE-NER MASCOT & JARGON IDENTITY SECTION
+     Mengacu pada .revamp-ui/PRD.md §3.1.2, DESIGN_TASTE.md & DESIGN_TOKENS.md
      ========================================================================== --}}
-<section id="decoding-section" aria-labelledby="decoding-heading" class="w-full bg-surface-canvas py-6 sm:py-10">
+<section id="decoding-section" aria-labelledby="decoding-heading" class="w-full bg-canvas-base py-12 sm:py-16 lg:py-20 border-t border-white/10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        {{-- Section Blueprint Divider Top with Crosshair Ticks (Figma Node 24:635) --}}
-        <div class="relative flex items-center justify-between border-t border-surface-border mb-8 sm:mb-10 pt-2 select-none" aria-hidden="true">
-            <span class="font-mono text-xs text-primary-500 leading-none">+</span>
-            <span class="font-mono text-[10px] uppercase tracking-[0.15em] text-primary-500">
-                // SECTION_02 // DECODING_IDENTITY
-            </span>
-            <span class="font-mono text-xs text-primary-500 leading-none">+</span>
+        {{-- Section Circuit Header --}}
+        <div class="flex items-center justify-between border-b border-white/10 pb-4 mb-8 sm:mb-12 font-mono text-xs uppercase tracking-wider">
+            <span class="text-brand-gold">&gt; SECTION_02 // MASCOT_AND_JARGON</span>
+            <span class="text-text-muted">[COLONY_CORE // 26_HEXAGONS]</span>
         </div>
 
-        {{-- Main Editorial Split Card (Surface White, Hairline Border, Rounded-2xl) --}}
-        <div class="bg-white border border-surface-border rounded-2xl p-6 sm:p-8 lg:p-10 shadow-xs relative overflow-hidden">
+        {{-- 2-Column Split: Left Bee-ner Mascot Illustration / Right Jargon & Core Values --}}
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
 
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-
-                {{-- ── LEFT COLUMN (~40% / lg:col-span-5): Visual & Typographic Anchor ── --}}
-                <div class="lg:col-span-5 flex flex-col justify-between gap-6 lg:border-r lg:border-surface-border lg:pr-10">
-
-                    <div>
-                        {{-- Technical Section Index Tag --}}
-                        <div class="flex items-center gap-2 mb-5">
-                            <span class="inline-block size-2 rounded-full bg-secondary-500" aria-hidden="true"></span>
-                            <span class="font-mono text-[11px] sm:text-xs font-bold uppercase tracking-wider text-primary-700">
-                                // 02_DECODING // PHILOSOPHY
-                            </span>
-                        </div>
-
-                        {{-- Official Logo Anchor Box 140x140px (Figma Node 24:612) --}}
-                        <div class="mb-6">
-                            <div class="relative size-[140px] rounded-2xl border border-surface-border bg-surface-card p-3 flex flex-col items-center justify-between overflow-hidden shadow-2xs">
-                                <span class="w-full text-left font-mono text-[8px] uppercase tracking-wider text-primary-500 leading-tight">
-                                    [X] [ASSET: LOGO_XXVI_PRIMARY_1:1]
-                                </span>
-                                <div class="relative flex-1 w-full flex items-center justify-center overflow-hidden p-1">
-                                    {{--
-                                        TODO: Ganti $logoPlaceholder ('/assets/Placeholder.png') dengan path gambar PNG/SVG logo resmi saat aset final tersedia:
-                                        contoh: '/assets/logo/ascent-primary.png'
-                                    --}}
-                                    <img
-                                        src="{{ asset($logoPlaceholder) }}"
-                                        alt="[ASSET: LOGO_XXVI_PRIMARY_1:1]"
-                                        class="w-full h-full object-contain select-none"
-                                        loading="lazy"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Massive Display Wordmark "ASCENT" --}}
-                        <h2
-                            id="decoding-heading"
-                            class="text-5xl sm:text-6xl font-bold text-primary-900 tracking-[-0.03em] leading-none mb-3"
-                        >
-                            {{ $wordmark }}
-                        </h2>
-
-                        {{-- Monospace Full Expansion Sub-label --}}
-                        <p class="font-mono text-xs uppercase tracking-[0.05em] text-primary-700 font-semibold leading-relaxed">
-                            {{ $subLabel }}
-                        </p>
-                    </div>
-
-                    {{-- Metadata Pill Row --}}
-                    <div class="flex flex-wrap items-center gap-2.5 pt-4 border-t border-surface-border">
-                        <span class="inline-flex items-center px-3 py-1 rounded-lg bg-surface-card border border-surface-border font-mono text-[11px] font-bold text-primary-900 uppercase tracking-wider">
-                            // COHORT_XXVI
-                        </span>
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-highlight-500 text-highlight-900 font-mono text-[11px] font-bold uppercase tracking-wider">
-                            <span class="size-1.5 rounded-full bg-highlight-900" aria-hidden="true"></span>
-                            [STATUS: ACTIVE_BATCH]
+            {{-- ── KOLOM KIRI (lg:col-span-5): Ilustrasi Maskot Bee-ner ── --}}
+            <div class="lg:col-span-5">
+                <flux:card class="bg-surface-card border border-white/10 hover:border-brand-gold/40 rounded-xl p-6 sm:p-8 transition-colors relative overflow-hidden">
+                    {{-- Top Technical Tag --}}
+                    <div class="flex items-center justify-between gap-2 mb-6">
+                        <flux:badge class="bg-brand-gold/10 border border-brand-gold/30 text-brand-gold font-mono text-xs uppercase px-2.5 py-1 rounded-md">
+                            MASCOT // BEE-NER
+                        </flux:badge>
+                        <span class="font-mono text-[10px] uppercase tracking-wider text-text-muted">
+                            [BINARY_BEE_01]
                         </span>
                     </div>
 
+                    {{-- Transparent Mascot Vector Container with Subtle Hexagonal Cues --}}
+                    <div class="relative aspect-square w-full max-w-[320px] mx-auto rounded-xl border border-brand-gold/30 bg-canvas-base/60 p-6 flex flex-col items-center justify-between overflow-hidden">
+                        <span class="w-full text-left font-mono text-[10px] uppercase tracking-wider text-brand-gold">
+                            [X: Bee-ner Mascot 2D Vector]
+                        </span>
+
+                        <div class="relative flex-1 w-full flex items-center justify-center my-2">
+                            <img
+                                src="{{ asset($logoPlaceholder) }}"
+                                alt="[X: Bee-ner Mascot 2D Vector]"
+                                class="w-full h-full object-contain select-none"
+                                loading="lazy"
+                            />
+                        </div>
+
+                        <div class="w-full flex items-center justify-between font-mono text-[9px] uppercase tracking-wider text-text-muted pt-2 border-t border-white/10">
+                            <span>STRIP BINER 0&amp;1</span>
+                            <span>MATA HEXAGON</span>
+                            <span>SAYAP SIRKUIT</span>
+                        </div>
+                    </div>
+
+                    {{-- Screen-Reader Metadata for Dynamic Hydration Compatibility --}}
+                    <div class="sr-only">
+                        <span>{{ $wordmark }}</span>
+                        <span>{{ $subLabel }}</span>
+                        <span>[ASSET: LOGO_XXVI_PRIMARY_1:1]</span>
+                    </div>
+                </flux:card>
+            </div>
+
+            {{-- ── KOLOM KANAN (lg:col-span-7): Jargon Angkatan, 2 Nilai Inti & CTA Identity ── --}}
+            <div class="lg:col-span-7 space-y-6">
+
+                <div>
+                    <p class="font-mono text-xs uppercase tracking-wider text-brand-gold mb-3">
+                        &gt; JARGON_RESMI // COMETS_2026
+                    </p>
+                    <h2
+                        id="decoding-heading"
+                        class="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-text-primary tracking-tight leading-tight"
+                    >
+                        "{{ $jargon }}"
+                    </h2>
                 </div>
 
-                {{-- ── RIGHT COLUMN (~60% / lg:col-span-7): Flowing Editorial Narrative ── --}}
-                <div class="lg:col-span-7 flex flex-col justify-center">
-
-                    {{-- Movement 01: THE ASCENT --}}
-                    <article class="space-y-2.5">
+                {{-- Two Core Values Bento Cards: Kebersamaan & Ketangguhan --}}
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                    {{-- Nilai 1: Kebersamaan --}}
+                    <flux:card class="bg-surface-card border border-white/10 hover:border-brand-gold/40 rounded-xl p-5 transition-colors space-y-2.5">
                         <div class="flex items-center justify-between gap-2">
-                            <span class="font-mono text-xs font-bold uppercase tracking-[0.05em] text-secondary-700">
+                            <span class="font-mono text-xs uppercase tracking-wider text-brand-gold font-bold">
                                 {{ $movementOneTitle }}
                             </span>
-                            <span class="font-mono text-[10px] uppercase tracking-widest text-primary-500">
-                                MOVEMENT_01
+                            <span class="font-mono text-[10px] uppercase tracking-wider text-text-muted">
+                                VALUE_01
                             </span>
                         </div>
-                        <h3 class="text-xl sm:text-2xl font-semibold text-primary-900 tracking-[-0.02em]">
+                        <h3 class="font-display text-lg font-bold text-text-primary">
                             {{ $movementOneHeading }}
                         </h3>
-                        <p class="text-[15px] leading-[1.7] text-primary-900/85 max-w-[70ch]">
+                        <p class="font-body text-sm text-text-secondary leading-relaxed">
                             {{ $movementOneBody }}
                         </p>
-                    </article>
+                    </flux:card>
 
-                    {{-- Hairline Divider with Crosshair Intersections --}}
-                    <div class="relative my-6 sm:my-8 flex items-center justify-between border-t border-surface-border" aria-hidden="true">
-                        <span class="bg-white pr-2 -mt-2 font-mono text-xs text-primary-500 leading-none">+</span>
-                        <span class="bg-white px-2 -mt-2 font-mono text-[10px] uppercase tracking-widest text-primary-500">
-                            SYNCHRONIZED_AXIS
-                        </span>
-                        <span class="bg-white pl-2 -mt-2 font-mono text-xs text-primary-500 leading-none">+</span>
-                    </div>
-
-                    {{-- Movement 02: AS ONE --}}
-                    <article class="space-y-2.5">
+                    {{-- Nilai 2: Ketangguhan --}}
+                    <flux:card class="bg-surface-card border border-white/10 hover:border-brand-gold/40 rounded-xl p-5 transition-colors space-y-2.5">
                         <div class="flex items-center justify-between gap-2">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded bg-highlight-500 text-primary-900 font-mono text-xs font-bold uppercase tracking-[0.05em]">
+                            <span class="font-mono text-xs uppercase tracking-wider text-brand-gold font-bold">
                                 {{ $movementTwoTitle }}
                             </span>
-                            <span class="font-mono text-[10px] uppercase tracking-widest text-primary-500">
-                                MOVEMENT_02
+                            <span class="font-mono text-[10px] uppercase tracking-wider text-text-muted">
+                                VALUE_02
                             </span>
                         </div>
-                        <h3 class="text-xl sm:text-2xl font-semibold text-primary-900 tracking-[-0.02em]">
+                        <h3 class="font-display text-lg font-bold text-text-primary">
                             {{ $movementTwoHeading }}
                         </h3>
-                        <p class="text-[15px] leading-[1.7] text-primary-900/85 max-w-[70ch]">
+                        <p class="font-body text-sm text-text-secondary leading-relaxed">
                             {{ $movementTwoBody }}
                         </p>
-                    </article>
+                    </flux:card>
+                </div>
 
+                {{-- CTA Button: Blood Red (#690F1D -> bg-brand-red) linking to route('identity') --}}
+                <div class="pt-3 flex flex-wrap items-center gap-4">
+                    <flux:button
+                        href="{{ route('identity') }}"
+                        class="bg-brand-red hover:bg-brand-red-hover text-text-primary font-display font-medium rounded-lg px-6 py-3 border border-white/10 transition-colors inline-flex items-center gap-2"
+                    >
+                        <span>Identity -&gt;</span>
+                    </flux:button>
+
+                    <span class="font-mono text-xs uppercase tracking-wider text-text-muted">
+                        // BEDAH FILOSOFI LOGO &amp; MASKOT BEE-NER
+                    </span>
                 </div>
 
             </div>
@@ -162,4 +159,3 @@
 
     </div>
 </section>
-
