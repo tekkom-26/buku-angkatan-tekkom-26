@@ -35,20 +35,15 @@ class GlobalShellNavbarFooterTest extends TestCase
         // Guest Action CTA
         $response->assertSee('Akses Direktori');
 
-        // Footer Components (stich-uiux/Footer.png)
-        $response->assertSee('GAJAH_CHIBI_TEKKOM');
-        $response->assertSee('Maskot Resmi Angkatan 2026');
+        // Footer Components (PRD §3.0)
+        $response->assertSee('[X: COMETS Logo]');
         $response->assertSee('ANGKATAN &mdash; Teknik Komputer 2026', false);
         $response->assertSee('Departemen Teknik Komputer, Fakultas Teknik, Universitas Diponegoro');
         $response->assertSee('Google Maps');
         $response->assertSee('// NAVIGASI');
         $response->assertSee('// KANAL_RESMI');
         $response->assertSee('Instagram (@tekkom26)');
-        $response->assertSee('// TELEMETRI_SISTEM');
-        $response->assertSee('[BATCH_STATUS: ACTIVE]');
-        $response->assertSee('[ANGKATAN_SPEC: TEKKOM_XXVI]');
-        $response->assertSee('[SECURITY_LEVEL: VERIFIED]');
-        $response->assertSee('[STUDENT_COUNT: 104_STUDENTS]');
+        $response->assertSee('Kontak Departemen');
         $response->assertSee('ANGKATAN Teknik Komputer Undip. All rights reserved.');
     }
 

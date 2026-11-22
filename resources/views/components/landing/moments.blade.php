@@ -66,17 +66,23 @@
         <span>// 03_ARCHIVE // MOMENTS</span>
     </div>
 
-    {{-- Circuit-Framed Carousel Container (1px Hairline Border + Geometric Corner Accents) --}}
-    <div class="relative rounded-xl border border-white/10 hover:border-brand-gold/40 bg-surface-card p-3 sm:p-4 lg:p-5 transition-colors">
+    {{-- Circuit-Framed Carousel Container (1px Hairline Border + Top Blood Red / Tech Gold Accent Bar) --}}
+    <div class="relative rounded-xl border border-white/10 hover:border-brand-gold/40 bg-surface-card p-3 sm:p-4 lg:p-5 transition-colors overflow-hidden">
+
+        {{-- Top Dual-Tone Circuit Line (Tech Gold + Blood Red) --}}
+        <div class="absolute inset-x-0 top-0 h-1 flex" aria-hidden="true">
+            <div class="w-2/3 bg-brand-gold"></div>
+            <div class="w-1/3 bg-brand-red"></div>
+        </div>
 
         {{-- Top Circuit Header Bar --}}
-        <div class="flex items-center justify-between gap-2 pb-3 mb-3 border-b border-white/10 font-mono text-[11px] uppercase tracking-wider">
+        <div class="flex items-center justify-between gap-2 pb-3 mb-3 pt-1 border-b border-white/10 font-mono text-[11px] uppercase tracking-wider">
             <div class="flex items-center gap-2 text-brand-gold">
-                <span class="size-2 rounded-full bg-brand-gold-glow" aria-hidden="true"></span>
+                <span class="size-2 rounded-full bg-brand-red-hover" aria-hidden="true"></span>
                 <span>&gt; COLONY_MOMENTS // ARCHIVE_STREAM</span>
             </div>
-            <div class="text-text-muted">
-                <span>SLIDE_</span><span class="text-text-primary font-bold" x-text="String(activeSlide + 1).padStart(2, '0')">01</span><span> / {{ str_pad((string) count($moments), 2, '0', STR_PAD_LEFT) }}</span>
+            <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-brand-red/30 border border-brand-red-hover/60 text-text-primary">
+                <span>SLIDE_</span><span class="text-brand-gold font-bold" x-text="String(activeSlide + 1).padStart(2, '0')">01</span><span> / {{ str_pad((string) count($moments), 2, '0', STR_PAD_LEFT) }}</span>
             </div>
         </div>
 
@@ -103,10 +109,10 @@
 
                     {{-- Top Overlay Metadata Row --}}
                     <div class="relative z-10 flex items-center justify-between gap-2">
-                        <flux:badge class="bg-brand-gold/10 border border-brand-gold/30 text-brand-gold font-mono text-[10px] sm:text-xs uppercase px-2.5 py-1 rounded-md">
+                        <span class="bg-brand-red border border-brand-red-hover text-text-primary font-mono text-[10px] sm:text-xs font-semibold uppercase px-3 py-1 rounded-md shadow-xs">
                             {{ $moment['badge'] }}
-                        </flux:badge>
-                        <span class="font-mono text-[10px] uppercase tracking-wider text-text-muted bg-surface-card/90 px-2.5 py-1 rounded border border-white/10">
+                        </span>
+                        <span class="font-mono text-[10px] uppercase tracking-wider text-brand-gold bg-surface-card/90 px-2.5 py-1 rounded border border-brand-gold/30">
                             {{ $moment['nodeRef'] }}
                         </span>
                     </div>
@@ -118,8 +124,8 @@
                         </span>
                     </div>
 
-                    {{-- Bottom Caption Bar --}}
-                    <div class="relative z-10 rounded-lg bg-canvas-base/90 border border-white/10 p-3.5 sm:p-4 backdrop-blur-xs text-left">
+                    {{-- Bottom Caption Bar with Blood Red Left Accent Border --}}
+                    <div class="relative z-10 rounded-r-lg rounded-l-sm bg-canvas-base/95 border border-white/10 border-l-4 border-l-brand-red p-3.5 sm:p-4 backdrop-blur-xs text-left">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                             <div>
                                 <h3 class="font-display text-sm sm:text-base lg:text-lg font-bold text-text-primary leading-snug">
@@ -142,7 +148,7 @@
                 type="button"
                 @click="prevSlide()"
                 aria-label="Slide momen sebelumnya"
-                class="absolute left-3 top-1/2 -translate-y-1/2 z-20 size-9 sm:size-10 rounded-lg bg-surface-card/90 hover:bg-surface-elevated border border-white/15 hover:border-brand-gold text-text-primary hover:text-brand-gold flex items-center justify-center transition-colors cursor-pointer"
+                class="absolute left-3 top-1/2 -translate-y-1/2 z-20 size-9 sm:size-10 rounded-lg bg-surface-card/90 hover:bg-brand-red border border-white/15 hover:border-brand-red-hover text-text-primary flex items-center justify-center transition-colors cursor-pointer"
             >
                 <span class="font-mono text-base leading-none" aria-hidden="true">&larr;</span>
             </button>
@@ -150,7 +156,7 @@
                 type="button"
                 @click="nextSlide()"
                 aria-label="Slide momen berikutnya"
-                class="absolute right-3 top-1/2 -translate-y-1/2 z-20 size-9 sm:size-10 rounded-lg bg-surface-card/90 hover:bg-surface-elevated border border-white/15 hover:border-brand-gold text-text-primary hover:text-brand-gold flex items-center justify-center transition-colors cursor-pointer"
+                class="absolute right-3 top-1/2 -translate-y-1/2 z-20 size-9 sm:size-10 rounded-lg bg-brand-red hover:bg-brand-red-hover border border-brand-red-hover text-text-primary flex items-center justify-center transition-colors cursor-pointer shadow-xs"
             >
                 <span class="font-mono text-base leading-none" aria-hidden="true">&rarr;</span>
             </button>
@@ -172,7 +178,7 @@
                         :aria-label="'Tampilkan momen {{ $index + 1 }}'"
                         :class="activeSlide === {{ $index }}
                             ? 'w-7 bg-brand-gold border-brand-gold'
-                            : 'w-2.5 bg-surface-elevated border-white/20 hover:border-brand-gold/50'"
+                            : 'w-2.5 bg-brand-red/60 border-brand-red-hover hover:bg-brand-red-hover'"
                         class="h-2.5 rounded-full border transition-all duration-200 cursor-pointer"
                     ></button>
                 @endforeach

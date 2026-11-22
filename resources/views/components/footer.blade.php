@@ -111,19 +111,6 @@
                         </li>
                     </ul>
                 </div>
-
-                {{-- 3. // TELEMETRI_SISTEM --}}
-                <div>
-                    <p class="font-mono text-xs uppercase tracking-wider text-brand-gold mb-3.5">// TELEMETRI_SISTEM</p>
-                    <div class="rounded-xl border border-white/10 bg-surface-card p-4 space-y-2 font-mono text-[11px] text-text-secondary">
-                        <div class="text-brand-gold">[BATCH_STATUS: ACTIVE]</div>
-                        <div>[ANGKATAN_SPEC: TEKKOM_XXVI]</div>
-                        <div>[SECURITY_LEVEL: VERIFIED]</div>
-                        <div>[STUDENT_COUNT: 120+_STUDENTS]</div>
-                        <div class="sr-only">[STUDENT_COUNT: 104_STUDENTS] [X: Bee-ner Mascot 2D Vector] GAJAH_CHIBI_TEKKOM Maskot Resmi Angkatan 2026</div>
-                    </div>
-                </div>
-
             </div>
 
         </div>

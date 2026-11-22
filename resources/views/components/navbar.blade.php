@@ -81,14 +81,8 @@
                 </a>
             </nav>
 
-            {{-- ── Right Block: Cohort Status Badge with Glowing Dot & Context Action ── --}}
+            {{-- ── Right Block: Login / Session Action Button ── --}}
             <div class="hidden md:flex shrink-0 items-center justify-end gap-2.5">
-                <flux:badge class="bg-brand-gold/10 border border-brand-gold/30 text-brand-gold font-mono text-[10px] lg:text-[11px] uppercase px-3 py-1 rounded-full inline-flex items-center gap-2">
-                    <span class="size-2 rounded-full bg-brand-gold-glow animate-pulse" aria-hidden="true"></span>
-                    <span class="hidden xl:inline">DEPT. TEKNIK KOMPUTER UNDIP</span>
-                    <span class="xl:hidden">CLASS OF 2026</span>
-                </flux:badge>
-
                 @if($isDirectoryContext)
                     <a
                         href="{{ route('landing') }}"
@@ -97,41 +91,52 @@
                         <span aria-hidden="true">&larr;</span>
                         <span>Kembali Ke Beranda</span>
                     </a>
-                @else
-                    <a
-                        href="{{ route('directory.index') }}"
-                        class="sr-only"
-                    >
-                        Akses Direktori
-                    </a>
                 @endif
 
-                {{-- Authenticated Cohort: Lock / Logout Session Button --}}
                 @if($unlocked)
+                    {{-- Authenticated Cohort: Lock / Logout Session Button --}}
                     <form method="POST" action="{{ route('lock') }}" class="inline-flex">
                         @csrf
                         <button
                             type="submit"
-                            class="size-8 rounded-full bg-surface-elevated hover:border-brand-gold/40 border border-white/10 text-text-primary hover:text-brand-gold flex items-center justify-center transition-colors cursor-pointer"
+                            class="inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full bg-brand-red hover:bg-brand-red-hover border border-brand-red-hover text-text-primary font-display text-xs lg:text-sm font-semibold transition-colors cursor-pointer"
                             title="Kunci Kembali / Keluar Sesi"
                             aria-label="Kunci kembali sesi direktori"
                         >
-                            <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                                 <polyline points="16 17 21 12 16 7" />
                                 <line x1="21" y1="12" x2="9" y2="12" />
                             </svg>
+                            <span>Logout</span>
                         </button>
                     </form>
+                @else
+                    {{-- Guest State: Primary Blood Red Login / Unlock CTA Button --}}
+                    <a
+                        href="{{ route('unlock') }}"
+                        class="inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full bg-brand-red hover:bg-brand-red-hover border border-brand-red-hover text-text-primary font-display text-xs lg:text-sm font-semibold transition-colors shadow-xs"
+                    >
+                        <svg class="size-3.5 text-brand-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                        </svg>
+                        <span>Login</span>
+                        <span class="sr-only">Akses Direktori</span>
+                    </a>
                 @endif
             </div>
 
-            {{-- ── Mobile Trigger (Status Dot + Hamburger Button) ── --}}
+            {{-- ── Mobile Trigger (Login Action + Hamburger Button) ── --}}
             <div class="flex md:hidden items-center gap-2">
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono uppercase bg-brand-gold/10 text-brand-gold border border-brand-gold/30">
-                    <span class="size-1.5 rounded-full bg-brand-gold-glow animate-pulse" aria-hidden="true"></span>
-                    <span>2026</span>
-                </span>
+                @if(!$unlocked)
+                    <a
+                        href="{{ route('unlock') }}"
+                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-display font-semibold bg-brand-red hover:bg-brand-red-hover text-text-primary border border-brand-red-hover transition-colors"
+                    >
+                        <span>Login</span>
+                    </a>
+                @endif
 
                 <button
                     type="button"
@@ -197,21 +202,24 @@
             </div>
 
             <div class="pt-3 border-t border-white/10 flex items-center justify-between gap-2">
-                <span class="font-mono text-[10px] uppercase tracking-wider text-text-muted">
-                    DEPT. TEKNIK KOMPUTER UNDIP // CLASS OF 2026
-                </span>
-
                 @if($unlocked)
-                    <form method="POST" action="{{ route('lock') }}" class="shrink-0">
+                    <form method="POST" action="{{ route('lock') }}" class="w-full">
                         @csrf
                         <button
                             type="submit"
-                            class="px-3 py-1.5 rounded-lg bg-surface-elevated hover:border-brand-gold/40 border border-white/10 text-text-primary font-mono text-xs flex items-center gap-1.5 transition-colors"
+                            class="w-full py-2.5 px-4 rounded-lg bg-brand-red hover:bg-brand-red-hover border border-brand-red-hover text-text-primary font-display font-semibold text-xs flex items-center justify-center gap-2 transition-colors"
                             title="Kunci Kembali / Keluar"
                         >
-                            <span>Lock</span>
+                            <span>Logout / Kunci Sesi</span>
                         </button>
                     </form>
+                @else
+                    <a
+                        href="{{ route('unlock') }}"
+                        class="w-full py-2.5 px-4 rounded-lg bg-brand-red hover:bg-brand-red-hover border border-brand-red-hover text-text-primary font-display font-semibold text-xs flex items-center justify-center gap-2 transition-colors"
+                    >
+                        <span>Login Angkatan</span>
+                    </a>
                 @endif
             </div>
         </div>

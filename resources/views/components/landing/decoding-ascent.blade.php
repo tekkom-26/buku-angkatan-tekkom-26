@@ -29,13 +29,23 @@
      SECTION 2: BEE-NER MASCOT & JARGON IDENTITY SECTION
      Mengacu pada .revamp-ui/PRD.md §3.1.2, DESIGN_TASTE.md & DESIGN_TOKENS.md
      ========================================================================== --}}
-<section id="decoding-section" aria-labelledby="decoding-heading" class="w-full bg-canvas-base py-12 sm:py-16 lg:py-20 border-t border-white/10">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<section id="decoding-section" aria-labelledby="decoding-heading" class="relative w-full bg-ambient-colony py-12 sm:py-16 lg:py-20 border-t border-white/10 overflow-hidden">
+
+    {{-- Decorative Background Honeycomb Cluster Watermark --}}
+    <div class="pointer-events-none absolute -right-16 bottom-6 opacity-20 select-none" aria-hidden="true">
+        <svg class="w-96 h-96 text-brand-gold" viewBox="0 0 240 240" fill="none">
+            <polygon points="120,20 165,45 165,95 120,120 75,95 75,45" stroke="currentColor" stroke-width="1.2" />
+            <polygon points="165,95 210,120 210,170 165,195 120,170 120,120" stroke="currentColor" stroke-width="1.2" />
+            <polygon points="75,95 120,120 120,170 75,195 30,170 30,120" stroke="currentColor" stroke-width="1.2" class="text-brand-red-hover" />
+        </svg>
+    </div>
+
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {{-- Section Circuit Header --}}
         <div class="flex items-center justify-between border-b border-white/10 pb-4 mb-8 sm:mb-12 font-mono text-xs uppercase tracking-wider">
             <span class="text-brand-gold">&gt; SECTION_02 // MASCOT_AND_JARGON</span>
-            <span class="text-text-muted">[COLONY_CORE // 26_HEXAGONS]</span>
+            <span class="px-2.5 py-0.5 rounded bg-brand-red/35 border border-brand-red-hover/70 text-text-primary">[COLONY_CORE // 26_HEXAGONS]</span>
         </div>
 
         {{-- 2-Column Split: Left Bee-ner Mascot Illustration / Right Jargon & Core Values --}}
@@ -43,19 +53,22 @@
 
             {{-- ── KOLOM KIRI (lg:col-span-5): Ilustrasi Maskot Bee-ner ── --}}
             <div class="lg:col-span-5">
-                <flux:card class="bg-surface-card border border-white/10 hover:border-brand-gold/40 rounded-xl p-6 sm:p-8 transition-colors relative overflow-hidden">
+                <div class="bg-surface-card/90 backdrop-blur-xs border border-brand-gold/30 hover:border-brand-gold/60 rounded-xl p-6 sm:p-8 transition-colors relative overflow-hidden glow-gold-subtle">
+                    {{-- Top Dual Accent Line --}}
+                    <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-brand-gold via-brand-red to-brand-gold" aria-hidden="true"></div>
+
                     {{-- Top Technical Tag --}}
                     <div class="flex items-center justify-between gap-2 mb-6">
-                        <flux:badge class="bg-brand-gold/10 border border-brand-gold/30 text-brand-gold font-mono text-xs uppercase px-2.5 py-1 rounded-md">
+                        <span class="bg-brand-gold/15 border border-brand-gold/40 text-brand-gold font-mono text-xs uppercase px-2.5 py-1 rounded-md">
                             MASCOT // BEE-NER
-                        </flux:badge>
-                        <span class="font-mono text-[10px] uppercase tracking-wider text-text-muted">
+                        </span>
+                        <span class="px-2.5 py-1 rounded-md bg-brand-red border border-brand-red-hover font-mono text-[10px] uppercase tracking-wider text-text-primary font-semibold">
                             [BINARY_BEE_01]
                         </span>
                     </div>
 
                     {{-- Transparent Mascot Vector Container with Subtle Hexagonal Cues --}}
-                    <div class="relative aspect-square w-full max-w-[320px] mx-auto rounded-xl border border-brand-gold/30 bg-canvas-base/60 p-6 flex flex-col items-center justify-between overflow-hidden">
+                    <div class="relative aspect-square w-full max-w-[320px] mx-auto rounded-xl border border-brand-gold/30 bg-canvas-base/75 p-6 flex flex-col items-center justify-between overflow-hidden">
                         <span class="w-full text-left font-mono text-[10px] uppercase tracking-wider text-brand-gold">
                             [X: Bee-ner Mascot 2D Vector]
                         </span>
@@ -70,9 +83,9 @@
                         </div>
 
                         <div class="w-full flex items-center justify-between font-mono text-[9px] uppercase tracking-wider text-text-muted pt-2 border-t border-white/10">
-                            <span>STRIP BINER 0&amp;1</span>
+                            <span class="text-brand-gold">STRIP BINER 0&amp;1</span>
                             <span>MATA HEXAGON</span>
-                            <span>SAYAP SIRKUIT</span>
+                            <span class="text-text-primary">SAYAP SIRKUIT</span>
                         </div>
                     </div>
 
@@ -82,14 +95,15 @@
                         <span>{{ $subLabel }}</span>
                         <span>[ASSET: LOGO_XXVI_PRIMARY_1:1]</span>
                     </div>
-                </flux:card>
+                </div>
             </div>
 
             {{-- ── KOLOM KANAN (lg:col-span-7): Jargon Angkatan, 2 Nilai Inti & CTA Identity ── --}}
             <div class="lg:col-span-7 space-y-6">
 
-                <div>
-                    <p class="font-mono text-xs uppercase tracking-wider text-brand-gold mb-3">
+                {{-- Jargon Block with Blood Red Left Pillar Accent --}}
+                <div class="border-l-4 border-l-brand-red pl-5 py-3 bg-brand-red/15 border border-brand-red-hover/40 rounded-r-xl pr-4 glow-red-subtle">
+                    <p class="font-mono text-xs uppercase tracking-wider text-brand-gold mb-2">
                         &gt; JARGON_RESMI // COMETS_2026
                     </p>
                     <h2
@@ -100,16 +114,16 @@
                     </h2>
                 </div>
 
-                {{-- Two Core Values Bento Cards: Kebersamaan & Ketangguhan --}}
+                {{-- Two Core Values Bento Cards: Kebersamaan (Tech Gold) & Ketangguhan (Blood Red) --}}
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                    {{-- Nilai 1: Kebersamaan --}}
-                    <flux:card class="bg-surface-card border border-white/10 hover:border-brand-gold/40 rounded-xl p-5 transition-colors space-y-2.5">
+                    {{-- Nilai 1: Kebersamaan (Tech Gold Pillar) --}}
+                    <div class="bg-surface-card/90 border border-brand-gold/30 border-t-4 border-t-brand-gold hover:border-brand-gold/60 rounded-xl p-5 transition-colors space-y-2.5 glow-gold-subtle">
                         <div class="flex items-center justify-between gap-2">
                             <span class="font-mono text-xs uppercase tracking-wider text-brand-gold font-bold">
                                 {{ $movementOneTitle }}
                             </span>
-                            <span class="font-mono text-[10px] uppercase tracking-wider text-text-muted">
-                                VALUE_01
+                            <span class="px-2 py-0.5 rounded bg-brand-gold/15 border border-brand-gold/30 font-mono text-[10px] uppercase tracking-wider text-brand-gold font-semibold">
+                                VALUE_01 // GOLD
                             </span>
                         </div>
                         <h3 class="font-display text-lg font-bold text-text-primary">
@@ -118,16 +132,16 @@
                         <p class="font-body text-sm text-text-secondary leading-relaxed">
                             {{ $movementOneBody }}
                         </p>
-                    </flux:card>
+                    </div>
 
-                    {{-- Nilai 2: Ketangguhan --}}
-                    <flux:card class="bg-surface-card border border-white/10 hover:border-brand-gold/40 rounded-xl p-5 transition-colors space-y-2.5">
+                    {{-- Nilai 2: Ketangguhan (Blood Red Pillar) --}}
+                    <div class="bg-surface-card/90 border border-brand-red-hover/60 border-t-4 border-t-brand-red hover:border-brand-red-hover rounded-xl p-5 transition-colors space-y-2.5 glow-red-subtle">
                         <div class="flex items-center justify-between gap-2">
                             <span class="font-mono text-xs uppercase tracking-wider text-brand-gold font-bold">
                                 {{ $movementTwoTitle }}
                             </span>
-                            <span class="font-mono text-[10px] uppercase tracking-wider text-text-muted">
-                                VALUE_02
+                            <span class="px-2 py-0.5 rounded bg-brand-red border border-brand-red-hover font-mono text-[10px] uppercase tracking-wider text-text-primary font-semibold">
+                                VALUE_02 // RED
                             </span>
                         </div>
                         <h3 class="font-display text-lg font-bold text-text-primary">
@@ -136,17 +150,17 @@
                         <p class="font-body text-sm text-text-secondary leading-relaxed">
                             {{ $movementTwoBody }}
                         </p>
-                    </flux:card>
+                    </div>
                 </div>
 
-                {{-- CTA Button: Blood Red (#690F1D -> bg-brand-red) linking to route('identity') --}}
+                {{-- CTA Button: Solid Blood Red (#690F1D -> bg-brand-red) linking to route('identity') --}}
                 <div class="pt-3 flex flex-wrap items-center gap-4">
-                    <flux:button
+                    <a
                         href="{{ route('identity') }}"
-                        class="bg-brand-red hover:bg-brand-red-hover text-text-primary font-display font-medium rounded-lg px-6 py-3 border border-white/10 transition-colors inline-flex items-center gap-2"
+                        class="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-lg bg-brand-red hover:bg-brand-red-hover border border-brand-red-hover text-text-primary font-display font-semibold text-sm sm:text-base transition-colors glow-red-subtle"
                     >
                         <span>Identity -&gt;</span>
-                    </flux:button>
+                    </a>
 
                     <span class="font-mono text-xs uppercase tracking-wider text-text-muted">
                         // BEDAH FILOSOFI LOGO &amp; MASKOT BEE-NER

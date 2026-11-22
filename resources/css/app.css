@@ -8,10 +8,21 @@
 /* ==========================================================================
    DESIGN TOKENS — COMETS 2026 (CONNECTED GEOMETRIC FUTURISM)
    Single Source of Truth untuk Palet Warna & Tipografi Angkatan Tekkom 2026.
+   PENTING: Di Tailwind CSS v4, nilai HEX didefinisikan langsung di dalam
+   @theme agar tidak terjadi circular variable reference (--var: var(--var)).
    ========================================================================== */
 
-:root {
-    /* ── 1. COMETS 2026 Core Tokens (60-30-10 Rule) ── */
+[x-cloak] { display: none !important; }
+
+@theme {
+    /* ── Typography (COMETS 2026) ── */
+    --font-display: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+    --font-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* ── COMETS 2026 Semantic Color Tokens (60-30-10 Rule) ── */
     --color-canvas-base: #141414;
     --color-surface-card: #252525;
     --color-surface-elevated: #2D2D2D;
@@ -26,7 +37,7 @@
     --color-text-secondary: #A1A1AA;
     --color-text-muted: #71717A;
 
-    /* ── 2. Legacy Tokens (Backward Compatibility during Phased Migration) ── */
+    /* ── Legacy Semantic Design Tokens (Backward Compatibility during Phased Migration) ── */
     --color-primary-50: #f4f1f4;
     --color-primary-100: #e2dce2;
     --color-primary-500: #907990;
@@ -47,60 +58,9 @@
     --color-highlight-700: #9fa436;
     --color-highlight-900: #6b6f1e;
 
-    --color-surface-canvas: #141414;
-    --color-surface-subtle: #2D2D2D;
-    --color-surface-border: rgba(255, 255, 255, 0.1);
-}
-
-[x-cloak] { display: none !important; }
-
-@theme {
-    /* ── Typography (COMETS 2026) ── */
-    --font-display: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
-    --font-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
-    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
-    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
-
-    /* ── COMETS 2026 Semantic Color Tokens ── */
-    --color-canvas-base: var(--color-canvas-base);
-    --color-surface-card: var(--color-surface-card);
-    --color-surface-elevated: var(--color-surface-elevated);
-
-    --color-brand-gold: var(--color-brand-gold);
-    --color-brand-gold-glow: var(--color-brand-gold-glow);
-
-    --color-brand-red: var(--color-brand-red);
-    --color-brand-red-hover: var(--color-brand-red-hover);
-
-    --color-text-primary: var(--color-text-primary);
-    --color-text-secondary: var(--color-text-secondary);
-    --color-text-muted: var(--color-text-muted);
-
-    /* ── Legacy Semantic Design Tokens (Connected to CSS Variables) ── */
-    --color-primary-50: var(--color-primary-50);
-    --color-primary-100: var(--color-primary-100);
-    --color-primary-500: var(--color-primary-500);
-    --color-primary-700: var(--color-primary-700);
-    --color-primary-800: var(--color-primary-800);
-    --color-primary-900: var(--color-primary-900);
-
-    --color-secondary-50: var(--color-secondary-50);
-    --color-secondary-100: var(--color-secondary-100);
-    --color-secondary-300: var(--color-secondary-300);
-    --color-secondary-500: var(--color-secondary-500);
-    --color-secondary-700: var(--color-secondary-700);
-    --color-secondary-900: var(--color-secondary-900);
-
-    --color-highlight-100: var(--color-highlight-100);
-    --color-highlight-300: var(--color-highlight-300);
-    --color-highlight-500: var(--color-highlight-500);
-    --color-highlight-700: var(--color-highlight-700);
-    --color-highlight-900: var(--color-highlight-900);
-
-    --color-surface-canvas: var(--color-surface-canvas);
-    --color-surface-subtle: var(--color-surface-subtle);
-    --color-surface-border: var(--color-surface-border);
+    --color-surface-canvas: #FAFAFB;
+    --color-surface-subtle: #f5f4f6;
+    --color-surface-border: rgba(81, 64, 81, 0.12);
 
     /* ── Legacy Brand Colors (Backward Compatibility) ── */
     --color-brand-deep: #123B46;
@@ -109,9 +69,65 @@
     --color-brand-mint: #A5E6DF;
     --color-brand-mist: #F1F7F6;
 
-    --color-accent: var(--color-brand-gold);
+    --color-accent: #D4AF37;
     --color-accent-content: #141414;
-    --color-accent-foreground: var(--color-text-primary);
+    --color-accent-foreground: #F4F4F5;
+}
+
+/* ==========================================================================
+   ATMOSPHERIC BACKGROUNDS & GEOMETRIC FUTURISM TEXTURES (60FPS NATIVE CSS)
+   Uses CSS custom properties from @theme — zero arbitrary hex in Blade views.
+   ========================================================================== */
+
+/* 1. Precision Engineering Circuit Grid with Soft Radial Mask */
+.bg-colony-grid {
+    background-image:
+        linear-gradient(to right, color-mix(in srgb, var(--color-brand-gold) 7%, transparent) 1px, transparent 1px),
+        linear-gradient(to bottom, color-mix(in srgb, var(--color-text-primary) 4%, transparent) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse 85% 75% at 50% 35%, black 35%, transparent 100%);
+}
+
+/* 2. Subtle Hexagonal Honeycomb Pattern (SVG Data URI) */
+.bg-hex-pattern {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='98' viewBox='0 0 56 98'%3E%3Cg fill='none' stroke='%23D4AF37' stroke-opacity='0.08' stroke-width='1'%3E%3Cpath d='M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 98'/%3E%3Cpath d='M0 50L28 66L56 50L56 82L28 98L0 82Z'/%3E%3C/g%3E%3C/svg%3E");
+    background-size: 56px 98px;
+}
+
+/* 3. Hero Section Dual-Tone Bioluminescent Ambient Glow (Tech Gold + Crimson Blood Red) */
+.bg-ambient-hero {
+    background-image:
+        radial-gradient(650px circle at 50% 16%, color-mix(in srgb, var(--color-brand-gold) 18%, transparent), transparent 70%),
+        radial-gradient(560px circle at 15% 42%, color-mix(in srgb, var(--color-brand-red-hover) 28%, transparent), transparent 72%),
+        radial-gradient(560px circle at 85% 58%, color-mix(in srgb, var(--color-brand-gold) 14%, transparent), transparent 72%),
+        radial-gradient(700px circle at 50% 72%, color-mix(in srgb, var(--color-brand-red) 32%, transparent), transparent 75%);
+}
+
+/* 4. Section 2 (Bee-ner Mascot & Jargon) Asymmetric Colony Glow */
+.bg-ambient-colony {
+    background-image:
+        radial-gradient(540px circle at 22% 50%, color-mix(in srgb, var(--color-brand-gold) 16%, transparent), transparent 72%),
+        radial-gradient(620px circle at 78% 45%, color-mix(in srgb, var(--color-brand-red-hover) 26%, transparent), transparent 75%);
+}
+
+/* 5. Section 3 (Directory & Stats Matrix) Crimson + Gold Pulse Backdrop */
+.bg-ambient-matrix {
+    background-image:
+        radial-gradient(600px circle at 80% 50%, color-mix(in srgb, var(--color-brand-red-hover) 25%, transparent), transparent 72%),
+        radial-gradient(520px circle at 20% 50%, color-mix(in srgb, var(--color-brand-gold) 14%, transparent), transparent 70%);
+}
+
+/* 6. Subtle Neon / Ember Card Border Glow Utility */
+.glow-gold-subtle {
+    box-shadow:
+        0 0 28px -6px color-mix(in srgb, var(--color-brand-gold) 22%, transparent),
+        inset 0 1px 0 0 color-mix(in srgb, var(--color-brand-gold) 25%, transparent);
+}
+
+.glow-red-subtle {
+    box-shadow:
+        0 0 30px -6px color-mix(in srgb, var(--color-brand-red-hover) 45%, transparent),
+        inset 0 1px 0 0 color-mix(in srgb, var(--color-brand-red-hover) 35%, transparent);
 }
 
 :where(a, button, input, select, textarea, iframe):focus-visible {
