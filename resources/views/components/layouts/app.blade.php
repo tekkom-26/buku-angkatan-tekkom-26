@@ -37,10 +37,11 @@
     </head>
     <body class="relative min-h-screen overflow-x-hidden bg-canvas-base text-text-primary font-body antialiased selection:bg-brand-gold selection:text-canvas-base flex flex-col justify-between">
 
-        {{-- Global Atmospheric Backdrop: Hexagonal Honeycomb & Circuit Grid Overlay --}}
+        {{-- Global Atmospheric Backdrop: Hexagonal Honeycomb, Circuit Grid & 26 GPU Colony Particles --}}
         <div class="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
             <div class="absolute inset-0 bg-hex-pattern opacity-60"></div>
             <div class="absolute inset-0 bg-colony-grid"></div>
+            <x-background-particles />
         </div>
 
         {{-- Skip to Main Content Accessibility Link --}}
