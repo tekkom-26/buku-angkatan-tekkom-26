@@ -1,22 +1,31 @@
 <x-layouts.app :title="$student['nickname'] . ' — ' . $cohortName" activePage="directory">
 
-    {{-- Page Loading Transition Overlay (COMETS 2026 Charcoal & Tech Gold Theme) --}}
+    {{-- Page Loading Transition Overlay --}}
     <div id="page-loading-overlay" class="fixed inset-0 z-[100] grid place-items-center bg-canvas-base/95 px-6 backdrop-blur-xs" role="status" aria-live="polite" aria-label="Memuat profil mahasiswa">
-        <div class="w-full max-w-md">
+        <div class="w-full max-w-md rounded-2xl border border-white/10 bg-surface-card/90 p-6">
             <div class="mb-5 flex items-center justify-center gap-3 text-sm font-semibold text-text-primary">
                 <span class="size-5 animate-spin rounded-full border-2 border-brand-gold/20 border-t-brand-gold" aria-hidden="true"></span>
-                <span class="font-mono text-xs text-brand-gold">// MEMUAT_DETAIL_MAHASISWA...</span>
+                <span class="font-display text-xs text-brand-gold">Memuat profil mahasiswa...</span>
             </div>
             <div class="grid grid-cols-3 gap-3" aria-hidden="true">
-                <div class="aspect-square animate-pulse rounded-lg bg-surface-card border border-white/10"><div class="m-3 h-3 w-2/3 rounded bg-brand-gold/15"></div><div class="mx-3 h-2 w-1/2 rounded bg-white/10"></div></div>
-                <div class="aspect-square animate-pulse rounded-lg bg-surface-card border border-white/10"><div class="m-3 h-3 w-2/3 rounded bg-brand-gold/15"></div><div class="mx-3 h-2 w-1/2 rounded bg-white/10"></div></div>
-                <div class="aspect-square animate-pulse rounded-lg bg-surface-card border border-white/10"><div class="m-3 h-3 w-2/3 rounded bg-brand-gold/15"></div><div class="mx-3 h-2 w-1/2 rounded bg-white/10"></div></div>
+                <div class="aspect-square animate-pulse rounded-xl bg-surface-elevated border border-white/10">
+                    <div class="m-3 h-3 w-2/3 rounded bg-brand-gold/15"></div>
+                    <div class="mx-3 h-2 w-1/2 rounded bg-white/10"></div>
+                </div>
+                <div class="aspect-square animate-pulse rounded-xl bg-surface-elevated border border-white/10">
+                    <div class="m-3 h-3 w-2/3 rounded bg-brand-gold/15"></div>
+                    <div class="mx-3 h-2 w-1/2 rounded bg-white/10"></div>
+                </div>
+                <div class="aspect-square animate-pulse rounded-xl bg-surface-elevated border border-white/10">
+                    <div class="m-3 h-3 w-2/3 rounded bg-brand-gold/15"></div>
+                    <div class="mx-3 h-2 w-1/2 rounded bg-white/10"></div>
+                </div>
             </div>
         </div>
     </div>
     <noscript><style>#page-loading-overlay { display: none !important; }</style></noscript>
 
-    {{-- Main Content: Student Detail Split-Screen Bento Profile (PRD §3.4) --}}
+    {{-- Main Content: Student Detail Split-Screen Bento Profile --}}
     <main id="main-content" tabindex="-1" aria-busy="true" class="relative grow w-full bg-ambient-hero py-6 sm:py-10 lg:py-12 overflow-hidden">
         <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <x-student-profile-bento

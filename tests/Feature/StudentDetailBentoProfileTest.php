@@ -43,14 +43,25 @@ class StudentDetailBentoProfileTest extends TestCase
             'spotify_song_url' => 'https://open.spotify.com/track/7yCF65vpc7sUwPjftI0iFb?si=06036673457c41ad',
         ]);
 
+        Student::factory()->create([
+            'nim' => '21120126130099',
+            'name' => 'Naufal Hakim',
+            'nickname' => 'Naufal',
+            'class_name' => 'B',
+            'origin_city' => 'Bandung',
+        ]);
+
         $response = $this->call('GET', '/students/21120126130088', [], [
             'angkatan_session' => $this->sessionCookie,
         ]);
 
         $response->assertOk();
 
-        // 1. Sub-Navigation
+        // 1. Sub-Navigation & Class Position / Prev-Next
         $response->assertSee('Kembali ke Direktori');
+        $response->assertSee('1 / 2 (Kelas B)');
+        $response->assertSee('Selanjutnya:');
+        $response->assertSee('Naufal');
 
         // 2. Mode Switcher & Labels
         $response->assertSee('Mode Foto');
@@ -83,8 +94,9 @@ class StudentDetailBentoProfileTest extends TestCase
         $response->assertSee('#Badminton');
         $response->assertSee('Warmindo Burjois');
 
-        // 7. Spotify Embedded Player
+        // 7. Spotify Embedded Player & Strict Zero Arbitrary Hex Check
         $response->assertSee('Lagu Favorit di Spotify');
         $response->assertSee('https://open.spotify.com/embed/track/7yCF65vpc7sUwPjftI0iFb?utm_source=generator', false);
+        $this->assertDoesNotMatchRegularExpression('/(?:bg|text|border|ring|fill|stroke)-\[#[0-9a-fA-F]+\]/', $response->getContent());
     }
 }

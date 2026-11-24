@@ -6,6 +6,7 @@ use App\Http\Controllers\Concerns\ApiResponses;
 use App\Http\Requests\VerifyPasscodeRequest;
 use App\Services\AppConfigService;
 use App\Services\StudentSessionService;
+use App\Services\TurnstileService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -29,6 +30,7 @@ class PasscodeController extends Controller
     public function __construct(
         protected AppConfigService $config,
         protected StudentSessionService $sessions,
+        protected TurnstileService $turnstile,
     ) {}
 
     /**
@@ -49,6 +51,15 @@ class PasscodeController extends Controller
         if (RateLimiter::tooManyAttempts($limiterKey, self::MAX_ATTEMPTS)) {
             return $this->error('RATE_LIMITED', 'Terlalu banyak percobaan, coba lagi nanti', 429)
                 ->header('Retry-After', (string) RateLimiter::availableIn($limiterKey));
+        }
+
+        if ($this->turnstile->isEnabled()
+            && ! $this->turnstile->verify($request->validated('cf_turnstile_response'), $request->ip())) {
+            return $this->error(
+                'CAPTCHA_FAILED',
+                'Verifikasi keamanan Cloudflare gagal. Silakan coba lagi.',
+                422,
+            );
         }
 
         $hash = $this->config->get(AppConfigService::KEY_STUDENT_PASSCODE);
