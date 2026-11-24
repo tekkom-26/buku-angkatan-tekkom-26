@@ -4,8 +4,10 @@ namespace Tests\Feature;
 
 use App\Models\Student;
 use App\Services\AppConfigService;
+use App\Services\TurnstileService;
 use Database\Seeders\AuthSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
@@ -209,6 +211,74 @@ class PasscodeAuthTest extends TestCase
 
         $this->sessionWithCookie($sessionCookie->getValue())
             ->assertJsonPath('data.role', 'guest');
+    }
+
+    public function test_unlock_form_renders_turnstile_widget_when_configured(): void
+    {
+        config([
+            'services.turnstile.site_key' => '1x00000000000000000000AA',
+            'services.turnstile.secret_key' => '1x0000000000000000000000000000000AA',
+        ]);
+
+        $this->get('/unlock')
+            ->assertOk()
+            ->assertSee('cf-turnstile')
+            ->assertSee('1x00000000000000000000AA')
+            ->assertSee('https://challenges.cloudflare.com/turnstile/v0/api.js', false);
+    }
+
+    public function test_turnstile_enabled_rejects_missing_token(): void
+    {
+        config([
+            'services.turnstile.site_key' => '1x00000000000000000000AA',
+            'services.turnstile.secret_key' => '1x0000000000000000000000000000000AA',
+        ]);
+
+        $this->postJson('/api/auth/passcode', ['passcode' => 'secret-pass'])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['cf_turnstile_response']);
+    }
+
+    public function test_turnstile_enabled_rejects_invalid_token(): void
+    {
+        config([
+            'services.turnstile.site_key' => '1x00000000000000000000AA',
+            'services.turnstile.secret_key' => '2x0000000000000000000000000000000AA',
+        ]);
+
+        Http::fake([
+            TurnstileService::VERIFY_URL => Http::response(['success' => false], 200),
+        ]);
+
+        $this->postJson('/api/auth/passcode', [
+            'passcode' => 'secret-pass',
+            'cf_turnstile_response' => 'invalid-token',
+        ])
+            ->assertUnprocessable()
+            ->assertJsonPath('error.code', 'CAPTCHA_FAILED');
+    }
+
+    public function test_turnstile_enabled_allows_valid_token_and_passcode(): void
+    {
+        config([
+            'services.turnstile.site_key' => '1x00000000000000000000AA',
+            'services.turnstile.secret_key' => '1x0000000000000000000000000000000AA',
+        ]);
+
+        Http::fake([
+            TurnstileService::VERIFY_URL => Http::response(['success' => true], 200),
+        ]);
+
+        $this->postJson('/api/auth/passcode', [
+            'passcode' => 'secret-pass',
+            'cf_turnstile_response' => 'valid-token',
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.role', 'student');
+
+        Http::assertSent(fn ($request): bool => $request->url() === TurnstileService::VERIFY_URL
+            && $request['secret'] === '1x0000000000000000000000000000000AA'
+            && $request['response'] === 'valid-token');
     }
 
     protected function sessionWithCookie(string $value): TestResponse
