@@ -1,3 +1,8 @@
+@php
+    $turnstileSiteKey = config('services.turnstile.site_key');
+    $turnstileEnabled = filled($turnstileSiteKey) && filled(config('services.turnstile.secret_key'));
+@endphp
+
 <x-layouts.app activePage="unlock" :title="'Buka Akses Direktori — ' . ($cohortName ?? 'COMETS 2026')">
     <main
         id="main-content"
@@ -159,6 +164,24 @@
                         </div>
                     </div>
 
+                    {{-- Cloudflare Turnstile Verification Widget --}}
+                    @if ($turnstileEnabled)
+                        <div class="space-y-2">
+                            <p class="font-mono text-[11px] font-bold uppercase tracking-wider text-text-secondary">
+                                &gt; Verifikasi Keamanan
+                            </p>
+                            <div class="rounded-lg border border-white/10 bg-canvas-base/60 p-2 flex items-center justify-center min-h-[72px]">
+                                <div
+                                    id="turnstile-widget"
+                                    class="cf-turnstile w-full"
+                                    data-sitekey="{{ $turnstileSiteKey }}"
+                                    data-theme="dark"
+                                    data-size="flexible"
+                                ></div>
+                            </div>
+                        </div>
+                    @endif
+
                     {{-- Submit Button (Primary Blood Red) --}}
                     <button
                         id="submit-btn"
@@ -192,6 +215,9 @@
     </main>
 
     @push('scripts')
+        @if ($turnstileEnabled)
+            <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+        @endif
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 const form = document.getElementById('passcode-form');
@@ -202,6 +228,13 @@
                 const successAlert = document.getElementById('success-alert');
                 const passcodeInput = document.getElementById('passcode-input');
                 const card = document.getElementById('unlock-terminal-card');
+                const turnstileEnabled = {{ $turnstileEnabled ? 'true' : 'false' }};
+
+                function resetTurnstile() {
+                    if (turnstileEnabled && window.turnstile && typeof window.turnstile.reset === 'function') {
+                        window.turnstile.reset();
+                    }
+                }
 
                 form.addEventListener('submit', async function (e) {
                     e.preventDefault();
@@ -213,6 +246,20 @@
                         return;
                     }
 
+                    const payload = { passcode: form.passcode.value };
+
+                    if (turnstileEnabled) {
+                        const tokenInput = form.querySelector('[name="cf-turnstile-response"]');
+                        const turnstileToken = tokenInput ? tokenInput.value.trim() : '';
+
+                        if (!turnstileToken) {
+                            showError('Verifikasi keamanan diperlukan', 'Silakan selesaikan verifikasi Cloudflare terlebih dahulu.');
+                            return;
+                        }
+
+                        payload.cf_turnstile_response = turnstileToken;
+                    }
+
                     hideAlerts();
                     setLoading(true);
 
@@ -221,8 +268,10 @@
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                             credentials: 'same-origin',
-                            body: JSON.stringify({ passcode: form.passcode.value }),
+                            body: JSON.stringify(payload),
                         });
+
+                        const data = await response.json().catch(() => null);
 
                         if (response.ok) {
                             showSuccess();
@@ -232,14 +281,21 @@
                             }, 900);
                         } else if (response.status === 429) {
                             showError('Terlalu banyak percobaan', 'Batas percobaan terlampaui. Silakan tunggu beberapa menit lagi.');
+                            resetTurnstile();
+                        } else if (response.status === 422) {
+                            const captchaMsg = data?.error?.message || data?.errors?.cf_turnstile_response?.[0] || 'Verifikasi keamanan Cloudflare gagal. Silakan coba lagi.';
+                            showError('Verifikasi keamanan gagal', captchaMsg);
+                            resetTurnstile();
                         } else {
                             showError('Passcode tidak valid', 'Silakan periksa kembali passcode angkatan dan coba lagi.');
                             passcodeInput.value = '';
                             passcodeInput.focus();
+                            resetTurnstile();
                         }
                     } catch (err) {
                         console.error('Passcode verification error:', err);
                         showError('Gangguan jaringan', 'Tidak dapat menghubungi server verifikasi. Silakan coba lagi.');
+                        resetTurnstile();
                     } finally {
                         setLoading(false);
                     }
