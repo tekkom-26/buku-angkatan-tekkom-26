@@ -45,7 +45,7 @@ class StudentDetailBentoProfileTest extends TestCase
 
         Student::factory()->create([
             'nim' => '21120126130099',
-            'name' => 'Naufal Rizky Pratama',
+            'name' => 'Naufal Hakim',
             'nickname' => 'Naufal',
             'class_name' => 'B',
             'origin_city' => 'Bandung',
@@ -57,71 +57,46 @@ class StudentDetailBentoProfileTest extends TestCase
 
         $response->assertOk();
 
-        // 1. Sub-Navigation, Breadcrumbs & Prev/Next Class Position
+        // 1. Sub-Navigation & Class Position / Prev-Next
         $response->assertSee('Kembali ke Direktori');
-        $response->assertSee('// 21120126130088');
         $response->assertSee('1 / 2 (Kelas B)');
         $response->assertSee('Selanjutnya:');
         $response->assertSee('Naufal');
 
-        // 2. Left Hero Column: 3:4 Portrait, COMETS Watermark & Alpine Photo Switcher
-        $response->assertSee('// SEC_01 // CANDIDATE_CARD');
-        $response->assertSee('[STATUS: ACTIVE_STUDENT]');
-        $response->assertSee('COMETS // 2026');
-        $response->assertSee('ANGKATAN 2026');
-        $response->assertSee('VIEW_MODE:');
+        // 2. Mode Switcher & Labels
+        $response->assertSee('Mode Foto');
         $response->assertSee('Formal');
         $response->assertSee('Kasual');
-        $response->assertSee('RATIO: 1000x1000 PX');
-        $response->assertSee('JAS ALMAMATER UNDIP');
-        $response->assertSee('FOTO BEBAS KASUAL');
+        $response->assertSee('Jas Almamater');
+        $response->assertSee('Foto Kasual');
 
-        // 3. Right Column: Terminal Node Tag, Core Identity, Class Badge, NIM Copy, & Instagram
-        $response->assertSee('STUDENT_NODE_01');
+        // 3. Core Identity, Class Badge, NIM, & Instagram
         $response->assertSee('Arkan');
         $response->assertSee('Muhammad Arkananta Pratama');
         $response->assertSee('NIM: 21120126130088');
-        $response->assertSee('KELAS B // TEKKOM_26');
+        $response->assertSee('Kelas B');
         $response->assertSee('@arkananta.p');
 
-        // 4. Bio Quote Callout with Blood Red Left Border Accent (border-l-4 border-l-brand-red) & Footer Hash
-        $response->assertSee('border-l-4 border-l-brand-red', false);
-        $response->assertSee('// ASPIRASI & PRINSIP', false);
-        $response->assertSee('REV_01');
+        // 4. Bio Quote
         $response->assertSee('Konsistensi melampaui talenta tanpa disiplin.');
-        $response->assertSee('RECORD_HASH:');
-        $response->assertSee('CAMPUS_ID: UNDIP-FT-TK');
 
         // 5. Right Column Structured Metadata
-        $response->assertSee('// 01_BIODATA_RESMI');
-        $response->assertSee('Informasi Identitas & Kependudukan', false);
-        $response->assertSee('VERIFIKASI_FAKULTAS: OK');
+        $response->assertSee('Informasi Identitas &amp; Kependudukan', false);
         $response->assertSee('Semarang');
-        $response->assertSee('#DOMISILI');
         $response->assertSee('Surakarta');
         $response->assertSee('Islam');
         $response->assertSee('S1 Teknik Komputer, Fakultas Teknik');
-        $response->assertSee('KAMPUS TEMBALANG, SEMARANG');
+        $response->assertSee('Kampus Tembalang, Semarang');
 
-        // 6. Hobbies, Culinary Spot, & Spotify
-        $response->assertSee('// MINAT & AKTIVITAS', false);
-        $response->assertSee('[EXP: HARDWARE]');
+        // 6. Hobbies & Culinary Spot
         $response->assertSee('#Embedded Systems');
         $response->assertSee('#IoT Architecture');
         $response->assertSee('#Badminton');
-        $response->assertSee('// SPOT KULINER FAVORIT');
         $response->assertSee('Warmindo Burjois');
-        $response->assertSee('FAVORITE_SPOT');
 
-        // 7. Spotify Embedded Player
-        $response->assertSee('// ANTHEM_TRACK // SPOTIFY_EMBED');
-        $response->assertSee('AUDIO_DEV_04');
+        // 7. Spotify Embedded Player & Strict Zero Arbitrary Hex Check
         $response->assertSee('Lagu Favorit di Spotify');
         $response->assertSee('https://open.spotify.com/embed/track/7yCF65vpc7sUwPjftI0iFb?utm_source=generator', false);
-        $response->assertSee('SYNC_OK');
-
-        // 8. Log Verification Strip & Strict Zero Arbitrary Hex Check
-        $response->assertSee('+ CHECKSUM_VERIFIED');
         $this->assertDoesNotMatchRegularExpression('/(?:bg|text|border|ring|fill|stroke)-\[#[0-9a-fA-F]+\]/', $response->getContent());
     }
 }

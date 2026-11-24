@@ -5,65 +5,56 @@
 
 @php
     $c = $content ?? [];
-    $eyebrow = $c['eyebrow'] ?? '// 04_MASCOT_ANATOMY';
+    $rawEyebrow = $c['eyebrow'] ?? 'Karakter Maskot';
+    $eyebrow = str_starts_with($rawEyebrow, '//') ? 'Karakter Maskot' : $rawEyebrow;
     $title = $c['title'] ?? 'Bedah Karakter';
-    $subtitle = $c['subtitle'] ?? '& Anatomi Maskot Bee-ner';
+    $subtitle = $c['subtitle'] ?? '&amp; Anatomi Maskot Bee-ner';
     $description = $c['description'] ?? 'Setiap detail anatomi pada maskot lebah biner Bee-ner dirancang untuk memancarkan kecerdasan komputasi, potensi diri yang menyala, kekuatan memikul tanggung jawab bersama, dan kepekaan sosial koloni COMETS 2026.';
 
     $beenerSlides = [
         [
             'number' => '01',
-            'eyebrow' => 'ATRIBUT 01 // BINARY COMPUTATION',
-            'title' => 'Strip Hitam-Emas // Logika Biner 0 & 1',
+            'eyebrow' => 'Logika Komputasi',
+            'title' => 'Strip Hitam-Emas — Logika Biner 0 & 1',
             'description' => 'Belang tubuh berwarna hitam Charcoal dan Tech Gold merepresentasikan bilangan biner (0 dan 1) sebagai fondasi logika komputasi Teknik Komputer sekaligus ketangguhan melewati suka dan duka.',
-            'detail' => 'Biner 0 & 1 // Logika Komputasi',
-            'part' => 'STRIP HITAM-EMAS',
-            'accent' => 'gold',
-            'wireframeLabel' => '[X: Bee-ner Mascot — Atribut 01 Strip Hitam-Emas]',
+            'detail' => 'Biner 0 & 1',
+            'part' => 'Strip Hitam-Emas',
             'image' => $mascotPlaceholder,
         ],
         [
             'number' => '02',
-            'eyebrow' => 'ATRIBUT 02 // IGNITED POTENTIAL',
-            'title' => 'Mata Hexagon // Potensi Diri yang Menyala',
+            'eyebrow' => 'Potensi Diri',
+            'title' => 'Mata Hexagon — Potensi yang Menyala',
             'description' => 'Mata berbentuk segi enam (hexagon) yang bersinar keemasan melambangkan fokus, ketajaman visi rekayasa, serta potensi setiap mahasiswa COMETS 2026 yang selalu menyala.',
-            'detail' => 'Potensi Menyala // Visi Hexagon',
-            'part' => 'MATA HEXAGON',
-            'accent' => 'red',
-            'wireframeLabel' => '[X: Bee-ner Mascot — Atribut 02 Mata Hexagon]',
+            'detail' => 'Visi Hexagon',
+            'part' => 'Mata Hexagon',
             'image' => $mascotPlaceholder,
         ],
         [
             'number' => '03',
-            'eyebrow' => 'ATRIBUT 03 // SHARED RESPONSIBILITY',
-            'title' => 'Ring Bahu // Kuat Memikul Beban Bersama',
+            'eyebrow' => 'Tanggung Jawab Bersama',
+            'title' => 'Ring Bahu — Kuat Memikul Beban Bersama',
             'description' => 'Konstruksi ring pelindung di kedua bahu Bee-ner melambangkan kekuatan fisik maupun mental untuk saling menopang dan memikul tanggung jawab besar secara kolektif.',
-            'detail' => 'Kekuatan Kolektif // Pikul Beban Bersama',
-            'part' => 'RING BAHU',
-            'accent' => 'gold',
-            'wireframeLabel' => '[X: Bee-ner Mascot — Atribut 03 Ring Bahu]',
+            'detail' => 'Kekuatan Kolektif',
+            'part' => 'Ring Bahu',
             'image' => $mascotPlaceholder,
         ],
         [
             'number' => '04',
-            'eyebrow' => 'ATRIBUT 04 // EMPATHY & CONNECTIVITY',
-            'title' => 'Antena // Peka & Peduli Terhadap Sesama',
-            'description' => 'Sepasang antena pemancar di kepala Bee-ner berfungsi sebagai sensor kepekaan sosial: selalu tanggap, peduli, dan terhubung dengan sinyal kondisi rekan satu angkatan.',
-            'detail' => 'Peka & Peduli // Sensor Solidaritas',
-            'part' => 'ANTENA',
-            'accent' => 'red',
-            'wireframeLabel' => '[X: Bee-ner Mascot — Atribut 04 Antena]',
+            'eyebrow' => 'Empati & Konektivitas',
+            'title' => 'Antena — Peka & Peduli Sesama',
+            'description' => 'Sepasang antena pemancar di kepala Bee-ner berfungsi sebagai sensor kepekaan sosial: selalu tanggap, peduli, dan terhubung dengan kondisi rekan satu angkatan.',
+            'detail' => 'Peka & Peduli',
+            'part' => 'Antena',
             'image' => $mascotPlaceholder,
         ],
         [
             'number' => '05',
-            'eyebrow' => 'ATRIBUT 05 // WARM COLONY SPIRIT',
-            'title' => 'Senyum Ramah // Inklusivitas & Keterbukaan Koloni',
+            'eyebrow' => 'Semangat Inklusif',
+            'title' => 'Senyum Ramah — Inklusivitas Koloni',
             'description' => 'Ekspresi senyum hangat Bee-ner menyeimbangkan ketegasan teknologi keras dengan keramahan keluarga besar Teknik Komputer 2026 yang terbuka bagi siapa saja.',
-            'detail' => 'Senyum Ramah // Koloni Inklusif',
-            'part' => 'SENYUM RAMAH',
-            'accent' => 'gold',
-            'wireframeLabel' => '[X: Bee-ner Mascot — Atribut 05 Senyum Ramah]',
+            'detail' => 'Koloni Inklusif',
+            'part' => 'Senyum Ramah',
             'image' => $mascotPlaceholder,
         ],
     ];
@@ -71,14 +62,10 @@
     $slides = (! empty($c['slides']) && count($c['slides']) === 5) ? $c['slides'] : $beenerSlides;
 @endphp
 
-{{-- ==========================================================================
-     IDENTITY — SECTION 4: MASCOT EXPLORER (5 ATRIBUT BEE-NER)
-     Mengacu pada .revamp-ui/PRD.md §3.2.4, DESIGN_TASTE.md & DESIGN_TOKENS.md
-     ========================================================================== --}}
 <section
     id="identity-mascot-section"
     aria-labelledby="mascot-explorer-heading"
-    {{ $attributes->merge(['class' => 'relative w-full bg-ambient-colony text-text-primary py-12 sm:py-16 lg:py-20 border-t border-white/10 overflow-hidden']) }}
+    {{ $attributes->merge(['class' => 'relative w-full bg-ambient-colony text-text-primary py-14 sm:py-20 border-t border-white/10 overflow-hidden']) }}
     x-data="{
         activeSlide: 1,
         totalSlides: {{ count($slides) }},
@@ -95,11 +82,10 @@
 >
     <div class="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
-        {{-- Section Header --}}
-        <div class="mb-8 sm:mb-10 flex flex-col gap-4 border-b border-white/10 pb-6 md:flex-row md:items-end md:justify-between">
+        <div class="mb-8 flex flex-col gap-4 border-b border-white/10 pb-6 md:flex-row md:items-end md:justify-between">
             <div class="max-w-2xl">
-                <p class="mb-2 font-mono text-xs font-bold uppercase tracking-wider text-brand-gold">
-                    &gt; {{ $eyebrow }} // BEE-NER_SPEC
+                <p class="mb-2 font-display text-xs font-semibold uppercase tracking-widest text-brand-gold">
+                    {{ $eyebrow }}
                 </p>
                 <h2 id="mascot-explorer-heading" class="font-display text-2xl sm:text-4xl font-bold tracking-tight text-text-primary">
                     {{ $title }}
@@ -109,14 +95,9 @@
                     {{ $description }}
                 </p>
             </div>
-            <div class="flex items-center gap-2">
-                <span class="px-3 py-1 rounded-md bg-brand-red border border-brand-red-hover font-mono text-xs uppercase tracking-wider text-text-primary font-semibold glow-red-subtle">
-                    MASCOT / 05 ATTRIBUTES
-                </span>
-            </div>
         </div>
 
-        {{-- Quick Attribute Selector Pills (5 Interactive Tabs) --}}
+        {{-- Attribute Tabs (>= 40px touch height) --}}
         <div class="flex flex-wrap items-center gap-2 mb-6" role="tablist" aria-label="Pilih atribut maskot Bee-ner">
             @foreach ($slides as $slide)
                 <button
@@ -125,88 +106,63 @@
                     @click="goTo({{ $loop->iteration }})"
                     :aria-selected="activeSlide === {{ $loop->iteration }} ? 'true' : 'false'"
                     :class="activeSlide === {{ $loop->iteration }}
-                        ? 'bg-brand-gold/20 border-brand-gold text-brand-gold font-semibold glow-gold-subtle'
-                        : 'bg-surface-card/80 border-white/10 text-text-secondary hover:border-brand-red-hover hover:text-text-primary'"
-                    class="px-3.5 py-2 rounded-lg border font-mono text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer inline-flex items-center gap-2"
+                        ? 'bg-brand-gold/20 border-brand-gold text-brand-gold font-semibold'
+                        : 'bg-surface-card/70 border-white/10 text-text-secondary hover:border-brand-red-hover hover:text-text-primary'"
+                    class="min-h-10 px-3.5 py-2 rounded-xl border font-display text-xs transition-colors cursor-pointer inline-flex items-center gap-2 whitespace-nowrap"
                 >
-                    <span class="text-brand-gold font-bold">{{ $slide['number'] }}.</span>
+                    <span class="font-mono text-brand-gold font-bold">{{ $slide['number'] }}</span>
                     <span>{{ $slide['part'] }}</span>
                 </button>
             @endforeach
         </div>
 
-        {{-- Split Carousel Container (50% Visual Left / 50% Dossier Right) --}}
-        <div class="grid overflow-hidden rounded-xl border border-brand-red-hover/60 bg-surface-card/90 shadow-lg lg:grid-cols-2 glow-red-subtle">
+        {{-- Split Showcase Container --}}
+        <div class="grid overflow-hidden rounded-2xl border border-white/10 bg-surface-card/80 lg:grid-cols-2">
 
-            {{-- ── LEFT: VISUAL DISPLAY VIEWPORT (50%) ── --}}
-            <div class="relative min-h-[22rem] overflow-hidden bg-canvas-base p-6 sm:min-h-[28rem] sm:p-8 border-b lg:border-b-0 lg:border-r border-white/10">
-                {{-- Top Dual Circuit Line --}}
-                <div class="absolute inset-x-0 top-0 h-1 flex" aria-hidden="true">
-                    <div class="w-1/2 bg-brand-red"></div>
-                    <div class="w-1/2 bg-brand-gold"></div>
-                </div>
-
-                {{-- Subtle Crimson & Gold Radial Backdrop inside Viewport --}}
-                <div class="pointer-events-none absolute inset-0 bg-ambient-colony opacity-80" aria-hidden="true"></div>
-
-                <div class="relative z-10 grid h-full">
-                    @foreach ($slides as $slide)
-                        <div
-                            x-show="activeSlide === {{ $loop->iteration }}"
-                            x-transition:enter="transition duration-300 ease-out"
-                            x-transition:enter-start="translate-x-3 opacity-0"
-                            x-transition:enter-end="translate-x-0 opacity-100"
-                            x-transition:leave="transition duration-200 ease-in"
-                            x-transition:leave-start="opacity-100"
-                            x-transition:leave-end="opacity-0"
-                            class="col-start-1 row-start-1 flex h-full min-h-[20rem] flex-col justify-between sm:min-h-[25rem]"
-                        >
-                            {{-- Top Metadata Row --}}
-                            <div class="flex items-start justify-between">
-                                <span class="rounded-md border border-brand-red-hover bg-brand-red px-3 py-1 font-mono text-[10px] font-bold tracking-wider text-text-primary uppercase">
-                                    {{ $slide['part'] }}
-                                </span>
-                                <span class="font-mono text-4xl sm:text-5xl font-bold tracking-tighter text-brand-gold/35">
-                                    {{ $slide['number'] }}
-                                </span>
-                            </div>
-
-                            {{-- Wireframe 1:1 Box --}}
-                            <div class="relative mx-auto my-4 flex aspect-square w-full max-w-[340px] items-center justify-center rounded-xl border border-brand-gold/30 bg-surface-card/75 p-6 backdrop-blur-xs">
-                                <span class="absolute left-3 top-3 font-mono text-[9px] tracking-wider text-brand-gold">
-                                    {{ $slide['wireframeLabel'] }}
-                                </span>
-                                <span class="absolute bottom-3 right-3 font-mono text-[9px] tracking-wider text-text-muted">
-                                    ASSET_LAYER: {{ $slide['number'] }}_OF_05 // BEE-NER_2D
-                                </span>
-
-                                <img
-                                    src="{{ asset($slide['image']) }}"
-                                    alt="{{ $slide['title'] }}"
-                                    class="relative max-h-full max-w-full object-contain p-4"
-                                    loading="lazy"
-                                />
-                            </div>
-
-                            {{-- Bottom Technical Label --}}
-                            <div class="flex items-center justify-between font-mono text-[10px] uppercase tracking-wider text-text-muted">
-                                <span>BEE-NER // CHARACTER STUDY</span>
-                                <span class="text-brand-gold">[BINARY_BEE: ACTIVE]</span>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
+            {{-- Left Visual Stage --}}
+            <div class="relative min-h-[20rem] sm:min-h-[26rem] bg-canvas-base/80 border-b lg:border-b-0 lg:border-r border-white/10 grid">
+                @foreach ($slides as $slide)
+                    @php
+                        $isSlidePlaceholder = empty($slide['image']) || str_contains($slide['image'], 'Placeholder.png');
+                    @endphp
+                    <div
+                        x-show="activeSlide === {{ $loop->iteration }}"
+                        x-transition:enter="transition duration-250 ease-out"
+                        x-transition:enter-start="opacity-0"
+                        x-transition:enter-end="opacity-100"
+                        x-transition:leave="transition duration-150 ease-in"
+                        x-transition:leave-start="opacity-100"
+                        x-transition:leave-end="opacity-0"
+                        class="col-start-1 row-start-1 flex items-center justify-center p-6 sm:p-10"
+                    >
+                        @if ($isSlidePlaceholder)
+                            <x-wireframe-slot
+                                variant="mascot"
+                                :label="'Atribut ' . $slide['number'] . ': ' . $slide['part']"
+                                :hint="$slide['detail']"
+                                class="rounded-xl"
+                            />
+                        @else
+                            <img
+                                src="{{ asset($slide['image']) }}"
+                                alt="{{ $slide['title'] }}"
+                                class="max-h-72 max-w-full object-contain select-none"
+                                loading="lazy"
+                            />
+                        @endif
+                    </div>
+                @endforeach
             </div>
 
-            {{-- ── RIGHT: ATTRIBUTE DOSSIER (50%) ── --}}
-            <div class="flex flex-col justify-between bg-surface-card/95 p-6 sm:p-8 lg:p-10">
+            {{-- Right Attribute Dossier --}}
+            <div class="flex flex-col justify-between p-6 sm:p-8 lg:p-10">
                 <div>
-                    <div class="mb-8 flex items-center justify-between border-b border-white/10 pb-4">
-                        <p class="font-mono text-xs uppercase tracking-wider text-text-muted">
-                            ATTRIBUTE BREAKDOWN
+                    <div class="mb-6 flex items-center justify-between gap-2 border-b border-white/10 pb-4">
+                        <p class="font-display text-xs font-medium text-text-muted">
+                            Detail Karakter
                         </p>
-                        <span class="inline-flex items-center rounded-md bg-brand-gold/15 border border-brand-gold/40 px-3 py-1 font-mono text-xs font-bold text-brand-gold">
-                            [ KOMPONEN <span class="text-text-primary mx-1" x-text="String(activeSlide).padStart(2, '0')">01</span> / 05 ]
+                        <span class="inline-flex items-center rounded-full bg-surface-elevated border border-white/10 px-3 py-1 font-mono text-xs font-semibold text-text-primary whitespace-nowrap shrink-0">
+                            <span class="text-brand-gold mr-1" x-text="String(activeSlide).padStart(2, '0')">01</span> / {{ str_pad((string) count($slides), 2, '0', STR_PAD_LEFT) }}
                         </span>
                     </div>
 
@@ -214,56 +170,58 @@
                         @foreach ($slides as $slide)
                             <div
                                 x-show="activeSlide === {{ $loop->iteration }}"
-                                x-transition:enter="transition duration-300 ease-out"
+                                x-transition:enter="transition duration-250 ease-out"
                                 x-transition:enter-start="opacity-0"
                                 x-transition:enter-end="opacity-100"
                                 x-transition:leave="transition duration-150 ease-in"
                                 x-transition:leave-start="opacity-100"
                                 x-transition:leave-end="opacity-0"
-                                class="col-start-1 row-start-1 min-h-56"
+                                class="col-start-1 row-start-1 min-h-48"
                             >
-                                <p class="font-mono text-xs font-bold uppercase tracking-wider text-brand-gold">
+                                <p class="font-display text-xs font-semibold uppercase tracking-wider text-brand-gold">
                                     {{ $slide['eyebrow'] }}
                                 </p>
-                                <h3 class="mt-3 max-w-lg font-display text-2xl sm:text-3xl font-bold leading-snug tracking-tight text-text-primary">
+                                <h3 class="mt-2.5 max-w-lg font-display text-2xl sm:text-3xl font-bold leading-snug tracking-tight text-text-primary">
                                     {{ $slide['title'] }}
                                 </h3>
                                 <p class="mt-4 max-w-lg font-body text-sm sm:text-base leading-relaxed text-text-secondary">
                                     {{ $slide['description'] }}
                                 </p>
-                                <div class="mt-6">
-                                    <span class="inline-flex items-center rounded-lg border border-brand-red-hover/60 bg-brand-red/25 px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-text-primary">
-                                        {{ $slide['detail'] }}
-                                    </span>
-                                </div>
+                                @if (!empty($slide['detail']))
+                                    <div class="mt-6">
+                                        <span class="inline-flex items-center rounded-full border border-brand-red-hover/50 bg-brand-red/20 px-3.5 py-1.5 font-display text-xs font-medium text-text-primary">
+                                            {{ $slide['detail'] }}
+                                        </span>
+                                    </div>
+                                @endif
                             </div>
                         @endforeach
                     </div>
                 </div>
 
-                {{-- Interactive Navigation Controls --}}
+                {{-- Navigation Controls --}}
                 <div class="mt-8 flex items-center justify-between gap-4 border-t border-white/10 pt-6">
-                    {{-- Indicator Dots --}}
-                    <div class="flex items-center gap-2" role="tablist" aria-label="Pilih slide maskot">
+                    <div class="flex items-center gap-1" role="tablist" aria-label="Pilih slide maskot">
                         @foreach ($slides as $slide)
                             <button
                                 type="button"
-                                class="h-2.5 rounded-full border transition-all duration-200 cursor-pointer"
-                                :class="activeSlide === {{ $loop->iteration }}
-                                    ? 'w-8 bg-brand-gold border-brand-gold'
-                                    : 'w-2.5 bg-brand-red/60 border-brand-red-hover hover:bg-brand-red-hover'"
+                                class="min-w-7 min-h-7 flex items-center justify-center cursor-pointer"
                                 @click="goTo({{ $loop->iteration }})"
                                 :aria-label="'Tampilkan slide {{ $loop->iteration }}'"
                                 :aria-current="activeSlide === {{ $loop->iteration }} ? 'true' : 'false'"
-                            ></button>
+                            >
+                                <span
+                                    :class="activeSlide === {{ $loop->iteration }} ? 'w-6 bg-brand-gold' : 'w-2 bg-white/25 hover:bg-white/50'"
+                                    class="h-2 rounded-full transition-all duration-200 block"
+                                ></span>
+                            </button>
                         @endforeach
                     </div>
 
-                    {{-- Prev / Next Buttons --}}
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-2.5">
                         <button
                             type="button"
-                            class="grid size-10 sm:size-11 place-items-center rounded-lg border border-white/15 bg-canvas-base text-text-primary transition hover:border-brand-gold hover:text-brand-gold active:scale-95 cursor-pointer"
+                            class="grid size-11 place-items-center rounded-xl border border-white/15 bg-canvas-base text-text-primary transition hover:border-brand-gold hover:text-brand-gold active:scale-95 cursor-pointer"
                             @click="previous"
                             aria-label="Slide sebelumnya"
                         >
@@ -271,7 +229,7 @@
                         </button>
                         <button
                             type="button"
-                            class="grid size-10 sm:size-11 place-items-center rounded-lg bg-brand-red border border-brand-red-hover text-text-primary font-semibold transition hover:bg-brand-red-hover active:scale-95 cursor-pointer glow-red-subtle"
+                            class="grid size-11 place-items-center rounded-xl bg-brand-red border border-brand-red-hover text-text-primary font-semibold transition hover:bg-brand-red-hover active:scale-95 cursor-pointer"
                             @click="next"
                             aria-label="Slide berikutnya"
                         >

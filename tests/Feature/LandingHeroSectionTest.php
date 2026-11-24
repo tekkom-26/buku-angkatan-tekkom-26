@@ -12,25 +12,13 @@ class LandingHeroSectionTest extends TestCase
 
         $response->assertOk();
 
-        // 1. Technical Index & Headline
-        $response->assertSee('// 01_HERO // BATCH_XXVI');
-        $response->assertSee('ANGKATAN // TEKKOM 2026');
+        // 1. Clean Hero Heading & Subtitle
+        $response->assertSee('Teknik Komputer · FT Undip · 2026');
+        $response->assertSee('COMETS 2026');
 
-        // 2. Official Motto
-        $response->assertSee('LOREM IPSUM DOLOR!!!');
-
-        // 3. CTA Buttons
-        $response->assertSee('Jelajahi Direktori Angkatan');
-        $response->assertSee('Baca Filosofi Lambang');
-
-        // 4. Right Card Status Badge & Specs
-        $response->assertSee('2026]');
-        $response->assertSee('TEKNIK KOMPUTER');
-        $response->assertSee('FT UNIVERSITAS DIPONEGORO');
-        $response->assertSee('205 STUDENTS');
-
-        // 5. Mascot Placeholder Image
-        $response->assertSee('/assets/Placeholder.png');
+        // 2. Primary Actions
+        $response->assertSee('Jelajahi Direktori');
+        $response->assertSee('Tentang Identitas');
     }
 
     public function test_landing_page_renders_full_screen_one_sections_and_in_page_nav(): void
@@ -39,25 +27,20 @@ class LandingHeroSectionTest extends TestCase
 
         $response->assertOk();
 
-        // Section 2: Decoding
-        $response->assertSee('TEKKOM 2026');
-        $response->assertSee('Computer Engineering Twenty Six');
-        $response->assertSee('// 01_MOVEMENT_ONE');
-        $response->assertSee('// 02_MOVEMENT_TWO');
-        $response->assertSee('[ASSET: LOGO_XXVI_PRIMARY_1:1]');
+        // Section 2: Values & Mascot
+        $response->assertSee('Jargon &amp; Nilai Inti', false);
+        $response->assertSee('SOLID LIKE A BEE, BE LIKE WE WANT TO BE, STRONG AND FREE!');
+        $response->assertSee('Pelajari Filosofi &amp; Identitas', false);
 
-        // Section 3: Moments & Highlights Carousel
-        $response->assertSee('// 03_ARCHIVE // MOMENTS');
-        $response->assertSee('Dokumentasi & Kilas Balik Angkatan', false);
-        $response->assertSee('[X] [PHOTO_MOMENT_16:9 — INAUGURATION_EVENT]');
-        $response->assertSee('[X] [PHOTO_MOMENT_16:9 — HARDWARE_LAB_SESSION]');
-        $response->assertSee('[X] [PHOTO_MOMENT_16:9 — COHORT_GATHERING]');
+        // Section 3: Moments Carousel
+        $response->assertSee('Dokumentasi &amp; Kilas Balik Angkatan', false);
+        $response->assertSee('Inaugurasi &amp; Pengukuhan Mahasiswa Baru Teknik Komputer 2026', false);
 
-        // Section 4: Directory Quick Discovery Banner Plate
-        $response->assertSee('// QUICK_DISCOVERY');
-        $response->assertSee('Jelajahi 100+ Profil Mahasiswa');
+        // Section 4: Directory Banner
+        $response->assertSee('Member Angkatan 2026');
+        $response->assertSee('Buka Direktori');
 
-        // In-Page Side Navigation Drawer
+        // Original In-Page Side Navigation Drawer
         $response->assertSee('[PAGE NAV]');
         $response->assertSee('[IN-PAGE]');
         $response->assertSee('[1. HERO]');

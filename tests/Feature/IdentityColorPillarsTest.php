@@ -14,33 +14,26 @@ class IdentityColorPillarsTest extends TestCase
         $response->assertViewIs('identity');
 
         // Section Header
-        $response->assertSee('// 02_COLOR_SYSTEM');
+        $response->assertSee('Sistem Warna');
         $response->assertSee('Tiga Pilar Warna Resmi');
-        $response->assertSee('PALETTE // 03_SEMANTIC_TOKENS');
 
         // Pillar 1: Charcoal
-        $response->assertSee('PILLAR_01');
         $response->assertSee('Charcoal');
         $response->assertSee('Kebersamaan');
         $response->assertSee('#252525');
-        $response->assertSee('--color-surface-card');
 
         // Pillar 2: Tech Gold
-        $response->assertSee('PILLAR_02');
         $response->assertSee('Tech Gold');
         $response->assertSee('Potensi Diri');
         $response->assertSee('#D4AF37');
-        $response->assertSee('--color-brand-gold');
 
         // Pillar 3: Blood Red
-        $response->assertSee('PILLAR_03');
         $response->assertSee('Blood Red');
         $response->assertSee('Ketangguhan');
         $response->assertSee('#690F1D');
-        $response->assertSee('--color-brand-red');
 
-        // Audio Card & 3-Stanza Yel-Yel Chants
-        $response->assertSee('// COLONY_CHANT // AUDIO_CARD');
+        // 3-Stanza Yel-Yel Chants
+        $response->assertSee('Lagu &amp; Yel-Yel Resmi COMETS 2026', false);
         $response->assertSee('SOLID LIKE A BEE, BE LIKE WE WANT TO BE, STRONG AND FREE!');
         $response->assertSee('Ada cerita tentang sebuah canda dan tawa');
         $response->assertSee('Inilah kami Comets');

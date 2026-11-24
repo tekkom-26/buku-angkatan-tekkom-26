@@ -15,13 +15,12 @@ class BrandedNotFoundPageTest extends TestCase
         $response = $this->get('/unknown-page');
         $response->assertNotFound();
         $response->assertSee('Tekkom 26');
-        $response->assertSee('MEMORY_SEGMENTATION_FAULT');
+        $response->assertSee('Error 404');
         $response->assertSee('Halaman ini tidak ditemukan.');
         $response->assertSee('Cari di Direktori');
         $response->assertSee('Kembali ke Beranda Utama');
         $response->assertSee('Jelajahi Direktori Mahasiswa');
-        $response->assertSee('[ILLUSTRATION: 404_MASCOT_LOST_1:1]');
-        $response->assertSee('/assets/Placeholder.png', false);
+        $response->assertSee('Rute Tidak Tersedia');
         $response->assertSee(route('landing'), false);
         $response->assertSee(route('directory.index'), false);
         $this->assertDoesNotMatchRegularExpression('/(?:bg|text|border|ring|fill|stroke)-\[#[0-9a-fA-F]+\]/', $response->getContent());

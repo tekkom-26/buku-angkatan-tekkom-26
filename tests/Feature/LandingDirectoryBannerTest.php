@@ -13,14 +13,11 @@ class LandingDirectoryBannerTest extends TestCase
         $response->assertOk();
         $response->assertViewIs('landing');
 
-        // 2. Callout Headline & Description Copy
-        $response->assertSee('Temukan Rekan Satu Angkatan di Direktori Resmi');
+        $response->assertSee('Member Angkatan 2026');
         $response->assertSee('Akses profil lengkap mahasiswa Teknik Komputer 2026 berdasarkan kelas, domisili, dan minat eksplorasi melalui sistem direktori terverifikasi.');
-
-        // 3. Primary Sky Wash CTA Button & Route Binding
-        $response->assertSee('Jelajahi 100+ Profil Mahasiswa');
+        $response->assertSee('Buka Direktori');
         $response->assertSee('href="'.route('directory.index').'"', false);
-        $response->assertSee('KELAS A · KELAS B · KELAS C · KELAS D');
+        $response->assertSee('Kelas A · Kelas B · Kelas C · Kelas D');
     }
 
     public function test_directory_banner_component_does_not_contain_arbitrary_hex_in_classes(): void
