@@ -25,26 +25,36 @@ class GlobalShellNavbarFooterTest extends TestCase
 
         $response->assertOk();
 
-        // Navbar Brand & Links (stich-uiux/Navbar.png)
-        $response->assertSee('ANGKATAN // TEKKOM 2026');
+        // Navbar Brand & Links
+        $response->assertSee('COMETS 2026');
         $response->assertSee('Beranda');
-        $response->assertSee('Filosofi &amp; Identitas', false);
+        $response->assertSee('Identitas');
         $response->assertSee('Direktori');
         $response->assertSee('Galeri');
 
         // Guest Action CTA
-        $response->assertSee('Akses Direktori');
+        $response->assertSee('Masuk untuk akses direktori');
+        $response->assertSee(route('unlock'), false);
 
-        // Footer Components (PRD §3.0)
-        $response->assertSee('[X: COMETS Logo]');
-        $response->assertSee('ANGKATAN &mdash; Teknik Komputer 2026', false);
+        // Clean Footer Components (no fake // telemetry)
+        $response->assertSee('Teknik Komputer 2026 &mdash; Universitas Diponegoro', false);
         $response->assertSee('Departemen Teknik Komputer, Fakultas Teknik, Universitas Diponegoro');
-        $response->assertSee('Google Maps');
-        $response->assertSee('// NAVIGASI');
-        $response->assertSee('// KANAL_RESMI');
+        $response->assertSee('Buka di Google Maps');
+        $response->assertSee('Navigasi');
+        $response->assertSee('Kanal Resmi');
         $response->assertSee('Instagram (@tekkom26)');
-        $response->assertSee('Kontak Departemen');
-        $response->assertSee('ANGKATAN Teknik Komputer Undip. All rights reserved.');
+        $response->assertSee('Website Departemen');
+        $response->assertDontSee('// NAVIGASI');
+        $response->assertDontSee('// KANAL_RESMI');
+    }
+
+    public function test_unlock_page_hides_redundant_login_cta_and_directory_active_state(): void
+    {
+        $response = $this->get('/unlock');
+
+        $response->assertOk();
+        $response->assertSee('Akses Direktori');
+        $response->assertDontSee('aria-label="Masuk untuk akses direktori"', false);
     }
 
     public function test_navbar_renders_back_button_and_logout_on_directory_when_authenticated(): void
@@ -59,11 +69,7 @@ class GlobalShellNavbarFooterTest extends TestCase
         ]);
 
         $response->assertOk();
-
-        // In Directory Context, Navbar shows "Kembali Ke Beranda"
-        $response->assertSee('Kembali Ke Beranda');
-
-        // And authenticated shows the logout/relock action
+        $response->assertSee('Beranda');
         $response->assertSee(route('lock'));
     }
 

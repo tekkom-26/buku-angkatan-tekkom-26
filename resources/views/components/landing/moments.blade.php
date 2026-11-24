@@ -2,47 +2,31 @@
     'moments' => [
         [
             'id' => 'moment-01',
-            'category' => 'prestasi',
             'categoryLabel' => 'Prestasi',
-            'badge' => '[PRESTASI // 2026]',
-            'wireframeLabel' => '[X] [PHOTO_MOMENT_16:9 — INAUGURATION_EVENT]',
             'image' => '/assets/Placeholder.png',
             'title' => 'Inaugurasi & Pengukuhan Mahasiswa Baru Teknik Komputer 2026',
-            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Momentum awal kebersamaan seluruh anggota koloni COMETS 2026 di lingkungan kampus Tembalang.',
-            'meta' => 'SEMANGAT_TEKKOM // 24 OKT 2026',
-            'nodeRef' => 'NODE_26:01',
+            'description' => 'Momentum awal kebersamaan seluruh anggota angkatan Teknik Komputer 2026 di lingkungan kampus Tembalang.',
+            'meta' => '24 Okt 2026',
         ],
         [
             'id' => 'moment-02',
-            'category' => 'lab',
             'categoryLabel' => 'Kegiatan Lab',
-            'badge' => '[KEGIATAN LAB // 2026]',
-            'wireframeLabel' => '[X] [PHOTO_MOMENT_16:9 — HARDWARE_LAB_SESSION]',
             'image' => '/assets/Placeholder.png',
             'title' => 'Eksplorasi Praktikum Sistem Digital & Arsitektur Perangkat Keras',
-            'description' => 'Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Kolaborasi pemecahan masalah teknis dan perakitan modul praktikum.',
-            'meta' => 'LAB_ARSITEKTUR // 12 NOV 2026',
-            'nodeRef' => 'NODE_26:02',
+            'description' => 'Kolaborasi pemecahan masalah teknis dan perakitan modul praktikum bersama di laboratorium.',
+            'meta' => '12 Nov 2026',
         ],
         [
             'id' => 'moment-03',
-            'category' => 'kebersamaan',
             'categoryLabel' => 'Kebersamaan',
-            'badge' => '[KEBERSAMAAN // 2026]',
-            'wireframeLabel' => '[X] [PHOTO_MOMENT_16:9 — COHORT_GATHERING]',
             'image' => '/assets/Placeholder.png',
             'title' => 'Malam Keakraban & Forum Solidaritas Keluarga Besar COMETS 2026',
-            'description' => 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Menyatukan visi lintas kelas dalam satu sarang koloni.',
-            'meta' => 'TEMBALANG_CAMPUS // 05 DES 2026',
-            'nodeRef' => 'NODE_26:03',
+            'description' => 'Menyatukan kebersamaan lintas kelas dalam ruang silaturahmi angkatan Teknik Komputer 2026.',
+            'meta' => '05 Des 2026',
         ],
     ],
 ])
 
-{{-- ==========================================================================
-     HERO MEDIA CAROUSEL (16:9 / 21:9 Circuit-Framed Interactive Carousel)
-     Mengacu pada .revamp-ui/PRD.md §3.1.1, DESIGN_TASTE.md & DESIGN_TOKENS.md
-     ========================================================================== --}}
 <div
     id="moments-section"
     aria-labelledby="moments-section-heading"
@@ -61,35 +45,16 @@
     }"
     class="w-full max-w-5xl mx-auto"
 >
-    <div class="sr-only">
-        <h2 id="moments-section-heading">Dokumentasi & Kilas Balik Angkatan</h2>
-        <span>// 03_ARCHIVE // MOMENTS</span>
-    </div>
+    <h2 id="moments-section-heading" class="sr-only">Dokumentasi &amp; Kilas Balik Angkatan</h2>
 
-    {{-- Circuit-Framed Carousel Container (1px Hairline Border + Top Blood Red / Tech Gold Accent Bar) --}}
-    <div class="relative rounded-xl border border-white/10 hover:border-brand-gold/40 bg-surface-card p-3 sm:p-4 lg:p-5 transition-colors overflow-hidden">
-
-        {{-- Top Dual-Tone Circuit Line (Tech Gold + Blood Red) --}}
-        <div class="absolute inset-x-0 top-0 h-1 flex" aria-hidden="true">
-            <div class="w-2/3 bg-brand-gold"></div>
-            <div class="w-1/3 bg-brand-red"></div>
-        </div>
-
-        {{-- Top Circuit Header Bar --}}
-        <div class="flex items-center justify-between gap-2 pb-3 mb-3 pt-1 border-b border-white/10 font-mono text-[11px] uppercase tracking-wider">
-            <div class="flex items-center gap-2 text-brand-gold">
-                <span class="size-2 rounded-full bg-brand-red-hover" aria-hidden="true"></span>
-                <span>&gt; COLONY_MOMENTS // ARCHIVE_STREAM</span>
-            </div>
-            <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-brand-red/30 border border-brand-red-hover/60 text-text-primary">
-                <span>SLIDE_</span><span class="text-brand-gold font-bold" x-text="String(activeSlide + 1).padStart(2, '0')">01</span><span> / {{ str_pad((string) count($moments), 2, '0', STR_PAD_LEFT) }}</span>
-            </div>
-        </div>
-
-        {{-- 16:9 / 21:9 Media Viewport --}}
-        <div class="relative w-full aspect-video sm:aspect-[21/9] rounded-lg overflow-hidden border border-white/10 bg-canvas-base">
+    <div class="rounded-2xl border border-white/10 bg-surface-card/70 backdrop-blur-xs overflow-hidden">
+        {{-- Media Stage (Arrows positioned safely inside media area only) --}}
+        <div class="relative w-full aspect-video sm:aspect-[21/9] bg-canvas-base overflow-hidden">
             @foreach ($moments as $index => $moment)
-                <article
+                @php
+                    $isPlaceholder = empty($moment['image']) || str_contains($moment['image'], 'Placeholder.png');
+                @endphp
+                <div
                     x-show="activeSlide === {{ $index }}"
                     x-transition:enter="transition ease-out duration-200"
                     x-transition:enter-start="opacity-0"
@@ -97,58 +62,56 @@
                     x-transition:leave="transition ease-in duration-150"
                     x-transition:leave-start="opacity-100"
                     x-transition:leave-end="opacity-0"
-                    class="absolute inset-0 flex flex-col justify-between p-4 sm:p-6"
+                    class="absolute inset-0"
                 >
-                    {{-- Background Placeholder Image --}}
-                    <img
-                        src="{{ asset($moment['image']) }}"
-                        alt="{{ $moment['wireframeLabel'] }}"
-                        class="absolute inset-0 w-full h-full object-contain p-8 opacity-65 select-none pointer-events-none"
-                        loading="lazy"
-                    />
+                    @if ($isPlaceholder)
+                        <x-wireframe-slot
+                            variant="moment"
+                            :label="'Dokumentasi: ' . $moment['categoryLabel']"
+                            :hint="$moment['meta']"
+                        />
+                    @else
+                        <img
+                            src="{{ asset($moment['image']) }}"
+                            alt="{{ $moment['title'] }}"
+                            class="w-full h-full object-cover select-none"
+                            loading="lazy"
+                        />
+                        <div class="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-canvas-base/90 via-canvas-base/30 to-transparent hidden sm:block"></div>
+                    @endif
 
-                    {{-- Top Overlay Metadata Row --}}
-                    <div class="relative z-10 flex items-center justify-between gap-2">
-                        <span class="bg-brand-red border border-brand-red-hover text-text-primary font-mono text-[10px] sm:text-xs font-semibold uppercase px-3 py-1 rounded-md shadow-xs">
-                            {{ $moment['badge'] }}
-                        </span>
-                        <span class="font-mono text-[10px] uppercase tracking-wider text-brand-gold bg-surface-card/90 px-2.5 py-1 rounded border border-brand-gold/30">
-                            {{ $moment['nodeRef'] }}
-                        </span>
-                    </div>
-
-                    {{-- Center Wireframe Label --}}
-                    <div class="relative z-10 my-auto flex items-center justify-center pointer-events-none">
-                        <span class="font-mono text-[10px] sm:text-xs uppercase tracking-wider text-text-secondary bg-canvas-base/80 border border-white/10 px-3 py-1.5 rounded-md">
-                            {{ $moment['wireframeLabel'] }}
+                    {{-- Category Pill --}}
+                    <div class="absolute top-3.5 left-3.5 sm:top-5 sm:left-5 z-10">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full bg-surface-card/90 backdrop-blur-xs border border-white/15 font-display text-xs font-medium text-brand-gold">
+                            {{ $moment['categoryLabel'] }}
                         </span>
                     </div>
 
-                    {{-- Bottom Caption Bar with Blood Red Left Accent Border --}}
-                    <div class="relative z-10 rounded-r-lg rounded-l-sm bg-canvas-base/95 border border-white/10 border-l-4 border-l-brand-red p-3.5 sm:p-4 backdrop-blur-xs text-left">
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                            <div>
-                                <h3 class="font-display text-sm sm:text-base lg:text-lg font-bold text-text-primary leading-snug">
+                    {{-- Desktop Overlay Caption (Never overlaps arrows thanks to generous px-16) --}}
+                    <div class="hidden sm:block absolute inset-x-0 bottom-0 z-10 px-16 pb-5 pt-8 text-left pointer-events-none">
+                        <div class="flex items-end justify-between gap-4">
+                            <div class="max-w-2xl">
+                                <h3 class="font-display text-base lg:text-lg font-bold text-text-primary leading-snug">
                                     {{ $moment['title'] }}
                                 </h3>
-                                <p class="font-body text-xs sm:text-sm text-text-secondary line-clamp-1 mt-0.5">
+                                <p class="font-body text-xs lg:text-sm text-text-secondary line-clamp-1 mt-0.5">
                                     {{ $moment['description'] }}
                                 </p>
                             </div>
-                            <span class="font-mono text-[10px] uppercase tracking-wider text-brand-gold shrink-0">
+                            <span class="font-mono text-xs text-text-muted shrink-0">
                                 {{ $moment['meta'] }}
                             </span>
                         </div>
                     </div>
-                </article>
+                </div>
             @endforeach
 
-            {{-- Left / Right Navigation Arrows --}}
+            {{-- Prev / Next Controls --}}
             <button
                 type="button"
                 @click="prevSlide()"
                 aria-label="Slide momen sebelumnya"
-                class="absolute left-3 top-1/2 -translate-y-1/2 z-20 size-9 sm:size-10 rounded-lg bg-surface-card/90 hover:bg-brand-red border border-white/15 hover:border-brand-red-hover text-text-primary flex items-center justify-center transition-colors cursor-pointer"
+                class="absolute left-3 top-1/2 -translate-y-1/2 z-20 size-10 sm:size-11 rounded-full bg-surface-card/85 hover:bg-brand-red border border-white/15 hover:border-brand-red-hover text-text-primary flex items-center justify-center transition-colors cursor-pointer"
             >
                 <span class="font-mono text-base leading-none" aria-hidden="true">&larr;</span>
             </button>
@@ -156,19 +119,42 @@
                 type="button"
                 @click="nextSlide()"
                 aria-label="Slide momen berikutnya"
-                class="absolute right-3 top-1/2 -translate-y-1/2 z-20 size-9 sm:size-10 rounded-lg bg-brand-red hover:bg-brand-red-hover border border-brand-red-hover text-text-primary flex items-center justify-center transition-colors cursor-pointer shadow-xs"
+                class="absolute right-3 top-1/2 -translate-y-1/2 z-20 size-10 sm:size-11 rounded-full bg-surface-card/85 hover:bg-brand-red border border-white/15 hover:border-brand-red-hover text-text-primary flex items-center justify-center transition-colors cursor-pointer"
             >
                 <span class="font-mono text-base leading-none" aria-hidden="true">&rarr;</span>
             </button>
         </div>
 
-        {{-- Interactive Dot Pagination Bar --}}
-        <div class="flex items-center justify-between gap-4 pt-3 mt-3 border-t border-white/10">
-            <span class="font-mono text-[10px] uppercase tracking-wider text-text-muted">
-                CIRCUIT_FRAME // 21:9_VIEWPORT
+        {{-- Mobile Stacked Caption (Zero overlap with carousel arrows!) --}}
+        <div class="sm:hidden border-t border-white/10 p-4 text-left">
+            @foreach ($moments as $index => $moment)
+                <div x-show="activeSlide === {{ $index }}">
+                    <div class="flex items-center justify-between gap-2 mb-1">
+                        <span class="font-mono text-xs text-brand-gold font-medium">
+                            0{{ $index + 1 }} / 0{{ count($moments) }}
+                        </span>
+                        <span class="font-mono text-xs text-text-muted">
+                            {{ $moment['meta'] }}
+                        </span>
+                    </div>
+                    <h3 class="font-display text-base font-bold text-text-primary leading-snug">
+                        {{ $moment['title'] }}
+                    </h3>
+                    <p class="font-body text-xs text-text-secondary mt-1 leading-relaxed">
+                        {{ $moment['description'] }}
+                    </p>
+                </div>
+            @endforeach
+        </div>
+
+        {{-- Minimalist Pagination Bar (>= 28x28px touch target per dot) --}}
+        <div class="flex items-center justify-between gap-4 px-4 sm:px-6 py-2.5 border-t border-white/10 bg-surface-card/50">
+            <span class="hidden sm:inline font-mono text-xs text-text-muted whitespace-nowrap">
+                <span class="text-brand-gold font-semibold" x-text="String(activeSlide + 1).padStart(2, '0')">01</span>
+                / {{ str_pad((string) count($moments), 2, '0', STR_PAD_LEFT) }}
             </span>
 
-            <div class="flex items-center gap-2" role="tablist" aria-label="Navigasi slide momen angkatan">
+            <div class="flex items-center gap-1 mx-auto sm:mx-0" role="tablist" aria-label="Navigasi slide momen angkatan">
                 @foreach ($moments as $index => $moment)
                     <button
                         type="button"
@@ -176,18 +162,15 @@
                         @click="goToSlide({{ $index }})"
                         :aria-selected="activeSlide === {{ $index }} ? 'true' : 'false'"
                         :aria-label="'Tampilkan momen {{ $index + 1 }}'"
-                        :class="activeSlide === {{ $index }}
-                            ? 'w-7 bg-brand-gold border-brand-gold'
-                            : 'w-2.5 bg-brand-red/60 border-brand-red-hover hover:bg-brand-red-hover'"
-                        class="h-2.5 rounded-full border transition-all duration-200 cursor-pointer"
-                    ></button>
+                        class="min-w-7 min-h-7 flex items-center justify-center cursor-pointer"
+                    >
+                        <span
+                            :class="activeSlide === {{ $index }} ? 'w-6 bg-brand-gold' : 'w-2 bg-white/25 hover:bg-white/50'"
+                            class="h-2 rounded-full transition-all duration-200 block"
+                        ></span>
+                    </button>
                 @endforeach
             </div>
-
-            <span class="font-mono text-[10px] uppercase tracking-wider text-brand-gold">
-                [HEX_GRID: SYNC]
-            </span>
         </div>
-
     </div>
 </div>

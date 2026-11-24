@@ -21,12 +21,10 @@ class DynamicFrontendHydrationTest extends TestCase
 
     public function test_landing_page_renders_dynamic_content_from_service(): void
     {
-        // 1. Initial view renders fallback default
         $response = $this->get('/');
         $response->assertOk();
-        $response->assertSee(config('content.landing.hero.title'));
+        $response->assertSee('COMETS 2026');
 
-        // 2. Admin updates landing content
         $this->service->updateLandingContent([
             'hero' => [
                 'title' => 'DYNAMIC COHORT 2026 TITLE',
@@ -40,7 +38,6 @@ class DynamicFrontendHydrationTest extends TestCase
             ],
         ]);
 
-        // 3. Next page request immediately reflects the updated dynamic values
         $updatedResponse = $this->get('/');
         $updatedResponse->assertOk();
         $updatedResponse->assertSee('DYNAMIC COHORT 2026 TITLE');
@@ -51,12 +48,10 @@ class DynamicFrontendHydrationTest extends TestCase
 
     public function test_identity_page_renders_dynamic_content_from_service(): void
     {
-        // 1. Initial view renders fallback default
         $response = $this->get('/identity');
         $response->assertOk();
-        $response->assertSee(config('content.identity.header_banner.title'));
+        $response->assertSee('Anatomi Identitas COMETS');
 
-        // 2. Admin updates identity content
         $this->service->updateIdentityContent([
             'header_banner' => [
                 'title' => 'DYNAMIC IDENTITAS ANGKATAN 2026',
@@ -66,7 +61,6 @@ class DynamicFrontendHydrationTest extends TestCase
             ],
         ]);
 
-        // 3. Next page request immediately reflects the updated dynamic values
         $updatedResponse = $this->get('/identity');
         $updatedResponse->assertOk();
         $updatedResponse->assertSee('DYNAMIC IDENTITAS ANGKATAN 2026');

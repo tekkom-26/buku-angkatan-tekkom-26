@@ -3,82 +3,39 @@
         id="main-content"
         class="relative grow flex items-center justify-center px-4 py-12 sm:py-16 lg:py-20 bg-ambient-hero overflow-hidden"
     >
-        {{-- Decorative Background SVG: Hexagonal Security Shield & Circuit Traces --}}
-        <div class="pointer-events-none absolute inset-0 overflow-hidden select-none" aria-hidden="true">
-            {{-- Left Circuit Traces --}}
-            <svg class="hidden lg:block absolute left-0 top-1/4 w-80 h-80 text-brand-gold/20" viewBox="0 0 320 320" fill="none">
-                <path d="M0 80 H120 L160 120 H240" stroke="currentColor" stroke-width="1.25" />
-                <path d="M0 170 H90 L130 210 H200" stroke="currentColor" stroke-width="1" stroke-dasharray="4 4" class="text-brand-red-hover/35" />
-                <circle cx="240" cy="120" r="4" class="fill-brand-gold" />
-                <circle cx="200" cy="210" r="3.5" class="fill-brand-red-hover" />
-            </svg>
-
-            {{-- Right Circuit Traces --}}
-            <svg class="hidden lg:block absolute right-0 bottom-1/4 w-80 h-80 text-brand-red-hover/30" viewBox="0 0 320 320" fill="none">
-                <path d="M320 100 H200 L160 140 H80" stroke="currentColor" stroke-width="1.25" />
-                <path d="M320 190 H230 L190 230 H120" stroke="currentColor" stroke-width="1" stroke-dasharray="4 4" class="text-brand-gold/25" />
-                <circle cx="80" cy="140" r="4" class="fill-brand-red-hover" />
-                <circle cx="120" cy="230" r="3.5" class="fill-brand-gold" />
-            </svg>
-
-            {{-- Center Concentric Hexagon Watermark --}}
-            <svg class="absolute inset-0 m-auto size-[520px] text-brand-gold/10" viewBox="0 0 260 260" fill="none">
-                <polygon points="130,10 234,70 234,190 130,250 26,190 26,70" stroke="currentColor" stroke-width="1" />
-                <polygon points="130,36 211,83 211,177 130,224 49,177 49,83" stroke="currentColor" stroke-width="1" stroke-dasharray="6 6" />
-            </svg>
-        </div>
-
-        {{-- ── Colony Security Terminal Card ── --}}
         <div
             x-data="{ showPassword: false }"
             class="relative z-10 w-full max-w-md"
         >
             <div
                 id="unlock-terminal-card"
-                class="rounded-xl border border-brand-gold/35 bg-surface-card/90 backdrop-blur-md p-6 sm:p-9 relative overflow-hidden glow-gold-subtle transition-all duration-200"
+                class="rounded-2xl border border-white/15 bg-surface-card/90 backdrop-blur-md p-6 sm:p-9 relative overflow-hidden transition-colors"
             >
-                {{-- Top Dual-Tone Circuit Line (Tech Gold + Blood Red) --}}
-                <div class="absolute inset-x-0 top-0 h-1 flex" aria-hidden="true">
-                    <div class="w-2/3 bg-brand-gold"></div>
-                    <div class="w-1/3 bg-brand-red"></div>
-                </div>
-
-                {{-- Top Security Telemetry Strip --}}
-                <div class="flex items-center justify-between gap-2 pb-4 mb-6 border-b border-white/10 font-mono text-[11px] uppercase tracking-wider">
-                    <span class="text-brand-gold font-bold">
-                        &gt; // 02_SECURITY_GATE
-                    </span>
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-brand-red border border-brand-red-hover text-text-primary font-bold">
-                        <span class="size-1.5 rounded-full bg-brand-gold animate-pulse" aria-hidden="true"></span>
-                        <span>[CLEARANCE: LOCKED]</span>
-                    </span>
-                </div>
-
-                {{-- Card Header & Hexagonal Lock Emblem --}}
+                {{-- Card Header & Lock Emblem --}}
                 <div class="text-center mb-7">
-                    <div class="relative size-16 mx-auto mb-5 rounded-xl bg-canvas-base border border-brand-gold/40 flex items-center justify-center glow-gold-subtle">
-                        <svg class="size-7 text-brand-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <div class="size-14 mx-auto mb-5 rounded-2xl bg-canvas-base border border-brand-gold/35 flex items-center justify-center">
+                        <svg class="size-6 text-brand-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
                             <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                         </svg>
                     </div>
 
                     <h1 class="font-display text-2xl sm:text-3xl font-bold text-text-primary tracking-tight">
-                        Portal Direktori // {{ $cohortName ?? 'TEKKOM 2026' }}
+                        Akses Direktori {{ $cohortName ?? 'TEKKOM 2026' }}
                     </h1>
                     <p class="font-body text-sm text-text-secondary mt-2 leading-relaxed">
-                        Masukkan Passcode Angkatan untuk Mengakses Data Koloni COMETS 2026
+                        Masukkan passcode angkatan untuk membuka profil lengkap mahasiswa COMETS 2026.
                     </p>
                 </div>
 
-                {{-- Error Alert (hidden by default) --}}
+                {{-- Error Alert --}}
                 <div
                     id="error-alert"
                     role="alert"
-                    class="hidden mb-5 rounded-r-lg rounded-l-xs border border-brand-red-hover border-l-4 border-l-brand-red bg-brand-red/30 px-4 py-3 text-left glow-red-subtle"
+                    class="hidden mb-5 rounded-xl border border-brand-red-hover/70 bg-brand-red/25 px-4 py-3 text-left"
                 >
                     <div class="flex items-start gap-3">
-                        <svg class="size-5 text-brand-gold shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <svg class="size-5 text-status-danger-text shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <circle cx="12" cy="12" r="10" />
                             <line x1="12" y1="8" x2="12" y2="12" />
                             <line x1="12" y1="16" x2="12.01" y2="16" />
@@ -94,11 +51,11 @@
                     </div>
                 </div>
 
-                {{-- Success Alert (hidden by default) --}}
+                {{-- Success Alert --}}
                 <div
                     id="success-alert"
                     role="status"
-                    class="hidden mb-5 rounded-r-lg rounded-l-xs border border-brand-gold border-l-4 border-l-brand-gold bg-brand-gold/15 px-4 py-3 text-left glow-gold-subtle"
+                    class="hidden mb-5 rounded-xl border border-brand-gold/50 bg-brand-gold/15 px-4 py-3 text-left"
                 >
                     <div class="flex items-start gap-3">
                         <svg class="size-5 text-brand-gold shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -123,9 +80,9 @@
                     <div>
                         <label
                             for="passcode-input"
-                            class="block font-mono text-xs font-bold uppercase tracking-wider text-brand-gold mb-2"
+                            class="block font-display text-xs font-semibold text-brand-gold mb-2"
                         >
-                            &gt; Passcode Angkatan
+                            Passcode Angkatan
                         </label>
 
                         <div class="relative flex items-center">
@@ -134,15 +91,14 @@
                                 name="passcode"
                                 :type="showPassword ? 'text' : 'password'"
                                 placeholder="Masukkan passcode angkatan..."
-                                autocomplete="off"
-                                class="w-full min-h-12 rounded-lg border border-white/15 bg-surface-elevated pl-4 pr-12 py-3 font-mono text-sm text-text-primary placeholder:text-text-muted focus:border-brand-gold focus:outline-none transition-colors"
+                                autocomplete="current-password"
+                                class="w-full min-h-12 rounded-xl border border-white/15 bg-surface-elevated pl-4 pr-12 py-3 font-mono text-sm text-text-primary placeholder:text-text-muted focus:border-brand-gold focus-visible:ring-2 focus-visible:ring-brand-gold/70 focus:outline-none transition-colors"
                             />
 
-                            {{-- Toggle Password Visibility Button --}}
                             <button
                                 type="button"
                                 @click="showPassword = !showPassword"
-                                class="absolute right-3 p-1.5 rounded-md text-text-muted hover:text-brand-gold transition-colors cursor-pointer"
+                                class="absolute right-1.5 size-10 flex items-center justify-center rounded-lg text-text-muted hover:text-brand-gold transition-colors cursor-pointer"
                                 :aria-label="showPassword ? 'Sembunyikan passcode' : 'Tampilkan passcode'"
                             >
                                 <svg x-show="!showPassword" class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -159,30 +115,27 @@
                         </div>
                     </div>
 
-                    {{-- Submit Button (Primary Blood Red) --}}
                     <button
                         id="submit-btn"
                         type="submit"
-                        class="w-full py-3.5 px-6 rounded-lg bg-brand-red hover:bg-brand-red-hover border border-brand-red-hover text-text-primary font-display font-semibold text-sm sm:text-base inline-flex items-center justify-center gap-2 transition-colors glow-red-subtle cursor-pointer"
+                        class="w-full min-h-12 py-3 px-6 rounded-xl bg-brand-red hover:bg-brand-red-hover border border-brand-red-hover text-text-primary font-display font-semibold text-sm sm:text-base inline-flex items-center justify-center gap-2 transition-colors cursor-pointer"
                     >
                         <span>Masuk ke Buku Angkatan</span>
                         <span class="font-mono text-base leading-none" aria-hidden="true">&rarr;</span>
                     </button>
                 </form>
 
-                {{-- Helper Footer Note --}}
-                <div class="mt-6 pt-4 border-t border-white/10 text-center space-y-2">
+                <div class="mt-6 pt-4 border-t border-white/10 text-center">
                     <p class="font-body text-xs text-text-muted leading-relaxed">
                         Passcode dapat diperoleh dari koordinator angkatan atau panitia Buku Angkatan Teknik Komputer 2026.
                     </p>
                 </div>
             </div>
 
-            {{-- Back to Landing Link --}}
             <div class="text-center mt-6">
                 <a
                     href="{{ route('landing') }}"
-                    class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-surface-card/80 border border-white/10 hover:border-brand-gold/40 font-mono text-xs uppercase tracking-wider text-text-secondary hover:text-brand-gold transition-colors"
+                    class="inline-flex items-center gap-2 min-h-11 px-4 py-2 rounded-xl bg-surface-card/80 border border-white/10 hover:border-brand-gold/40 font-display text-xs font-medium text-text-secondary hover:text-brand-gold transition-colors"
                 >
                     <span aria-hidden="true">&larr;</span>
                     <span>Kembali ke Beranda</span>
@@ -201,7 +154,6 @@
                 const errorDesc = document.getElementById('error-alert-desc');
                 const successAlert = document.getElementById('success-alert');
                 const passcodeInput = document.getElementById('passcode-input');
-                const card = document.getElementById('unlock-terminal-card');
 
                 form.addEventListener('submit', async function (e) {
                     e.preventDefault();
@@ -210,6 +162,7 @@
 
                     if (!passcode) {
                         showError('Passcode wajib diisi', 'Silakan masukkan passcode angkatan terlebih dahulu.');
+                        passcodeInput.focus();
                         return;
                     }
 
@@ -221,7 +174,7 @@
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                             credentials: 'same-origin',
-                            body: JSON.stringify({ passcode: form.passcode.value }),
+                            body: JSON.stringify({ passcode }),
                         });
 
                         if (response.ok) {
@@ -234,8 +187,8 @@
                             showError('Terlalu banyak percobaan', 'Batas percobaan terlampaui. Silakan tunggu beberapa menit lagi.');
                         } else {
                             showError('Passcode tidak valid', 'Silakan periksa kembali passcode angkatan dan coba lagi.');
-                            passcodeInput.value = '';
                             passcodeInput.focus();
+                            passcodeInput.select();
                         }
                     } catch (err) {
                         console.error('Passcode verification error:', err);
@@ -260,10 +213,6 @@
                     if (errorDesc && desc) errorDesc.textContent = desc;
                     errorAlert.classList.remove('hidden');
                     successAlert.classList.add('hidden');
-                    if (card) {
-                        card.classList.add('animate-pulse');
-                        setTimeout(() => card.classList.remove('animate-pulse'), 500);
-                    }
                 }
 
                 function showSuccess() {

@@ -6,76 +6,54 @@
     'totalInClass' => 1,
 ])
 
-@php
-    $nodeNumber = str_pad((string) $currentPosition, 2, '0', STR_PAD_LEFT);
-@endphp
-
-{{-- ==========================================================================
-     STUDENT DETAIL SPLIT-SCREEN BENTO PROFILE (COMETS 2026 — PRD §3.4)
-     ========================================================================== --}}
 <div class="w-full">
 
-    {{-- ── SECTION 1: TOP NAVIGATION, BREADCRUMB & QUICK PREV/NEXT STRIP (PRD §3.4.1) ── --}}
+    {{-- Top Navigation & Prev/Next Strip --}}
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-6 pt-2 pb-4 border-b border-white/10">
-        {{-- Left: Back to Directory Button --}}
         <div class="flex items-center gap-3">
             <a
                 href="{{ route('directory.index') }}"
-                class="inline-flex items-center gap-2 px-4 py-2 bg-surface-card border border-white/15 rounded-lg font-display text-xs sm:text-sm font-semibold text-text-primary hover:border-brand-gold hover:text-brand-gold transition-all duration-180 group"
+                class="inline-flex items-center gap-2 min-h-10 px-4 py-2 bg-surface-card border border-white/15 rounded-xl font-display text-xs sm:text-sm font-semibold text-text-primary hover:border-brand-gold hover:text-brand-gold transition-colors group"
                 aria-label="Kembali ke Direktori Mahasiswa"
             >
                 <span class="font-mono text-brand-gold group-hover:-translate-x-0.5 transition-transform" aria-hidden="true">&larr;</span>
                 <span>Kembali ke Direktori</span>
             </a>
-
-            {{-- Monospace Technical Breadcrumb --}}
-            <div class="hidden sm:flex font-mono text-[11px] font-semibold text-text-muted tracking-wider items-center gap-1.5 overflow-hidden truncate">
-                <span>ROOT</span>
-                <span class="text-white/25">/</span>
-                <span>DIRECTORY</span>
-                <span class="text-white/25">/</span>
-                <span>STUDENT</span>
-                <span class="text-white/25">/</span>
-                <span class="text-brand-gold font-bold truncate">// {{ $student['nim'] }}</span>
-            </div>
         </div>
 
-        {{-- Right: Quick Prev / Next Mahasiswa Navigation Buttons (PRD §3.4.1) --}}
-        <div class="flex items-center gap-2 self-start md:self-auto">
+        <div class="flex flex-wrap items-center gap-2">
             @if ($prevStudent)
                 <a
                     href="/students/{{ $prevStudent['nim'] }}"
-                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-card border border-white/15 hover:border-brand-gold font-mono text-xs text-text-secondary hover:text-brand-gold transition-colors"
+                    class="inline-flex items-center gap-1.5 min-h-9 px-3 py-1.5 rounded-xl bg-surface-card border border-white/15 hover:border-brand-gold font-display text-xs font-medium text-text-secondary hover:text-brand-gold transition-colors whitespace-nowrap"
                     title="Mahasiswa sebelumnya: {{ $prevStudent['nickname'] }}"
                 >
                     <span aria-hidden="true">&larr;</span>
-                    <span>[Prev: {{ $prevStudent['nickname'] }}]</span>
+                    <span>{{ $prevStudent['nickname'] }}</span>
                 </a>
             @endif
 
-            <span class="px-2.5 py-1.5 rounded-lg bg-canvas-base border border-brand-gold/30 font-mono text-[11px] font-bold text-brand-gold">
-                NODE {{ $currentPosition }}/{{ $totalInClass }}
+            <span class="px-3 py-1.5 rounded-xl bg-canvas-base border border-white/10 font-mono text-xs font-semibold text-brand-gold whitespace-nowrap">
+                {{ $currentPosition }} / {{ $totalInClass }}
             </span>
 
             @if ($nextStudent)
                 <a
                     href="/students/{{ $nextStudent['nim'] }}"
-                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-red hover:bg-brand-red-hover border border-brand-red-hover font-mono text-xs font-semibold text-text-primary transition-colors"
+                    class="inline-flex items-center gap-1.5 min-h-9 px-3 py-1.5 rounded-xl bg-brand-red hover:bg-brand-red-hover border border-brand-red-hover font-display text-xs font-semibold text-text-primary transition-colors whitespace-nowrap"
                     title="Mahasiswa berikutnya: {{ $nextStudent['nickname'] }}"
                 >
-                    <span>[Next: {{ $nextStudent['nickname'] }}]</span>
+                    <span>{{ $nextStudent['nickname'] }}</span>
                     <span aria-hidden="true">&rarr;</span>
                 </a>
             @endif
         </div>
     </div>
 
-    {{-- ── SECTION 2: SPLIT-SCREEN PROFILE BENTO GRID (PRD §3.4.2) ── --}}
+    {{-- Split Bento Profile Grid --}}
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-        {{-- ══════════════════════════════════════════════════════════════════
-             SISI KIRI: VISUAL HERO & CANDIDATE CARD (lg:col-span-5)
-             ══════════════════════════════════════════════════════════════════ --}}
+        {{-- LEFT COLUMN: Portrait & Quick Actions --}}
         <div
             id="candidate-card-profile"
             x-data="{
@@ -91,52 +69,33 @@
                     setTimeout(() => this.copied = false, 2000);
                 }
             }"
-            class="lg:col-span-5 bg-surface-card/90 backdrop-blur-xs border border-brand-gold/35 rounded-xl p-5 sm:p-6 flex flex-col gap-5 relative overflow-hidden transition-all duration-200 glow-gold-subtle"
+            class="lg:col-span-5 bg-surface-card/85 border border-white/10 rounded-2xl p-5 sm:p-6 flex flex-col gap-5"
         >
-            {{-- Top Dual-Tone Circuit Line --}}
-            <div class="absolute inset-x-0 top-0 h-1 flex" aria-hidden="true">
-                <div class="w-2/3 bg-brand-gold"></div>
-                <div class="w-1/3 bg-brand-red"></div>
-            </div>
-
-            {{-- 1. Card Top Header: // SEC_01 // CANDIDATE_CARD & [STATUS: ACTIVE_STUDENT] --}}
-            <div class="flex items-center justify-between gap-2 border-b border-white/10 pb-3 pt-1">
-                <span class="font-mono text-[11px] font-bold uppercase tracking-wider text-brand-gold">
-                    // SEC_01 // CANDIDATE_CARD
+            {{-- View Mode Switcher (Formal / Kasual, >= 36px height) --}}
+            <div class="flex items-center justify-between gap-2">
+                <span class="font-display text-xs font-semibold text-text-secondary">
+                    Mode Foto
                 </span>
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-brand-red border border-brand-red-hover font-mono text-[10px] font-bold text-text-primary">
-                    <span class="size-1.5 rounded-full bg-brand-gold animate-pulse" aria-hidden="true"></span>
-                    <span>[STATUS: ACTIVE_STUDENT]</span>
-                </span>
-            </div>
-
-            {{-- 2. View Mode Switcher Bar (Formal vs Kasual) --}}
-            <div class="flex items-center justify-between gap-2 p-1.5 px-3 rounded-lg bg-canvas-base/80 border border-white/10">
-                <span class="font-mono text-[11px] font-bold uppercase tracking-wider text-text-muted">
-                    VIEW_MODE:
-                </span>
-                <div class="inline-flex items-center p-0.5 rounded-md bg-surface-elevated border border-white/10">
-                    {{-- Button Formal --}}
+                <div class="inline-flex items-center p-1 rounded-xl bg-canvas-base border border-white/10 gap-1">
                     <button
                         type="button"
                         id="btn-photo-formal"
                         @click="setMode('formal')"
                         onclick="window.setStudentPhotoMode && window.setStudentPhotoMode('formal')"
-                        :class="photoMode === 'formal' ? 'bg-brand-red text-text-primary font-semibold border border-brand-red-hover' : 'text-text-secondary hover:text-brand-gold'"
-                        class="photo-toggle-btn px-3 py-1 rounded text-xs font-mono transition-all duration-200 flex items-center gap-1 cursor-pointer bg-brand-red text-text-primary font-semibold border border-brand-red-hover"
+                        :class="photoMode === 'formal' ? 'bg-brand-red text-text-primary font-semibold border border-brand-red-hover' : 'text-text-secondary hover:text-brand-gold border border-transparent'"
+                        class="photo-toggle-btn min-h-9 px-3.5 py-1.5 rounded-lg text-xs font-display transition-colors cursor-pointer bg-brand-red text-text-primary font-semibold border border-brand-red-hover whitespace-nowrap"
                         data-mode="formal"
                     >
                         <span>Formal</span>
                     </button>
 
-                    {{-- Button Casual --}}
                     <button
                         type="button"
                         id="btn-photo-casual"
                         @click="setMode('casual')"
                         onclick="window.setStudentPhotoMode && window.setStudentPhotoMode('casual')"
-                        :class="photoMode === 'casual' ? 'bg-brand-red text-text-primary font-semibold border border-brand-red-hover' : 'text-text-secondary hover:text-brand-gold'"
-                        class="photo-toggle-btn px-3 py-1 rounded text-xs font-mono transition-all duration-200 flex items-center gap-1 cursor-pointer text-text-secondary hover:text-brand-gold"
+                        :class="photoMode === 'casual' ? 'bg-brand-red text-text-primary font-semibold border border-brand-red-hover' : 'text-text-secondary hover:text-brand-gold border border-transparent'"
+                        class="photo-toggle-btn min-h-9 px-3.5 py-1.5 rounded-lg text-xs font-display transition-colors cursor-pointer text-text-secondary hover:text-brand-gold border border-transparent whitespace-nowrap"
                         data-mode="casual"
                     >
                         <span>Kasual</span>
@@ -144,20 +103,9 @@
                 </div>
             </div>
 
-            {{-- 3. Photo Frame Container (Ratio 3:4 Portrait in Futuristic Circuit Frame) --}}
-            <div class="relative w-full aspect-[3/4] rounded-xl overflow-hidden border border-brand-gold/30 bg-canvas-base">
-
-                {{-- Top-Left COMETS Hexagon Watermark & Top-Right Ratio Telemetry --}}
-                <div class="absolute inset-x-0 top-0 z-20 flex items-center justify-between gap-2 p-3 pointer-events-none">
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-canvas-base/85 backdrop-blur-xs border border-brand-gold/30 font-mono text-[10px] font-bold text-brand-gold">
-                        <span>⬡ COMETS // 2026</span>
-                    </span>
-                    <span class="px-2 py-0.5 rounded bg-canvas-base/80 border border-white/10 font-mono text-[9px] uppercase tracking-wider text-text-muted">
-                        RATIO: 1000x1000 PX
-                    </span>
-                </div>
-
-                {{-- ── A. FORMAL PHOTO CONTAINER ── --}}
+            {{-- Portrait Frame 3:4 --}}
+            <div class="relative w-full aspect-[3/4] rounded-xl overflow-hidden border border-white/10 bg-canvas-base">
+                {{-- Formal Layer --}}
                 <div
                     id="container-photo-formal"
                     class="photo-view-layer absolute inset-0 w-full h-full transition-opacity duration-300 opacity-100 z-10"
@@ -174,29 +122,20 @@
                         />
                     @endif
 
-                    {{-- Wireframe Crosslines Placeholder Fallback [AVATAR: FORMAL] --}}
                     <div
                         id="placeholder-formal"
-                        class="w-full h-full flex flex-col items-center justify-center p-4 bg-canvas-base relative overflow-hidden"
+                        class="w-full h-full"
                         style="{{ !empty($student['formal_photo_url']) ? 'display: none;' : 'display: flex;' }}"
                     >
-                        <svg class="absolute inset-0 h-full w-full stroke-white/10 pointer-events-none" preserveAspectRatio="none" viewBox="0 0 100 100" fill="none">
-                            <line x1="0" y1="0" x2="100" y2="100" vector-effect="non-scaling-stroke" stroke-width="1" />
-                            <line x1="100" y1="0" x2="0" y2="100" vector-effect="non-scaling-stroke" stroke-width="1" />
-                        </svg>
-                        <div class="relative z-10 flex flex-col items-center gap-1 text-center px-4 py-2 rounded-lg bg-surface-card border border-brand-gold/30">
-                            <span class="font-mono text-xs font-bold tracking-wider text-brand-gold">[AVATAR: FORMAL]</span>
-                            <span class="font-mono text-[10px] text-text-muted uppercase tracking-widest">[X] [PHOTO_FORMAL: 3:4]</span>
-                        </div>
+                        <x-wireframe-slot variant="emblem" label="Foto Formal" hint="Jas Almamater Undip" />
                     </div>
 
-                    {{-- Bottom-Right State Tag --}}
-                    <div class="absolute bottom-3 right-3 z-20 px-2.5 py-1 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider bg-canvas-base/90 border border-brand-gold/30 text-brand-gold backdrop-blur-xs pointer-events-none">
-                        JAS ALMAMATER UNDIP
+                    <div class="absolute bottom-3 right-3 z-20 px-2.5 py-1 rounded-lg text-xs font-display font-medium bg-canvas-base/85 border border-white/15 text-brand-gold backdrop-blur-xs pointer-events-none">
+                        Jas Almamater
                     </div>
                 </div>
 
-                {{-- ── B. CASUAL PHOTO CONTAINER ── --}}
+                {{-- Casual Layer --}}
                 <div
                     id="container-photo-casual"
                     class="photo-view-layer absolute inset-0 w-full h-full transition-opacity duration-300 opacity-0 pointer-events-none z-0"
@@ -213,73 +152,62 @@
                         />
                     @endif
 
-                    {{-- Wireframe Crosslines Placeholder Fallback [AVATAR: CASUAL] --}}
                     <div
                         id="placeholder-casual"
-                        class="w-full h-full flex flex-col items-center justify-center p-4 bg-canvas-base relative overflow-hidden"
+                        class="w-full h-full"
                         style="{{ !empty($student['casual_photo_url']) ? 'display: none;' : 'display: flex;' }}"
                     >
-                        <svg class="absolute inset-0 h-full w-full stroke-white/10 pointer-events-none" preserveAspectRatio="none" viewBox="0 0 100 100" fill="none">
-                            <line x1="0" y1="0" x2="100" y2="100" vector-effect="non-scaling-stroke" stroke-width="1" />
-                            <line x1="100" y1="0" x2="0" y2="100" vector-effect="non-scaling-stroke" stroke-width="1" />
-                        </svg>
-                        <div class="relative z-10 flex flex-col items-center gap-1 text-center px-4 py-2 rounded-lg bg-surface-card border border-brand-red-hover">
-                            <span class="font-mono text-xs font-bold tracking-wider text-brand-gold">[AVATAR: CASUAL]</span>
-                            <span class="font-mono text-[10px] text-text-muted uppercase tracking-widest">[X] [PHOTO_CASUAL: 3:4]</span>
-                        </div>
+                        <x-wireframe-slot variant="emblem" label="Foto Kasual" hint="Gaya Bebas" />
                     </div>
 
-                    {{-- Bottom-Right State Tag --}}
-                    <div class="absolute bottom-3 right-3 z-20 px-2.5 py-1 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider bg-brand-red/90 border border-brand-red-hover text-text-primary backdrop-blur-xs pointer-events-none">
-                        FOTO BEBAS KASUAL
+                    <div class="absolute bottom-3 right-3 z-20 px-2.5 py-1 rounded-lg text-xs font-display font-medium bg-brand-red/90 border border-brand-red-hover text-text-primary backdrop-blur-xs pointer-events-none">
+                        Foto Kasual
                     </div>
                 </div>
             </div>
 
-            {{-- 4. Quick Tags: Class Badge, Origin City & NIM Copy Box --}}
+            {{-- Quick Tags & Copy NIM --}}
             <div class="space-y-3">
                 <div class="flex flex-wrap items-center justify-between gap-2">
-                    <span class="inline-flex items-center px-3 py-1 rounded-md bg-brand-gold/15 border border-brand-gold/40 text-brand-gold font-mono text-xs font-bold tracking-wider">
-                        KELAS {{ $student['class_name'] }} // TEKKOM_26
+                    <span class="inline-flex items-center px-3 py-1 rounded-lg bg-brand-gold/15 border border-brand-gold/35 text-brand-gold font-display text-xs font-semibold">
+                        Kelas {{ $student['class_name'] }}
                     </span>
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-canvas-base border border-white/10 font-mono text-xs text-text-secondary">
-                        <span class="text-brand-gold" aria-hidden="true">&#9679;</span>
-                        <span>{{ $student['origin_city'] }}</span>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-canvas-base border border-white/10 font-body text-xs text-text-secondary">
+                        {{ $student['origin_city'] }}
                     </span>
                 </div>
 
-                {{-- Monospace NIM Box with Copy Button --}}
-                <div class="flex items-center justify-between gap-2 p-2.5 px-3.5 rounded-lg bg-canvas-base border border-white/15 font-mono text-xs text-text-primary font-bold">
+                <div class="flex items-center justify-between gap-2 p-2.5 pl-3.5 rounded-xl bg-canvas-base border border-white/10 font-mono text-xs text-text-primary font-semibold">
                     <span class="text-brand-gold">NIM: {{ $student['nim'] }}</span>
                     <button
                         type="button"
                         @click="copyNim()"
-                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-elevated hover:border-brand-gold/40 border border-white/10 text-text-secondary hover:text-brand-gold transition-colors cursor-pointer"
+                        class="inline-flex items-center justify-center gap-1.5 min-h-9 px-3 py-1.5 rounded-lg bg-surface-elevated hover:border-brand-gold/40 border border-white/10 text-text-secondary hover:text-brand-gold transition-colors cursor-pointer whitespace-nowrap"
                         :title="copied ? 'Tersalin!' : 'Salin NIM'"
                         aria-label="Salin NIM ke clipboard"
                     >
                         <template x-if="!copied">
-                            <span class="inline-flex items-center gap-1">
-                                <svg class="size-3.5 stroke-[2]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <span class="inline-flex items-center gap-1.5">
+                                <svg class="size-3.5 stroke-[2]" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75" />
                                 </svg>
-                                <span class="text-[10px]">COPY</span>
+                                <span class="font-display text-xs">Salin</span>
                             </span>
                         </template>
                         <template x-if="copied">
-                            <span class="text-[10px] text-brand-gold font-bold">TERSALIN!</span>
+                            <span class="font-display text-xs text-brand-gold font-semibold">Tersalin</span>
                         </template>
                     </button>
                 </div>
             </div>
 
-            {{-- 5. Social & Contact Link: Instagram Action Button --}}
+            {{-- Instagram Link --}}
             <div>
                 <a
                     href="{{ $student['instagram_url'] }}"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="flex items-center justify-center gap-2.5 w-full py-3 px-4 rounded-lg bg-brand-red hover:bg-brand-red-hover border border-brand-red-hover text-text-primary font-display text-sm font-semibold transition-all duration-180 glow-red-subtle group"
+                    class="flex items-center justify-center gap-2.5 w-full min-h-11 py-3 px-4 rounded-xl bg-brand-red hover:bg-brand-red-hover border border-brand-red-hover text-text-primary font-display text-sm font-semibold transition-colors"
                 >
                     <svg class="size-4 shrink-0 text-brand-gold" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                         <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
@@ -288,282 +216,165 @@
                     <span class="font-mono text-xs text-brand-gold" aria-hidden="true">&#8599;</span>
                 </a>
             </div>
-
-            {{-- 6. Candidate Card Footer: RECORD_HASH & CAMPUS_ID --}}
-            <div class="flex items-center justify-between gap-2 border-t border-white/10 pt-3 text-[10px] font-mono text-text-muted">
-                <span>RECORD_HASH: 0x{{ substr(md5($student['nim']), 0, 6) }}</span>
-                <span class="text-brand-gold">CAMPUS_ID: UNDIP-FT-TK</span>
-            </div>
         </div>
 
-        {{-- ══════════════════════════════════════════════════════════════════
-             SISI KANAN: DATA & IDENTITAS PERSONAL (lg:col-span-7)
-             ══════════════════════════════════════════════════════════════════ --}}
+        {{-- RIGHT COLUMN: Identity, Quote, Bio Grid, Lifestyle, Spotify --}}
         <div class="lg:col-span-7 flex flex-col gap-6">
 
-            {{-- ── 1. HEADER IDENTITAS PERSONAL & PERSONAL QUOTE (PRD §3.4.2) ── --}}
-            <div class="bg-surface-card/90 border border-brand-gold/30 rounded-xl p-6 sm:p-7 relative overflow-hidden glow-gold-subtle">
-                <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-                    <span class="inline-flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-wider text-brand-gold">
-                        <span class="size-2 rounded-full bg-brand-gold-glow animate-pulse" aria-hidden="true"></span>
-                        <span>&gt; STUDENT_NODE_{{ $nodeNumber }}</span>
-                    </span>
-                    <span class="inline-flex items-center px-3 py-1 rounded-md bg-canvas-base border border-white/15 font-mono text-[11px] font-bold text-brand-gold tracking-wider">
-                        VERIFIKASI_FAKULTAS: OK
-                    </span>
-                </div>
-
-                {{-- Full Name & Nickname Display --}}
-                <div class="mb-5">
+            {{-- Header Identity & Quote --}}
+            <div class="bg-surface-card/85 border border-white/10 rounded-2xl p-6 sm:p-8 space-y-6">
+                <div>
+                    <p class="font-display text-xs font-semibold uppercase tracking-wider text-brand-gold mb-2">
+                        Nama Panggilan: {{ $student['nickname'] }}
+                    </p>
                     <h1 class="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-text-primary tracking-tight leading-tight">
                         {{ $student['name'] }}
                     </h1>
-                    <p class="mt-1.5 font-mono text-xs sm:text-sm uppercase tracking-wider text-brand-gold font-semibold">
-                        ALIAS // "{{ $student['nickname'] }}" &middot; NIM {{ $student['nim'] }}
-                    </p>
                 </div>
 
-                {{-- Personal Quote Box with Blood Red Left Border Accent (PRD §3.4.2) --}}
-                <div class="border-l-4 border-l-brand-red bg-brand-red/15 border border-brand-red-hover/50 p-4 sm:p-5 rounded-r-xl glow-red-subtle">
-                    <div class="flex items-center justify-between gap-2 mb-2">
-                        <span class="font-mono text-[10px] font-bold uppercase tracking-wider text-brand-gold">
-                            // ASPIRASI & PRINSIP
-                        </span>
-                        <span class="font-mono text-[10px] uppercase tracking-wider text-text-muted">
-                            REV_01
-                        </span>
-                    </div>
+                <div class="rounded-xl border border-brand-red-hover/40 bg-brand-red/12 p-4 sm:p-5">
                     <blockquote class="font-display italic text-base sm:text-lg font-medium leading-relaxed text-text-primary">
                         “{{ $student['bio_quote'] }}”
                     </blockquote>
                 </div>
             </div>
 
-            {{-- ── 2. SUB-MODUL A: INFORMASI IDENTITAS & KEPENDUDUKAN ── --}}
-            <div class="bg-surface-card/90 border border-white/10 rounded-xl p-6 sm:p-7">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-4 border-b border-white/10">
-                    <div>
-                        <span class="font-mono text-[11px] font-bold text-brand-gold uppercase tracking-wider block">
-                            // 01_BIODATA_RESMI
-                        </span>
-                        <h2 class="font-display text-xl sm:text-2xl font-bold text-text-primary tracking-tight mt-0.5">
-                            Informasi Identitas & Kependudukan
-                        </h2>
-                    </div>
-                    <span class="font-mono text-xs uppercase tracking-wider text-text-muted">
-                        COLONY_REGISTRY // 2026
-                    </span>
-                </div>
+            {{-- Biodata Grid --}}
+            <div class="bg-surface-card/85 border border-white/10 rounded-2xl p-6 sm:p-8">
+                <h2 class="font-display text-xl sm:text-2xl font-bold text-text-primary tracking-tight mb-5 pb-4 border-b border-white/10">
+                    Informasi Identitas &amp; Kependudukan
+                </h2>
 
-                {{-- Structured 5-Tile Metadata Grid --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-                    {{-- Tile 1: Asal Kota / Daerah (with #DOMISILI) --}}
-                    <div class="bg-canvas-base/85 border border-white/10 rounded-xl p-4 flex flex-col justify-between hover:border-brand-gold/40 transition-colors">
-                        <span class="font-mono text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-2 block">
-                            ASAL KOTA / DAERAH
+                    <div class="bg-canvas-base/80 border border-white/10 rounded-xl p-4">
+                        <span class="font-display text-xs font-medium text-text-muted mb-1.5 block">
+                            Asal Kota / Daerah
                         </span>
-                        <div class="flex items-baseline justify-between gap-2">
-                            <p class="font-display text-base font-bold text-text-primary">
-                                {{ $student['origin_city'] }}
-                            </p>
-                            <span class="font-mono text-[10px] text-brand-gold font-semibold bg-brand-gold/15 border border-brand-gold/30 px-2 py-0.5 rounded">
-                                #DOMISILI
-                            </span>
-                        </div>
+                        <p class="font-display text-base font-bold text-text-primary">
+                            {{ $student['origin_city'] }}
+                        </p>
                     </div>
 
-                    {{-- Tile 2: Tempat, Tanggal Lahir --}}
-                    <div class="bg-canvas-base/85 border border-white/10 rounded-xl p-4 flex flex-col justify-between hover:border-brand-gold/40 transition-colors">
-                        <span class="font-mono text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-2 block">
-                            TEMPAT, TANGGAL LAHIR
+                    <div class="bg-canvas-base/80 border border-white/10 rounded-xl p-4">
+                        <span class="font-display text-xs font-medium text-text-muted mb-1.5 block">
+                            Tempat, Tanggal Lahir
                         </span>
                         <p class="font-display text-base font-bold text-text-primary leading-snug">
                             {{ $student['birth_place'] }}, {{ $student['birth_date'] }}
                         </p>
                     </div>
 
-                    {{-- Tile 3: Usia Saat Ini (with GENERASI 2026 badge) --}}
-                    <div class="bg-canvas-base/85 border border-white/10 rounded-xl p-4 flex flex-col justify-between hover:border-brand-gold/40 transition-colors">
-                        <span class="font-mono text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-2 block">
-                            USIA SAAT INI
+                    <div class="bg-canvas-base/80 border border-white/10 rounded-xl p-4">
+                        <span class="font-display text-xs font-medium text-text-muted mb-1.5 block">
+                            Usia Saat Ini
                         </span>
-                        <div class="flex items-center justify-between gap-2">
-                            <p class="font-display text-base font-bold text-text-primary">
-                                {{ $student['age'] ? $student['age'].' Tahun' : 'Tidak tersedia' }}
-                            </p>
-                        </div>
+                        <p class="font-display text-base font-bold text-text-primary">
+                            {{ $student['age'] ? $student['age'].' Tahun' : 'Tidak tersedia' }}
+                        </p>
                     </div>
 
-                    {{-- Tile 4: Agama / Kepercayaan --}}
-                    <div class="bg-canvas-base/85 border border-white/10 rounded-xl p-4 flex flex-col justify-between hover:border-brand-gold/40 transition-colors">
-                        <span class="font-mono text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-2 block">
-                            AGAMA / KEPERCAYAAN
+                    <div class="bg-canvas-base/80 border border-white/10 rounded-xl p-4">
+                        <span class="font-display text-xs font-medium text-text-muted mb-1.5 block">
+                            Agama / Kepercayaan
                         </span>
                         <p class="font-display text-base font-bold text-text-primary">
                             {{ $student['religion'] }}
                         </p>
                     </div>
 
-                    {{-- Tile 5: Departemen / Fakultas (Full Width 2 Kolom) --}}
-                    <div class="md:col-span-2 bg-canvas-base/85 border border-white/10 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-brand-gold/40 transition-colors">
+                    <div class="md:col-span-2 bg-canvas-base/80 border border-white/10 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                         <div>
-                            <span class="font-mono text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-1 block">
-                                DEPARTEMEN / FAKULTAS
+                            <span class="font-display text-xs font-medium text-text-muted mb-1 block">
+                                Program Studi &amp; Fakultas
                             </span>
                             <p class="font-display text-base font-bold text-text-primary">
                                 S1 Teknik Komputer, Fakultas Teknik
                             </p>
                         </div>
-                        <span class="font-mono text-[10px] font-bold text-brand-gold uppercase tracking-wider bg-surface-card border border-brand-gold/30 px-3 py-1.5 rounded-lg whitespace-nowrap self-start sm:self-auto">
-                            KAMPUS TEMBALANG, SEMARANG
+                        <span class="font-display text-xs font-medium text-brand-gold self-start sm:self-auto whitespace-nowrap">
+                            Kampus Tembalang, Semarang
                         </span>
                     </div>
-
                 </div>
             </div>
 
-            {{-- ── 3. SUB-MODUL B: LIFESTYLE, HOBI & HANGOUT 2-COLUMN SPLIT ── --}}
+            {{-- Hobbies & Favorite Food --}}
             <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
-
-                {{-- Left Tile: Hobi & Fokus Eksplorasi (md:col-span-6) --}}
-                <div class="md:col-span-6 bg-surface-card/90 border border-brand-gold/30 rounded-xl p-6 flex flex-col justify-between gap-4 glow-gold-subtle">
-                    <div>
-                        <div class="flex items-center justify-between gap-2 mb-1">
-                            <span class="font-mono text-[11px] font-bold text-brand-gold uppercase tracking-wider">
-                                // MINAT & AKTIVITAS
-                            </span>
-                            <span class="font-mono text-[10px] font-bold text-text-muted">
-                                [EXP: HARDWARE]
-                            </span>
-                        </div>
-                        <h3 class="font-display text-base sm:text-lg font-bold text-text-primary mb-3.5">
-                            Hobi
-                        </h3>
-
-                        <div class="flex flex-wrap gap-2">
-                            @foreach ($student['hobbies'] as $hobby)
-                                <span class="inline-flex items-center px-3 py-1.5 rounded-md font-mono text-xs font-semibold bg-canvas-base text-brand-gold border border-brand-gold/30 hover:border-brand-gold transition-colors">
-                                    #{{ ucfirst($hobby) }}
-                                </span>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Right Tile: Kuliner & Hangout (md:col-span-6) --}}
-                <div class="md:col-span-6 bg-surface-card/90 border border-brand-red-hover/60 rounded-xl p-6 flex flex-col justify-between gap-4 glow-red-subtle">
-                    <div>
-                        <div class="flex items-center justify-between gap-2 mb-1">
-                            <span class="font-mono text-[10px] font-bold text-brand-gold uppercase tracking-wider">
-                                // SPOT KULINER FAVORIT
-                            </span>
-                        </div>
-                        <h3 class="font-display text-base sm:text-lg font-bold text-text-primary mb-3.5">
-                            Tempat Makan Favorit
-                        </h3>
-
-                        <div class="bg-canvas-base/90 border border-white/10 rounded-xl p-3.5 sm:p-4 flex items-center justify-between gap-3">
-                            <div class="flex items-center gap-2.5">
-                                <span class="size-2.5 rounded-full bg-brand-gold animate-pulse shrink-0" aria-hidden="true"></span>
-                                <span class="font-display font-bold text-sm sm:text-base text-text-primary">
-                                    {{ $student['favorite_food_place'] }}
-                                </span>
-                            </div>
-                            <span class="font-mono text-[10px] font-bold px-2.5 py-1 rounded bg-brand-red text-text-primary border border-brand-red-hover whitespace-nowrap">
-                                FAVORITE_SPOT
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-            {{-- ── 4. SUB-MODUL C: SPOTIFY EMBED FULL-WIDTH ── --}}
-            <div class="w-full bg-surface-card/95 text-text-primary border border-brand-gold/30 rounded-xl p-6 sm:p-7 flex flex-col justify-between overflow-hidden relative glow-gold-subtle">
-                {{-- Top Dual Circuit Line --}}
-                <div class="absolute inset-x-0 top-0 h-1 flex" aria-hidden="true">
-                    <div class="w-1/2 bg-brand-gold"></div>
-                    <div class="w-1/2 bg-brand-red"></div>
-                </div>
-
-                <div>
-                    <div class="flex items-center justify-between gap-2 mb-1">
-                        <span class="font-mono text-[11px] font-bold text-brand-gold uppercase tracking-wider">
-                            // ANTHEM_TRACK // SPOTIFY_EMBED
-                        </span>
-                        <span class="font-mono text-[10px] bg-brand-red border border-brand-red-hover px-2.5 py-0.5 rounded text-text-primary font-semibold">
-                            AUDIO_DEV_04
-                        </span>
-                    </div>
-
-                    <h3 class="font-display text-base sm:text-lg font-bold text-text-primary mb-2">
-                        {{ ($student['spotify_type'] ?? 'track') === 'playlist' ? 'Playlist Favorit di Spotify' : 'Lagu Favorit di Spotify' }}
+                <div class="md:col-span-6 bg-surface-card/85 border border-white/10 rounded-2xl p-6">
+                    <h3 class="font-display text-base sm:text-lg font-bold text-text-primary mb-3.5">
+                        Hobi &amp; Minat
                     </h3>
+                    <div class="flex flex-wrap gap-2">
+                        @foreach ($student['hobbies'] as $hobby)
+                            <span class="inline-flex items-center px-3 py-1.5 rounded-lg font-body text-xs font-medium bg-canvas-base text-brand-gold border border-brand-gold/30">
+                                #{{ ucfirst($hobby) }}
+                            </span>
+                        @endforeach
+                    </div>
                 </div>
 
-                <div class="my-3">
-                    @if ($student['spotify_track_id'])
-                        <div class="relative min-h-[352px] overflow-hidden rounded-xl bg-canvas-base border border-white/10">
-                            <div id="spotify-loading" class="absolute inset-0 z-10 grid content-center gap-4 bg-canvas-base p-5" aria-hidden="true">
-                                <div class="h-4 w-2/3 animate-pulse rounded bg-brand-gold/15"></div>
-                                <div class="h-3 w-1/2 animate-pulse rounded bg-white/10"></div>
-                                <div class="h-10 w-full animate-pulse rounded-lg bg-white/5"></div>
-                            </div>
-                            <p id="spotify-status" class="sr-only" role="status" aria-live="polite">Memuat pemutar Spotify.</p>
-                            <iframe
-                                id="spotify-embed"
-                                data-testid="embed-iframe"
-                                title="{{ ($student['spotify_type'] ?? 'track') === 'playlist' ? 'Playlist' : 'Lagu' }} favorit {{ $student['nickname'] }} di Spotify"
-                                style="border-radius:12px"
-                                src="https://open.spotify.com/embed/{{ $student['spotify_type'] ?? 'track' }}/{{ $student['spotify_track_id'] }}?utm_source=generator"
-                                width="100%"
-                                height="352"
-                                frameborder="0"
-                                allowfullscreen=""
-                                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                                loading="lazy"
-                            ></iframe>
-                        </div>
-                    @else
-                        <div class="rounded-xl bg-canvas-base/80 border border-white/10 p-6 text-center text-sm text-text-secondary">
-                            <span class="font-mono text-[10px] uppercase tracking-widest text-brand-gold block mb-1">// STATUS: UNLINKED</span>
-                            <p class="rounded-xl bg-surface-card p-2 text-sm text-text-secondary font-medium" role="status">Spotify belum ditambahkan.</p>
-                        </div>
-                    @endif
-                </div>
-
-                <div class="flex items-center justify-between gap-2 pt-2 border-t border-white/10 text-[10px] font-mono text-text-muted">
-                    <span class="truncate">
-                        Powered by Spotify API / Track ID: {{ $student['spotify_track_id'] ? Str::limit($student['spotify_track_id'], 14) : 'NULL' }}
-                    </span>
-                    <span class="text-brand-gold font-bold shrink-0">
-                        SYNC_OK
-                    </span>
+                <div class="md:col-span-6 bg-surface-card/85 border border-white/10 rounded-2xl p-6">
+                    <h3 class="font-display text-base sm:text-lg font-bold text-text-primary mb-3.5">
+                        Tempat Makan Favorit
+                    </h3>
+                    <div class="bg-canvas-base/85 border border-white/10 rounded-xl p-3.5">
+                        <p class="font-display font-bold text-sm sm:text-base text-text-primary">
+                            {{ $student['favorite_food_place'] }}
+                        </p>
+                    </div>
                 </div>
             </div>
 
-            {{-- ── 5. MODUL BAWAH: ARCHITECTURAL METADATA BANNER ── --}}
-            <div class="bg-surface-card/90 border border-white/10 rounded-xl p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <p class="font-body text-xs text-text-secondary font-medium">
-                    Data profil divalidasi oleh Biro Administrasi Akademik Mahasiswa COMETS 2026.
-                </p>
-                <span class="font-mono text-[10px] font-bold text-brand-gold uppercase tracking-wider self-start sm:self-auto whitespace-nowrap">
-                    + CHECKSUM_VERIFIED
-                </span>
+            {{-- Spotify Embed --}}
+            <div class="w-full bg-surface-card/85 text-text-primary border border-white/10 rounded-2xl p-6 sm:p-7">
+                <h3 class="font-display text-base sm:text-lg font-bold text-text-primary mb-4">
+                    {{ ($student['spotify_type'] ?? 'track') === 'playlist' ? 'Playlist Favorit di Spotify' : 'Lagu Favorit di Spotify' }}
+                </h3>
+
+                @if ($student['spotify_track_id'])
+                    <div x-data="{ loaded: false }" class="relative min-h-[352px] overflow-hidden rounded-xl bg-canvas-base border border-white/10">
+                        <div
+                            x-show="!loaded"
+                            id="spotify-loading"
+                            class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-canvas-base p-5 text-center"
+                            aria-hidden="true"
+                        >
+                            <div class="w-40 h-3 animate-pulse rounded bg-brand-gold/20"></div>
+                            <p class="font-body text-xs text-text-muted">Memuat pemutar Spotify...</p>
+                        </div>
+                        <p id="spotify-status" class="sr-only" role="status" aria-live="polite">Pemutar Spotify siap.</p>
+                        <iframe
+                            id="spotify-embed"
+                            data-testid="embed-iframe"
+                            title="{{ ($student['spotify_type'] ?? 'track') === 'playlist' ? 'Playlist' : 'Lagu' }} favorit {{ $student['nickname'] }} di Spotify"
+                            style="border-radius:12px"
+                            src="https://open.spotify.com/embed/{{ $student['spotify_type'] ?? 'track' }}/{{ $student['spotify_track_id'] }}?utm_source=generator"
+                            width="100%"
+                            height="352"
+                            frameborder="0"
+                            allowfullscreen=""
+                            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                            loading="lazy"
+                            @load="loaded = true"
+                        ></iframe>
+                    </div>
+                @else
+                    <div class="rounded-xl bg-canvas-base/80 border border-white/10 p-6 text-center text-sm text-text-secondary">
+                        <p role="status">Spotify belum ditambahkan.</p>
+                    </div>
+                @endif
             </div>
 
         </div>
 
     </div>
 
-    {{-- ── SECTION 3: BOTTOM PREVIOUS / NEXT STUDENT PAGINATION BAR ── --}}
-    <div class="flex items-center justify-between gap-4 mt-10 pt-6 border-t border-white/10">
-        {{-- Previous Student Link --}}
+    {{-- Bottom Previous / Next Navigation --}}
+    <div class="flex flex-wrap items-center justify-between gap-4 mt-10 pt-6 border-t border-white/10">
         @if ($prevStudent)
             <a
                 href="/students/{{ $prevStudent['nim'] }}"
-                class="group inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-lg font-display text-xs sm:text-sm font-semibold text-text-primary bg-surface-card border border-white/15 hover:border-brand-gold hover:text-brand-gold transition-all"
+                class="group inline-flex items-center gap-2 min-h-11 px-4 sm:px-5 py-2.5 rounded-xl font-display text-xs sm:text-sm font-semibold text-text-primary bg-surface-card border border-white/15 hover:border-brand-gold hover:text-brand-gold transition-colors whitespace-nowrap"
                 aria-label="Mahasiswa sebelumnya: {{ $prevStudent['nickname'] }}"
             >
                 <span class="font-mono text-brand-gold group-hover:-translate-x-0.5 transition-transform" aria-hidden="true">&larr;</span>
@@ -574,16 +385,14 @@
             <div></div>
         @endif
 
-        {{-- Class Position Counter --}}
-        <span class="font-mono text-[11px] sm:text-xs text-brand-gold font-semibold text-center">
+        <span class="font-mono text-xs text-brand-gold font-semibold">
             {{ $currentPosition }} / {{ $totalInClass }} (Kelas {{ $student['class_name'] }})
         </span>
 
-        {{-- Next Student Link --}}
         @if ($nextStudent)
             <a
                 href="/students/{{ $nextStudent['nim'] }}"
-                class="group inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-lg font-display text-xs sm:text-sm font-semibold text-text-primary bg-brand-red hover:bg-brand-red-hover border border-brand-red-hover transition-all glow-red-subtle"
+                class="group inline-flex items-center gap-2 min-h-11 px-4 sm:px-5 py-2.5 rounded-xl font-display text-xs sm:text-sm font-semibold text-text-primary bg-brand-red hover:bg-brand-red-hover border border-brand-red-hover transition-colors whitespace-nowrap"
                 aria-label="Mahasiswa berikutnya: {{ $nextStudent['nickname'] }}"
             >
                 <span class="hidden sm:inline text-text-secondary">Selanjutnya:</span>
@@ -597,7 +406,6 @@
 
 </div>
 
-{{-- ── CLIENT-SIDE INTERACTIVITY SCRIPT (Vanilla JS & Alpine Integration) ── --}}
 <script>
     (() => {
         window.currentStudentPhotoMode = 'formal';
@@ -610,8 +418,8 @@
             const containerFormal = document.getElementById('container-photo-formal');
             const containerCasual = document.getElementById('container-photo-casual');
 
-            const activeClasses = ['bg-brand-red', 'text-text-primary', 'font-semibold', 'border', 'border-brand-red-hover'];
-            const inactiveClasses = ['text-text-secondary', 'hover:text-brand-gold'];
+            const activeClasses = ['bg-brand-red', 'text-text-primary', 'font-semibold', 'border-brand-red-hover'];
+            const inactiveClasses = ['text-text-secondary', 'hover:text-brand-gold', 'border-transparent'];
 
             if (mode === 'formal') {
                 if (btnFormal) {

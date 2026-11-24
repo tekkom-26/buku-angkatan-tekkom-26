@@ -34,8 +34,9 @@
     --color-brand-red-hover: #8A1527;
 
     --color-text-primary: #F4F4F5;
-    --color-text-secondary: #A1A1AA;
-    --color-text-muted: #71717A;
+    --color-text-secondary: #C4C4CC;
+    --color-text-muted: #9E9EA9;
+    --color-status-danger-text: #FCA5A5;
 
     /* ── Legacy Semantic Design Tokens (Backward Compatibility during Phased Migration) ── */
     --color-primary-50: #f4f1f4;

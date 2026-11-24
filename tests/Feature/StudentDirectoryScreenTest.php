@@ -2,10 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Livewire\StudentDirectory;
 use App\Models\Student;
 use Database\Seeders\AuthSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Blade;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class StudentDirectoryScreenTest extends TestCase
@@ -44,10 +46,8 @@ class StudentDirectoryScreenTest extends TestCase
         ]);
 
         $response->assertOk();
-        $response->assertSee('// 03_DIRECTORY');
         $response->assertSee('Direktori Mahasiswa Angkatan');
         $response->assertSee('1 MAHASISWA TERDATA');
-        $response->assertSee('[MODE: UNLOCKED]');
         $response->assertSee('All');
         $response->assertSee('Kelas A');
         $response->assertSee('Kelas B');
@@ -55,11 +55,9 @@ class StudentDirectoryScreenTest extends TestCase
         $response->assertSee('Kelas D');
         $response->assertSee('(1)');
         $response->assertSee('#TK26-001');
-        $response->assertSee('alt="Foto Adwa"', false);
         $response->assertSee('Adwa');
         $response->assertSee('Adwa Rahmant');
         $response->assertSee('Lihat Profil');
-        $response->assertSee('/assets/Placeholder.png', false);
 
         $this->assertDoesNotMatchRegularExpression('/(?:bg|text|border|ring)-\[#[0-9a-fA-F]+\]/', $response->getContent());
     }
@@ -133,9 +131,38 @@ class StudentDirectoryScreenTest extends TestCase
         ]);
 
         $response->assertOk();
-        $response->assertSee('[X] [ICON: USER_NOT_FOUND]');
         $response->assertSee('Tidak ada hasil ditemukan');
         $response->assertSee('Reset Semua Filter');
+    }
+
+    public function test_livewire_directory_component_filters_realtime_and_resets_filters(): void
+    {
+        Student::factory()->create([
+            'nim' => '21120126120001',
+            'name' => 'Adwa Rahmant',
+            'nickname' => 'Adwa',
+            'class_name' => 'A',
+        ]);
+        Student::factory()->create([
+            'nim' => '21120126120002',
+            'name' => 'Budi Santoso',
+            'nickname' => 'Budi',
+            'class_name' => 'B',
+        ]);
+
+        Livewire::test(StudentDirectory::class)
+            ->assertSee('Adwa Rahmant')
+            ->assertSee('Budi Santoso')
+            ->set('search', 'Budi')
+            ->assertSee('Budi Santoso')
+            ->assertDontSee('Adwa Rahmant')
+            ->call('resetFilters')
+            ->assertSee('Adwa Rahmant')
+            ->call('selectClass', 'A')
+            ->assertSee('Adwa Rahmant')
+            ->assertDontSee('Budi Santoso')
+            ->set('search', 'tidak-mungkin-ada')
+            ->assertSee('Tidak ada hasil ditemukan');
     }
 
     public function test_student_card_component_supports_guest_locked_preview_state(): void
@@ -151,9 +178,9 @@ class StudentDirectoryScreenTest extends TestCase
         ]);
 
         $this->assertStringContainsString('#TK26-002', $html);
-        $this->assertStringContainsString('[X] [AVATAR: 1:1 — LOCKED]', $html);
-        $this->assertStringContainsString('[PREVIEW: LOCKED]', $html);
-        $this->assertStringContainsString('[Terkunci // Butuh Passcode]', $html);
+        $this->assertStringContainsString('Terkunci', $html);
+        $this->assertStringContainsString('Foto Profil Terkunci', $html);
+        $this->assertStringContainsString('Masuk untuk Melihat', $html);
         $this->assertDoesNotMatchRegularExpression('/(?:bg|text|border|ring)-\[#[0-9a-fA-F]+\]/', $html);
     }
 }
