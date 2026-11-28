@@ -106,9 +106,13 @@ class R2FileManagerService
             throw new InvalidArgumentException("Alias already in use: {$alias}");
         }
 
-        $this->filesystem()->put($path, file_get_contents($file->getRealPath()), [
+        $written = $this->filesystem()->put($path, file_get_contents($file->getRealPath()), [
             'visibility' => $visibility === StorageFile::VISIBILITY_PUBLIC ? 'public' : 'private',
         ]);
+
+        if (! $written) {
+            throw new RuntimeException("Failed to upload file to storage path: {$path}");
+        }
 
         $attributes = [
             'disk' => $this->disk,
