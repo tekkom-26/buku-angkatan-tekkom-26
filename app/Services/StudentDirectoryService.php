@@ -24,6 +24,31 @@ class StudentDirectoryService
     public const MAX_PER_PAGE = 60;
 
     /**
+     * 4-Bit Binary / Hexadecimal MBTI address table (0x0..0xF).
+     * Bit weights: E/I (8), N/S (4), T/F (2), J/P (1).
+     *
+     * @var array<string, int>
+     */
+    public const MBTI_HEX_INDEX = [
+        'ENTJ' => 0,
+        'ENTP' => 1,
+        'ENFJ' => 2,
+        'ENFP' => 3,
+        'ESTJ' => 4,
+        'ESTP' => 5,
+        'ESFJ' => 6,
+        'ESFP' => 7,
+        'INTJ' => 8,
+        'INTP' => 9,
+        'INFJ' => 10,
+        'INFP' => 11,
+        'ISTJ' => 12,
+        'ISTP' => 13,
+        'ISFJ' => 14,
+        'ISFP' => 15,
+    ];
+
+    /**
      * Quick preset options for dynamic directory pagination.
      *
      * @var list<int>
@@ -71,7 +96,8 @@ class StudentDirectoryService
     protected ?array $memo = null;
 
     /**
-     * Retrieve all public students ordered by class_name ASC, name ASC.
+     * Retrieve all public students ordered by 4-bit Hex MBTI index (0x0..0xF, NULL last),
+     * then class_name ASC, name ASC as deterministic tie-breaker.
      *
      * @return Collection<int, array<string, mixed>>
      */
@@ -81,6 +107,8 @@ class StudentDirectoryService
             $cached = Cache::rememberForever(self::CACHE_KEY, function (): array {
                 return Student::query()
                     ->public()
+                    ->orderByRaw('CASE WHEN mbti_hex_index IS NULL THEN 1 ELSE 0 END ASC')
+                    ->orderBy('mbti_hex_index', 'asc')
                     ->orderBy('class_name', 'asc')
                     ->orderBy('name', 'asc')
                     ->get()
@@ -88,6 +116,7 @@ class StudentDirectoryService
                         $mbtiProfile = $student->mbtiProfile;
                         $mbtiType = $mbtiProfile?->mbtiType;
                         $mbtiCode = $mbtiType ? (string) $mbtiType->code : null;
+                        $hexIndex = $student->mbti_hex_index ?? self::mbtiCodeToHexIndex($mbtiCode);
 
                         return [
                             'id' => $student->id,
@@ -107,6 +136,8 @@ class StudentDirectoryService
                             'formal_photo_url' => $student->formal_photo_url,
                             'casual_photo_url' => $student->casual_photo_url,
                             'mbti_code' => $mbtiCode,
+                            'mbti_hex_index' => $hexIndex,
+                            'mbti_hex' => self::formatHexAddress($hexIndex),
                             'mbti_title' => $mbtiType ? (string) $mbtiType->title : null,
                             'temperament_code' => $mbtiType ? (string) $mbtiType->temperament_code : null,
                             'temperament_name' => $mbtiType ? (string) $mbtiType->temperament_name : null,
@@ -122,6 +153,32 @@ class StudentDirectoryService
         }
 
         return collect($this->memo);
+    }
+
+    /**
+     * Resolve integer hex index (0..15) from an MBTI code.
+     */
+    public static function mbtiCodeToHexIndex(?string $code): ?int
+    {
+        if ($code === null) {
+            return null;
+        }
+
+        $normalized = strtoupper(trim($code));
+
+        return self::MBTI_HEX_INDEX[$normalized] ?? null;
+    }
+
+    /**
+     * Format integer index (0..15) as a 0x0..0xF hexadecimal address string.
+     */
+    public static function formatHexAddress(?int $index): ?string
+    {
+        if ($index === null || $index < 0 || $index > 15) {
+            return null;
+        }
+
+        return '0x'.strtoupper(dechex($index));
     }
 
     /**
@@ -309,6 +366,7 @@ class StudentDirectoryService
                     'formal_photo_url' => $photoUrl,
                     'avatar_url' => $photoUrl,
                     'mbti_code' => $student['mbti_code'] ?? null,
+                    'mbti_hex' => $student['mbti_hex'] ?? null,
                     'temperament_code' => $student['temperament_code'] ?? null,
                 ];
             });

@@ -27,6 +27,7 @@ class Student extends Model
                 'name',
                 'nickname',
                 'class_name',
+                'mbti_hex_index',
                 'religion',
                 'birth_place',
                 'birth_date',
@@ -72,6 +73,7 @@ class Student extends Model
         'name',
         'nickname',
         'class_name',
+        'mbti_hex_index',
         'religion',
         'birth_place',
         'birth_date',
@@ -89,6 +91,7 @@ class Student extends Model
 
     protected $casts = [
         'birth_date' => 'date',
+        'mbti_hex_index' => 'integer',
     ];
 
     /**

@@ -207,6 +207,12 @@
                     <span>
                         Menampilkan <strong class="text-brand-gold">{{ $students->count() }}</strong> dari <strong class="text-text-primary">{{ $students->total() }}</strong> mahasiswa
                     </span>
+                    <span
+                        title="Urutan default menggunakan alamat biner 4-bit kepribadian MBTI (0x0 ENTJ – 0xF ISFP), diikuti kelas & nama."
+                        class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-canvas-base border border-white/10 font-mono text-[11px] text-text-secondary"
+                    >
+                        Indeks: 0x0&ndash;0xF
+                    </span>
                     @if ($class !== '')
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-brand-gold/15 border border-brand-gold/40 text-brand-gold font-medium">
                             Kelas {{ $class }}

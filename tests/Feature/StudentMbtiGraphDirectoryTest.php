@@ -345,4 +345,62 @@ class StudentMbtiGraphDirectoryTest extends TestCase
             $component->html(),
         );
     }
+
+    public function test_directory_orders_students_by_4bit_hex_mbti_index_and_syncs_observer(): void
+    {
+        $entj = MbtiType::query()->where('code', 'ENTJ')->firstOrFail(); // 0x0 (0)
+        $intj = MbtiType::query()->where('code', 'INTJ')->firstOrFail(); // 0x8 (8)
+        $isfp = MbtiType::query()->where('code', 'ISFP')->firstOrFail(); // 0xF (15)
+
+        $sNull = Student::factory()->create(['nim' => '21120126120101', 'name' => 'Aaaa Unmapped', 'class_name' => 'A']);
+        $sIsfp = Student::factory()->create(['nim' => '21120126120102', 'name' => 'Bbbb Isfp', 'class_name' => 'A']);
+        $sIntj = Student::factory()->create(['nim' => '21120126120103', 'name' => 'Cccc Intj', 'class_name' => 'B']);
+        $sEntjB = Student::factory()->create(['nim' => '21120126120104', 'name' => 'Zara Entj', 'class_name' => 'A']);
+        $sEntjA = Student::factory()->create(['nim' => '21120126120105', 'name' => 'Aldi Entj', 'class_name' => 'A']);
+
+        $profileIsfp = StudentMbtiProfile::query()->create([
+            'student_id' => $sIsfp->id, 'mbti_type_id' => $isfp->id,
+            'pct_e' => 20, 'pct_i' => 80, 'pct_n' => 30, 'pct_s' => 70, 'pct_t' => 40, 'pct_f' => 60, 'pct_j' => 25, 'pct_p' => 75,
+        ]);
+        StudentMbtiProfile::query()->create([
+            'student_id' => $sIntj->id, 'mbti_type_id' => $intj->id,
+            'pct_e' => 20, 'pct_i' => 80, 'pct_n' => 70, 'pct_s' => 30, 'pct_t' => 80, 'pct_f' => 20, 'pct_j' => 75, 'pct_p' => 25,
+        ]);
+        StudentMbtiProfile::query()->create([
+            'student_id' => $sEntjB->id, 'mbti_type_id' => $entj->id,
+            'pct_e' => 70, 'pct_i' => 30, 'pct_n' => 75, 'pct_s' => 25, 'pct_t' => 80, 'pct_f' => 20, 'pct_j' => 75, 'pct_p' => 25,
+        ]);
+        StudentMbtiProfile::query()->create([
+            'student_id' => $sEntjA->id, 'mbti_type_id' => $entj->id,
+            'pct_e' => 70, 'pct_i' => 30, 'pct_n' => 75, 'pct_s' => 25, 'pct_t' => 80, 'pct_f' => 20, 'pct_j' => 75, 'pct_p' => 25,
+        ]);
+
+        // Verify observer synced mbti_hex_index onto students table
+        $this->assertNull($sNull->fresh()->mbti_hex_index);
+        $this->assertSame(0, $sEntjA->fresh()->mbti_hex_index);
+        $this->assertSame(8, $sIntj->fresh()->mbti_hex_index);
+        $this->assertSame(15, $sIsfp->fresh()->mbti_hex_index);
+
+        $response = $this->call('GET', '/directory', [], ['angkatan_session' => $this->sessionCookie]);
+        $response->assertOk();
+        $response->assertSee('0x0 · ENTJ');
+        $response->assertSee('0x8 · INTJ');
+        $response->assertSee('0xF · ISFP');
+
+        $orderedNames = collect($response->viewData('students')->items())->pluck('name')->all();
+        $this->assertSame([
+            'Aldi Entj',     // 0x0 Kelas A (A before Z)
+            'Zara Entj',     // 0x0 Kelas A
+            'Cccc Intj',     // 0x8
+            'Bbbb Isfp',     // 0xF
+            'Aaaa Unmapped', // NULL always last even though name starts with A
+        ], $orderedNames);
+
+        // Updating and deleting profile stays synchronized on students.mbti_hex_index
+        $profileIsfp->update(['mbti_type_id' => $entj->id]);
+        $this->assertSame(0, $sIsfp->fresh()->mbti_hex_index);
+
+        $profileIsfp->delete();
+        $this->assertNull($sIsfp->fresh()->mbti_hex_index);
+    }
 }

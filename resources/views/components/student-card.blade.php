@@ -86,7 +86,7 @@
                         data-mbti-badge
                         class="inline-flex items-center px-2 py-0.5 rounded bg-brand-gold/15 border border-brand-gold/45 font-mono text-[11px] font-bold text-brand-gold tracking-wider"
                     >
-                        {{ $student['mbti_code'] }}
+                        {{ ! empty($student['mbti_hex']) ? $student['mbti_hex'] . ' · ' . $student['mbti_code'] : $student['mbti_code'] }}
                     </span>
                 @endif
             </div>
