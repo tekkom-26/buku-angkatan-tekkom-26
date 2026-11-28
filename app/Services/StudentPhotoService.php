@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\StorageFile;
 use App\Models\Student;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
@@ -19,7 +20,7 @@ use Throwable;
  * R2FileManagerService (jadi tercatat di tabel storage_files) -> URL publik
  * disimpan ke kolom formal_photo_url / casual_photo_url.
  *
- * Lokasi di bucket: profile-{nim}/formal.{ext} dan profile-{nim}/casual.{ext}
+ * Lokasi di bucket: students/{nim}/formal.{ext} dan students/{nim}/casual.{ext}
  */
 class StudentPhotoService
 {
@@ -39,16 +40,21 @@ class StudentPhotoService
      */
     public function processFormData(array $data, ?Student $student = null): array
     {
+        $local = Storage::disk('local');
         $staged = [];
+        $pathsToCleanup = [];
 
         foreach (array_keys(self::TYPES) as $type) {
             $field = "{$type}_photo_upload";
-            $path = Arr::first(Arr::wrap($data[$field] ?? null));
+            $candidates = array_values(array_filter(Arr::wrap($data[$field] ?? null), 'filled'));
             unset($data[$field]);
 
-            if (filled($path)) {
-                $staged[$type] = $path;
+            if ($candidates === []) {
+                continue;
             }
+
+            $pathsToCleanup = array_merge($pathsToCleanup, $candidates);
+            $staged[$type] = $this->resolveStagedPath($candidates, $local);
         }
 
         if ($staged === []) {
@@ -60,19 +66,35 @@ class StudentPhotoService
         $nim = $this->cleanNim($data['nim'] ?? $student?->nim);
         $uploadedBy = filament()->auth()->user()?->email;
 
+        foreach ($staged as $path) {
+            if (! $local->exists($path)) {
+                throw new RuntimeException("File sementara tidak ditemukan: {$path}");
+            }
+        }
+
         $newRecords = [];
-        $newKeys = [];
 
         try {
             foreach ($staged as $type => $path) {
+                if ($student) {
+                    try {
+                        $this->deleteByUrl($student->{self::TYPES[$type]});
+                    } catch (Throwable $exception) {
+                        report($exception);
+                    }
+                }
+
                 $result = $this->uploadOne($path, $type, $nim, $uploadedBy);
 
                 $data[self::TYPES[$type]] = $result['url'];
-                $newKeys[$type] = $result['key'];
 
                 if ($result['is_new']) {
                     $newRecords[] = $result['record'];
                 }
+            }
+
+            foreach ($pathsToCleanup as $path) {
+                $local->delete($path);
             }
         } catch (Throwable $exception) {
             // Batalkan upload yang sudah terlanjur masuk supaya tidak jadi file yatim
@@ -85,25 +107,6 @@ class StudentPhotoService
             }
 
             throw $exception;
-        } finally {
-            foreach ($staged as $path) {
-                Storage::disk('local')->delete($path);
-            }
-        }
-
-        // Hapus foto lama hanya jika lokasinya berbeda (mis. png diganti jpg)
-        if ($student) {
-            foreach ($newKeys as $type => $newKey) {
-                $oldUrl = $student->{self::TYPES[$type]};
-
-                if ($this->keyFromUrl($oldUrl) !== $newKey) {
-                    try {
-                        $this->deleteByUrl($oldUrl);
-                    } catch (Throwable $exception) {
-                        report($exception);
-                    }
-                }
-            }
         }
 
         return $data;
@@ -159,7 +162,7 @@ class StudentPhotoService
 
         // Ekstensi harus selalu ada, kalau tidak R2FileManagerService menganggapnya folder
         $extension = strtolower(pathinfo($stagedPath, PATHINFO_EXTENSION)) ?: 'jpg';
-        $key = "profile-{$nim}/{$type}.{$extension}";
+        $key = "students/{$nim}/{$type}.{$extension}";
 
         $existed = StorageFile::query()
             ->where('disk', self::DISK)
@@ -184,7 +187,21 @@ class StudentPhotoService
 
         // Disk r2 memakai 'throw' => false, jadi put() yang gagal tidak melempar
         // error. Pastikan file benar-benar ada di bucket.
-        if (! Storage::disk(self::DISK)->exists($key)) {
+        try {
+            $existsOnBucket = Storage::disk(self::DISK)->exists($key);
+        } catch (Throwable $exception) {
+            if (! $existed) {
+                $record->delete();
+            }
+
+            throw new RuntimeException(
+                'Gagal memverifikasi file di R2: '.$exception->getMessage(),
+                0,
+                $exception,
+            );
+        }
+
+        if (! $existsOnBucket) {
             if (! $existed) {
                 $record->delete();
             }
@@ -202,7 +219,7 @@ class StudentPhotoService
 
     /**
      * Ubah URL publik menjadi object key, mis.
-     * https://cdn.x.com/profile-21000123/formal.jpg?v=1 => profile-21000123/formal.jpg
+     * https://cdn.x.com/students/21000123/formal.jpg?v=1 => students/21000123/formal.jpg
      */
     protected function keyFromUrl(?string $url): ?string
     {
@@ -220,6 +237,23 @@ class StudentPhotoService
         $rest = Str::before(Str::before($rest, '?'), '#');
 
         return $rest === '' ? null : urldecode($rest);
+    }
+
+    /**
+     * Pilih path file sementara terbaru yang benar-benar ada di disk lokal,
+     * sehingga sisa state FileUpload yang sudah terhapus tidak memblokir upload baru.
+     *
+     * @param  array<int, string>  $candidates
+     */
+    protected function resolveStagedPath(array $candidates, Filesystem $local): string
+    {
+        foreach (array_reverse($candidates) as $candidate) {
+            if ($local->exists($candidate)) {
+                return $candidate;
+            }
+        }
+
+        return $candidates[array_key_last($candidates)];
     }
 
     protected function cleanNim(mixed $nim): string
