@@ -5,8 +5,6 @@
     'subLabel' => null,
     'movementOneHeading' => null,
     'movementOneBody' => null,
-    'movementTwoHeading' => null,
-    'movementTwoBody' => null,
 ])
 
 @php
@@ -17,8 +15,6 @@
     $jargon = $c['jargon'] ?? 'SOLID LIKE A BEE, BE LIKE WE WANT TO BE, STRONG AND FREE!';
     $movementOneHeading = $c['movement_one_heading'] ?? $movementOneHeading ?? 'Kebersamaan & Solidaritas Koloni';
     $movementOneBody = $c['movement_one_body'] ?? $movementOneBody ?? 'Layaknya satu koloni lebah yang membangun sarang heksagonal dengan presisi, setiap mahasiswa Teknik Komputer 2026 saling terhubung dan menopang tanpa ada yang tertinggal.';
-    $movementTwoHeading = $c['movement_two_heading'] ?? $movementTwoHeading ?? 'Ketangguhan Melampaui Tantangan';
-    $movementTwoBody = $c['movement_two_body'] ?? $movementTwoBody ?? 'Memadukan logika rekayasa perangkat keras dan lunak dengan daya tahan pantang menyerah dalam melewati masa terang maupun gelap bersama.';
 @endphp
 
 <section id="decoding-section" aria-labelledby="decoding-heading" class="relative w-full bg-ambient-colony py-14 sm:py-20 lg:py-24 border-t border-white/10 overflow-hidden">
@@ -60,8 +56,8 @@
                     </h2>
                 </div>
 
-                {{-- Open Divided Pillars (No Nested Bordered Boxes / No border-t-4 Slop) --}}
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 pt-6 border-t border-white/10">
+                {{-- Open Divided Pillar (No Nested Bordered Boxes / No border-t-4 Slop) --}}
+                <div class="pt-6 border-t border-white/10">
                     <div class="space-y-2">
                         <div class="flex items-center gap-2">
                             <span class="font-mono text-xs font-bold text-brand-gold">01</span>
@@ -71,18 +67,6 @@
                         </div>
                         <p class="font-body text-sm text-text-secondary leading-relaxed">
                             {{ $movementOneBody }}
-                        </p>
-                    </div>
-
-                    <div class="space-y-2">
-                        <div class="flex items-center gap-2">
-                            <span class="font-mono text-xs font-bold text-brand-gold">02</span>
-                            <h3 class="font-display text-lg font-bold text-text-primary">
-                                {{ $movementTwoHeading }}
-                            </h3>
-                        </div>
-                        <p class="font-body text-sm text-text-secondary leading-relaxed">
-                            {{ $movementTwoBody }}
                         </p>
                     </div>
                 </div>

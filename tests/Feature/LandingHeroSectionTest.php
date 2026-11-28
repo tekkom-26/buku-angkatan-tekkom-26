@@ -31,6 +31,7 @@ class LandingHeroSectionTest extends TestCase
         $response->assertSee('Jargon &amp; Nilai Inti', false);
         $response->assertSee('SOLID LIKE A BEE, BE LIKE WE WANT TO BE, STRONG AND FREE!');
         $response->assertSee('Pelajari Filosofi &amp; Identitas', false);
+        $response->assertDontSee('Satu Frekuensi dalam Spektrum Keberagaman');
 
         // Section 3: Moments Carousel
         $response->assertSee('Dokumentasi &amp; Kilas Balik Angkatan', false);

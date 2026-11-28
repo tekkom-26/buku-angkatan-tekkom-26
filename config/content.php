@@ -39,9 +39,6 @@ return [
             'movement_one_title' => '// 01_MOVEMENT_ONE',
             'movement_one_heading' => 'Pendakian Kolektif Menuju Puncak Ekselensi',
             'movement_one_body' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Setiap langkah ke atas adalah komitmen bersama untuk tumbuh melampaui batas kemampuan teknis maupun karakter.',
-            'movement_two_title' => '// 02_MOVEMENT_TWO',
-            'movement_two_heading' => 'Satu Frekuensi dalam Spektrum Keberagaman',
-            'movement_two_body' => 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Dari berbagai latar belakang daerah, menyatu sebagai keluarga besar Teknik Komputer 2026 yang saling menguatkan.',
             'logo_placeholder' => '/assets/Placeholder.png',
         ],
         'directory_banner' => [

@@ -132,21 +132,6 @@ class ManageLandingContent extends Page
                                             ->label('Teks Narasi Movement 01')
                                             ->rows(3),
                                     ]),
-
-                                Section::make('Movement 02')
-                                    ->schema([
-                                        TextInput::make('decoding.movement_two_title')
-                                            ->label('Tag Judul (Monospace)')
-                                            ->maxLength(255),
-
-                                        TextInput::make('decoding.movement_two_heading')
-                                            ->label('Heading Movement 02')
-                                            ->maxLength(255),
-
-                                        Textarea::make('decoding.movement_two_body')
-                                            ->label('Teks Narasi Movement 02')
-                                            ->rows(3),
-                                    ]),
                             ]),
 
                         // ==========================================
