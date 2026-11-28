@@ -36,9 +36,13 @@ class PublicStorageController extends Controller
     public function index(Request $request)
     {
         $relative = trim((string) $request->query('path', ''), '/');
-        $directory = $this->toAbsolute($relative);
 
-        $files = $this->manager->listDirectory($directory, StorageFile::VISIBILITY_PUBLIC);
+        try {
+            $directory = $this->toAbsolute($relative);
+            $files = $this->manager->listDirectory($directory, StorageFile::VISIBILITY_PUBLIC);
+        } catch (InvalidArgumentException $exception) {
+            return $this->error('INVALID_PATH', $exception->getMessage(), 422);
+        }
 
         return $this->success([
             'path' => $relative,
@@ -168,7 +172,11 @@ class PublicStorageController extends Controller
 
     protected function abortIfNotPublic(StorageFile $storageFile): void
     {
-        abort_unless($storageFile->isPublic(), 404);
+        $root = trim((string) config('angkatan.public_storage.root_prefix', 'public'), '/');
+        $withinPublicRoot = $storageFile->path === $root
+            || str_starts_with($storageFile->path, $root.'/');
+
+        abort_unless($storageFile->isPublic() && $withinPublicRoot, 404);
     }
 
     /**

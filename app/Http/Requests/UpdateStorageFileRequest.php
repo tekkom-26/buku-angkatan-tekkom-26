@@ -17,7 +17,7 @@ class UpdateStorageFileRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'path' => ['sometimes', 'string', 'max:1024'], // move/rename when present
+            'path' => ['sometimes', 'string', 'max:1024', 'not_regex:/(?:^|\/)\.\.?(?:\/|$)|\\\\|[\x00-\x1F]/'], // move/rename when present
             'alias' => ['sometimes', 'nullable', 'string', 'max:191', 'alpha_dash'],
         ];
     }

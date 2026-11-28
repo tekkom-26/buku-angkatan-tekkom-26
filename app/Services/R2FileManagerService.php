@@ -244,18 +244,50 @@ class R2FileManagerService
 
     protected function normalizeDirectory(?string $directory): string
     {
-        return trim((string) $directory, '/');
+        $raw = (string) $directory;
+
+        if ($raw === '') {
+            return '';
+        }
+
+        if (str_contains($raw, "\0") || str_contains($raw, '\\')) {
+            throw new InvalidArgumentException('Invalid directory path.');
+        }
+
+        $trimmed = trim((string) preg_replace('#/+#', '/', $raw), '/');
+
+        if ($trimmed === '') {
+            return '';
+        }
+
+        foreach (explode('/', $trimmed) as $segment) {
+            if ($segment === '' || $segment === '.' || $segment === '..') {
+                throw new InvalidArgumentException('Directory traversal is not allowed.');
+            }
+        }
+
+        return $trimmed;
     }
 
     protected function normalizePath(string $path): string
     {
-        $path = trim($path, '/');
+        if (str_contains($path, "\0") || str_contains($path, '\\')) {
+            throw new InvalidArgumentException('Invalid storage path.');
+        }
 
-        if ($path === '') {
+        $normalized = trim((string) preg_replace('#/+#', '/', $path), '/');
+
+        if ($normalized === '') {
             throw new InvalidArgumentException('Path cannot be empty.');
         }
 
-        return $path;
+        foreach (explode('/', $normalized) as $segment) {
+            if ($segment === '' || $segment === '.' || $segment === '..') {
+                throw new InvalidArgumentException('Path traversal is not allowed.');
+            }
+        }
+
+        return $normalized;
     }
 
     protected function derivePrefix(string $path): ?string

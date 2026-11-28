@@ -4,6 +4,7 @@ use App\Http\Middleware\CheckAuthEpoch;
 use App\Http\Middleware\EarlyStateEtag;
 use App\Http\Middleware\EnsureAngkatanPasscode;
 use App\Http\Middleware\EnsureStudentRole;
+use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\StripPublicEdgeCookies;
 use App\Services\StudentSessionService;
 use Illuminate\Foundation\Application;
@@ -21,6 +22,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // Trusted proxies dikelola secara eksplisit melalui config/trustedproxy.php (env TRUSTED_PROXIES).
         // Jangan gunakan wildcard '*' agar X-Forwarded-For tidak dapat dipalsukan untuk bypass rate limit.
+        $middleware->append(SecurityHeaders::class);
+
         $middleware->web(prepend: [
             StripPublicEdgeCookies::class,
         ]);

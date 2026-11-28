@@ -2,9 +2,12 @@
 
 namespace App\Http\Middleware;
 
+use App\Services\AppConfigService;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Symfony\Component\HttpFoundation\Response;
+use Throwable;
 
 /**
  * Guards the public file manager API with the shared Angkatan Passcode.
@@ -14,14 +17,14 @@ use Symfony\Component\HttpFoundation\Response;
  *   2. Bearer token: Authorization: Bearer <passcode>
  *   3. Request field: passcode (query string or JSON/form body)
  *
- * NOTE: This is a lightweight guard for the public storage API, distinct
- * from the full Sanctum-based student/admin auth flow described in
- * docs/ARCHITECTURE.md. It compares against `app_config.angkatan_passcode`
- * when available, falling back to the bootstrap env value
- * (`config('angkatan.passcode')`) otherwise.
+ * Checks against the DB-backed bcrypt hash (`app_config.student_passcode`) first
+ * so passcode rotations from the admin panel take effect immediately, falling back
+ * to `config('angkatan.passcode')` only when the DB record is not yet seeded.
  */
 class EnsureAngkatanPasscode
 {
+    public function __construct(protected AppConfigService $config) {}
+
     /**
      * Handle an incoming request.
      */
@@ -33,13 +36,7 @@ class EnsureAngkatanPasscode
             return $this->unauthorized('Angkatan passcode required');
         }
 
-        $expected = $this->resolveExpectedPasscode();
-
-        if ($expected === null || $expected === '') {
-            return $this->unauthorized('Angkatan passcode is not configured');
-        }
-
-        if (! hash_equals((string) $expected, (string) $supplied)) {
+        if (! $this->verifyPasscode($supplied)) {
             return $this->unauthorized('Invalid angkatan passcode');
         }
 
@@ -61,14 +58,25 @@ class EnsureAngkatanPasscode
         return is_string($field) ? $field : null;
     }
 
-    /**
-     * Resolve the current passcode. Prefers the DB-backed `app_config`
-     * table (bcrypt hash) when the table exists; otherwise falls back to
-     * the plaintext bootstrap value from the `ANGKATAN_PASSCODE` env var.
-     */
-    protected function resolveExpectedPasscode(): ?string
+    protected function verifyPasscode(string $supplied): bool
     {
-        return config('angkatan.passcode');
+        try {
+            $dbHash = $this->config->get(AppConfigService::KEY_STUDENT_PASSCODE);
+        } catch (Throwable) {
+            $dbHash = null;
+        }
+
+        if (is_string($dbHash) && $dbHash !== '') {
+            return Hash::check($supplied, $dbHash);
+        }
+
+        $fallback = config('angkatan.passcode');
+
+        if (! is_string($fallback) || $fallback === '') {
+            return false;
+        }
+
+        return hash_equals($fallback, $supplied);
     }
 
     protected function unauthorized(string $message): Response
