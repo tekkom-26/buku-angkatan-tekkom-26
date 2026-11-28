@@ -88,6 +88,12 @@ class ContentImageService
      */
     public function processLandingFormData(array $data, array $existingContent = []): array
     {
+        $moments = Arr::get($data, 'moments');
+        if (is_array($moments)) {
+            $moments = array_values($moments);
+            Arr::set($data, 'moments', $moments);
+        }
+
         $uploadSpecs = [
             [
                 'upload_path' => 'hero.mascot_upload',
@@ -102,6 +108,23 @@ class ContentImageService
                 'slug' => 'decoding-logo',
             ],
         ];
+
+        if (is_array($moments)) {
+            foreach ($moments as $index => $moment) {
+                if (! is_array($moment)) {
+                    continue;
+                }
+
+                $label = (string) ($moment['title'] ?? $moment['categoryLabel'] ?? 'moment-'.($index + 1));
+
+                $uploadSpecs[] = [
+                    'upload_path' => "moments.{$index}.image_upload",
+                    'target_path' => "moments.{$index}.image",
+                    'directory' => self::LANDING_PREFIX.'/moments',
+                    'slug' => $label,
+                ];
+            }
+        }
 
         return $this->processUploadSpecs($data, $existingContent, $uploadSpecs, self::LANDING_PREFIX);
     }

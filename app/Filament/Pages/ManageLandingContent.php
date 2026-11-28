@@ -6,6 +6,7 @@ use App\Services\ContentImageService;
 use App\Services\WebContentService;
 use BackedEnum;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\ImageEntry;
@@ -110,7 +111,64 @@ class ManageLandingContent extends Page
                             ]),
 
                         // ==========================================
-                        // TAB 2: DECODING SECTION
+                        // TAB 2: GALERI MOMEN (CAROUSEL DEPAN)
+                        // ==========================================
+                        Tab::make('Galeri Momen (Depan)')
+                            ->icon(Heroicon::OutlinedPhoto)
+                            ->schema([
+                                Section::make('Foto Carousel Halaman Depan')
+                                    ->description('Kelola slide foto dokumentasi & momen yang tampil di bagian atas beranda (/).')
+                                    ->schema([
+                                        Repeater::make('moments')
+                                            ->label('Daftar Slide Foto Momen')
+                                            ->addActionLabel('Tambah Slide Foto')
+                                            ->collapsible()
+                                            ->reorderable()
+                                            ->itemLabel(fn (array $state): ?string => trim(($state['categoryLabel'] ?? '').' — '.($state['title'] ?? 'Slide Foto Baru'), ' —'))
+                                            ->schema([
+                                                TextInput::make('categoryLabel')
+                                                    ->label('Label Kategori (mis. Prestasi, Kebersamaan)')
+                                                    ->required()
+                                                    ->maxLength(60),
+
+                                                TextInput::make('meta')
+                                                    ->label('Tanggal / Info Singkat (mis. 24 Okt 2026)')
+                                                    ->required()
+                                                    ->maxLength(60),
+
+                                                TextInput::make('title')
+                                                    ->label('Judul Momen')
+                                                    ->required()
+                                                    ->maxLength(255)
+                                                    ->columnSpanFull(),
+
+                                                Textarea::make('description')
+                                                    ->label('Deskripsi Singkat')
+                                                    ->rows(2)
+                                                    ->required()
+                                                    ->columnSpanFull(),
+
+                                                Group::make([
+                                                    ImageEntry::make('image_preview')
+                                                        ->label('Pratinjau Foto Saat Ini')
+                                                        ->imageHeight(160)
+                                                        ->state(fn (Get $get): ?string => app(ContentImageService::class)->previewUrl($get('image')))
+                                                        ->visible(fn (Get $get): bool => filled(app(ContentImageService::class)->previewUrl($get('image')))),
+
+                                                    self::imageUpload('image_upload', 'Unggah Foto Momen'),
+
+                                                    TextInput::make('image')
+                                                        ->label('Path Asset / URL R2')
+                                                        ->helperText('Terisi otomatis setelah unggah foto ke Cloudflare R2, atau tempel URL/path aset manual.')
+                                                        ->maxLength(500),
+                                                ])->columnSpanFull(),
+                                            ])
+                                            ->columns(2),
+                                    ]),
+                            ]),
+
+                        // ==========================================
+                        // TAB 3: DECODING SECTION
                         // ==========================================
                         Tab::make('Decoding Section')
                             ->icon(Heroicon::OutlinedCube)

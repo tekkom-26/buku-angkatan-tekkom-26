@@ -33,6 +33,29 @@ return [
             'identity_url' => '/identity',
             'mascot_placeholder' => '/assets/Placeholder.png',
         ],
+        'moments' => [
+            [
+                'categoryLabel' => 'Prestasi',
+                'image' => '/assets/Placeholder.png',
+                'title' => 'Inaugurasi & Pengukuhan Mahasiswa Baru Teknik Komputer 2026',
+                'description' => 'Momentum awal kebersamaan seluruh anggota angkatan Teknik Komputer 2026 di lingkungan kampus Tembalang.',
+                'meta' => '24 Okt 2026',
+            ],
+            [
+                'categoryLabel' => 'Kegiatan Lab',
+                'image' => '/assets/Placeholder.png',
+                'title' => 'Eksplorasi Praktikum Sistem Digital & Arsitektur Perangkat Keras',
+                'description' => 'Kolaborasi pemecahan masalah teknis dan perakitan modul praktikum bersama di laboratorium.',
+                'meta' => '12 Nov 2026',
+            ],
+            [
+                'categoryLabel' => 'Kebersamaan',
+                'image' => '/assets/Placeholder.png',
+                'title' => 'Malam Keakraban & Forum Solidaritas Keluarga Besar COMETS 2026',
+                'description' => 'Menyatukan kebersamaan lintas kelas dalam ruang silaturahmi angkatan Teknik Komputer 2026.',
+                'meta' => '05 Des 2026',
+            ],
+        ],
         'decoding' => [
             'wordmark' => 'TEKKOM 2026',
             'sub_label' => 'Computer Engineering Twenty Six',

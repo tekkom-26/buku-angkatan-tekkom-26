@@ -1,31 +1,25 @@
 @props([
-    'moments' => [
-        [
-            'id' => 'moment-01',
-            'categoryLabel' => 'Prestasi',
-            'image' => '/assets/Placeholder.png',
-            'title' => 'Inaugurasi & Pengukuhan Mahasiswa Baru Teknik Komputer 2026',
-            'description' => 'Momentum awal kebersamaan seluruh anggota angkatan Teknik Komputer 2026 di lingkungan kampus Tembalang.',
-            'meta' => '24 Okt 2026',
-        ],
-        [
-            'id' => 'moment-02',
-            'categoryLabel' => 'Kegiatan Lab',
-            'image' => '/assets/Placeholder.png',
-            'title' => 'Eksplorasi Praktikum Sistem Digital & Arsitektur Perangkat Keras',
-            'description' => 'Kolaborasi pemecahan masalah teknis dan perakitan modul praktikum bersama di laboratorium.',
-            'meta' => '12 Nov 2026',
-        ],
-        [
-            'id' => 'moment-03',
-            'categoryLabel' => 'Kebersamaan',
-            'image' => '/assets/Placeholder.png',
-            'title' => 'Malam Keakraban & Forum Solidaritas Keluarga Besar COMETS 2026',
-            'description' => 'Menyatukan kebersamaan lintas kelas dalam ruang silaturahmi angkatan Teknik Komputer 2026.',
-            'meta' => '05 Des 2026',
-        ],
-    ],
+    'moments' => null,
 ])
+
+@php
+    $normalizedMoments = array_values(array_filter(
+        is_array($moments) ? $moments : [],
+        static fn (mixed $item): bool => is_array($item) && filled($item['title'] ?? null),
+    ));
+
+    $moments = $normalizedMoments !== []
+        ? $normalizedMoments
+        : config('content.landing.moments', [
+            [
+                'categoryLabel' => 'Prestasi',
+                'image' => '/assets/Placeholder.png',
+                'title' => 'Inaugurasi & Pengukuhan Mahasiswa Baru Teknik Komputer 2026',
+                'description' => 'Momentum awal kebersamaan seluruh anggota angkatan Teknik Komputer 2026 di lingkungan kampus Tembalang.',
+                'meta' => '24 Okt 2026',
+            ],
+        ]);
+@endphp
 
 <div
     id="moments-section"
@@ -51,9 +45,14 @@
         {{-- Media Stage (Arrows positioned safely inside media area only) --}}
         <div class="relative w-full aspect-video sm:aspect-[21/9] bg-canvas-base overflow-hidden">
             @foreach ($moments as $index => $moment)
-                @php
-                    $isPlaceholder = empty($moment['image']) || str_contains($moment['image'], 'Placeholder.png');
-                @endphp
+                    @php
+                        $categoryLabel = (string) ($moment['categoryLabel'] ?? 'Dokumentasi');
+                        $momentTitle = (string) ($moment['title'] ?? '');
+                        $momentDescription = (string) ($moment['description'] ?? '');
+                        $momentMeta = (string) ($moment['meta'] ?? '');
+                        $momentImage = (string) ($moment['image'] ?? '');
+                        $isPlaceholder = $momentImage === '' || str_contains($momentImage, 'Placeholder.png');
+                    @endphp
                 <div
                     x-show="activeSlide === {{ $index }}"
                     x-transition:enter="transition ease-out duration-200"
@@ -67,13 +66,13 @@
                     @if ($isPlaceholder)
                         <x-wireframe-slot
                             variant="moment"
-                            :label="'Dokumentasi: ' . $moment['categoryLabel']"
-                            :hint="$moment['meta']"
+                            :label="'Dokumentasi: ' . $categoryLabel"
+                            :hint="$momentMeta"
                         />
                     @else
                         <img
-                            src="{{ asset($moment['image']) }}"
-                            alt="{{ $moment['title'] }}"
+                            src="{{ asset($momentImage) }}"
+                            alt="{{ $momentTitle }}"
                             class="w-full h-full object-cover select-none"
                             loading="lazy"
                         />
@@ -83,7 +82,7 @@
                     {{-- Category Pill --}}
                     <div class="absolute top-3.5 left-3.5 sm:top-5 sm:left-5 z-10">
                         <span class="inline-flex items-center px-3 py-1 rounded-full bg-surface-card/90 backdrop-blur-xs border border-white/15 font-display text-xs font-medium text-brand-gold">
-                            {{ $moment['categoryLabel'] }}
+                            {{ $categoryLabel }}
                         </span>
                     </div>
 
@@ -92,14 +91,14 @@
                         <div class="flex items-end justify-between gap-4">
                             <div class="max-w-2xl">
                                 <h3 class="font-display text-base lg:text-lg font-bold text-text-primary leading-snug">
-                                    {{ $moment['title'] }}
+                                    {{ $momentTitle }}
                                 </h3>
                                 <p class="font-body text-xs lg:text-sm text-text-secondary line-clamp-1 mt-0.5">
-                                    {{ $moment['description'] }}
+                                    {{ $momentDescription }}
                                 </p>
                             </div>
                             <span class="font-mono text-xs text-text-muted shrink-0">
-                                {{ $moment['meta'] }}
+                                {{ $momentMeta }}
                             </span>
                         </div>
                     </div>
@@ -131,17 +130,17 @@
                 <div x-show="activeSlide === {{ $index }}">
                     <div class="flex items-center justify-between gap-2 mb-1">
                         <span class="font-mono text-xs text-brand-gold font-medium">
-                            0{{ $index + 1 }} / 0{{ count($moments) }}
+                            {{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }} / {{ str_pad((string) count($moments), 2, '0', STR_PAD_LEFT) }}
                         </span>
                         <span class="font-mono text-xs text-text-muted">
-                            {{ $moment['meta'] }}
+                            {{ $moment['meta'] ?? '' }}
                         </span>
                     </div>
                     <h3 class="font-display text-base font-bold text-text-primary leading-snug">
-                        {{ $moment['title'] }}
+                        {{ $moment['title'] ?? '' }}
                     </h3>
                     <p class="font-body text-xs text-text-secondary mt-1 leading-relaxed">
-                        {{ $moment['description'] }}
+                        {{ $moment['description'] ?? '' }}
                     </p>
                 </div>
             @endforeach
