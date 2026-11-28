@@ -123,7 +123,7 @@
             <div class="relative min-h-[20rem] sm:min-h-[26rem] bg-canvas-base/80 border-b lg:border-b-0 lg:border-r border-white/10 grid">
                 @foreach ($slides as $slide)
                     @php
-                        $isSlidePlaceholder = empty($slide['image']) || str_contains($slide['image'], 'Placeholder.png');
+                        $isSlidePlaceholder = empty($slide['image']);
                     @endphp
                     <div
                         x-show="activeSlide === {{ $loop->iteration }}"
