@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Students\Schemas;
 
+use App\Models\MbtiType;
 use App\Models\Student;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
@@ -139,6 +140,43 @@ class StudentForm
                         ->label('Alamat Kost / Tinggal')
                         ->rows(2)
                         ->required(),
+                ]),
+
+            // ---------- 5. Profil MBTI ----------
+            Section::make('Profil MBTI')
+                ->description('Data hasil tes MBTI mahasiswa. Link screenshot bersifat privat (Admin Only).')
+                ->relationship('mbtiProfile')
+                ->collapsible()
+                ->collapsed()
+                ->columns(4)
+                ->schema([
+                    Select::make('mbti_type_id')
+                        ->label('Tipe MBTI')
+                        ->options(fn (): array => MbtiType::query()
+                            ->orderBy('temperament_code')
+                            ->orderBy('code')
+                            ->get()
+                            ->mapWithKeys(fn (MbtiType $type): array => [
+                                $type->id => "{$type->code} — {$type->title} ({$type->temperament_name})",
+                            ])
+                            ->all())
+                        ->searchable()
+                        ->columnSpan(2),
+
+                    TextInput::make('screenshot_url')
+                        ->label('Link Screenshot (Admin Only)')
+                        ->url()
+                        ->maxLength(1000)
+                        ->columnSpan(2),
+
+                    TextInput::make('pct_e')->label('E (%)')->numeric()->minValue(0)->maxValue(100),
+                    TextInput::make('pct_i')->label('I (%)')->numeric()->minValue(0)->maxValue(100),
+                    TextInput::make('pct_n')->label('N (%)')->numeric()->minValue(0)->maxValue(100),
+                    TextInput::make('pct_s')->label('S (%)')->numeric()->minValue(0)->maxValue(100),
+                    TextInput::make('pct_t')->label('T (%)')->numeric()->minValue(0)->maxValue(100),
+                    TextInput::make('pct_f')->label('F (%)')->numeric()->minValue(0)->maxValue(100),
+                    TextInput::make('pct_j')->label('J (%)')->numeric()->minValue(0)->maxValue(100),
+                    TextInput::make('pct_p')->label('P (%)')->numeric()->minValue(0)->maxValue(100),
                 ]),
         ]);
     }

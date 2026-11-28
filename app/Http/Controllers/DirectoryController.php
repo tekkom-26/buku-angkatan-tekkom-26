@@ -22,13 +22,16 @@ class DirectoryController extends Controller
             $validated = $request->validate([
                 'search' => 'nullable|string|max:100',
                 'class' => 'nullable|string|in:A,B,C,D',
+                'aspects' => 'nullable|string|max:32',
+                'per_page' => 'nullable|numeric',
                 'page' => 'nullable|integer|min:1',
             ]);
 
             $payload = $this->directory->getDirectoryPayload(
                 search: $validated['search'] ?? null,
                 classFilter: $validated['class'] ?? null,
-                perPage: 15,
+                aspectsFilter: StudentDirectoryService::normalizeAspects($validated['aspects'] ?? ''),
+                perPage: StudentDirectoryService::clampPerPage($validated['per_page'] ?? null),
                 page: (int) ($validated['page'] ?? 1),
                 query: $request->query(),
             );

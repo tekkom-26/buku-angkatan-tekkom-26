@@ -53,7 +53,8 @@
     {{-- Split Bento Profile Grid --}}
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-        {{-- LEFT COLUMN: Portrait & Quick Actions --}}
+        {{-- LEFT COLUMN: Portrait Card + MBTI Profile & 4 Spectrum Bars --}}
+        <div class="lg:col-span-5 flex flex-col gap-6">
         <div
             id="candidate-card-profile"
             x-data="{
@@ -69,7 +70,7 @@
                     setTimeout(() => this.copied = false, 2000);
                 }
             }"
-            class="lg:col-span-5 bg-surface-card/85 border border-white/10 rounded-2xl p-5 sm:p-6 flex flex-col gap-5"
+            class="bg-surface-card/85 border border-white/10 rounded-2xl p-5 sm:p-6 flex flex-col gap-5"
         >
             {{-- View Mode Switcher (Formal / Kasual, >= 36px height) --}}
             <div class="flex items-center justify-between gap-2">
@@ -129,10 +130,6 @@
                     >
                         <x-wireframe-slot variant="emblem" label="Foto Formal" hint="Jas Almamater Undip" />
                     </div>
-
-                    <div class="absolute bottom-3 right-3 z-20 px-2.5 py-1 rounded-lg text-xs font-display font-medium bg-canvas-base/85 border border-white/15 text-brand-gold backdrop-blur-xs pointer-events-none">
-                        Jas Almamater
-                    </div>
                 </div>
 
                 {{-- Casual Layer --}}
@@ -160,9 +157,6 @@
                         <x-wireframe-slot variant="emblem" label="Foto Kasual" hint="Gaya Bebas" />
                     </div>
 
-                    <div class="absolute bottom-3 right-3 z-20 px-2.5 py-1 rounded-lg text-xs font-display font-medium bg-brand-red/90 border border-brand-red-hover text-text-primary backdrop-blur-xs pointer-events-none">
-                        Foto Kasual
-                    </div>
                 </div>
             </div>
 
@@ -216,6 +210,86 @@
                     <span class="font-mono text-xs text-brand-gold" aria-hidden="true">&#8599;</span>
                 </a>
             </div>
+        </div>
+
+        {{-- MBTI Profile & 4 Spectrum Bars (placed in empty space below Portrait Card) --}}
+        @if (! empty($student['mbti']))
+            @php
+                $mbti = $student['mbti'];
+                $pcts = $mbti['pcts'] ?? [];
+                $axes = [
+                    ['left' => 'E', 'leftLabel' => 'Extravert', 'right' => 'I', 'rightLabel' => 'Introvert', 'name' => 'Energi'],
+                    ['left' => 'N', 'leftLabel' => 'Intuition', 'right' => 'S', 'rightLabel' => 'Sensing', 'name' => 'Persepsi'],
+                    ['left' => 'T', 'leftLabel' => 'Thinking', 'right' => 'F', 'rightLabel' => 'Feeling', 'name' => 'Keputusan'],
+                    ['left' => 'J', 'leftLabel' => 'Judging', 'right' => 'P', 'rightLabel' => 'Perceiving', 'name' => 'Gaya Kerja'],
+                ];
+            @endphp
+            <section
+                id="student-mbti-card"
+                aria-label="Profil Kepribadian MBTI"
+                class="bg-surface-card/85 border border-white/10 rounded-2xl p-5 sm:p-6 space-y-5"
+            >
+                <div class="flex items-start justify-between gap-3 pb-4 border-b border-white/10">
+                    <div>
+                        <p class="font-display text-xs font-semibold uppercase tracking-wider text-brand-gold mb-1">
+                            Profil Kepribadian &middot; MBTI
+                        </p>
+                        <h2 class="font-display text-xl font-bold text-text-primary tracking-tight">
+                            {{ $mbti['title'] ?? $mbti['code'] }}
+                        </h2>
+                        @if (! empty($mbti['temperament_name']))
+                            <span class="mt-1.5 inline-flex items-center px-2.5 py-0.5 rounded-lg bg-canvas-base border border-white/10 font-mono text-[11px] text-text-secondary">
+                                {{ $mbti['temperament_name'] }} &middot; {{ $mbti['temperament_code'] }}
+                            </span>
+                        @endif
+                    </div>
+
+                    <span class="shrink-0 inline-flex items-center justify-center px-3.5 py-2 rounded-xl bg-brand-red border border-brand-gold/60 font-mono text-lg font-bold text-text-primary tracking-widest">
+                        {{ $mbti['code'] }}
+                    </span>
+                </div>
+
+                @if (! empty($mbti['description']))
+                    <p class="font-body text-xs sm:text-sm text-text-secondary leading-relaxed">
+                        {{ $mbti['description'] }}
+                    </p>
+                @endif
+
+                <div class="space-y-3.5">
+                    @foreach ($axes as $axis)
+                        @php
+                            $leftVal = (int) ($pcts[$axis['left']] ?? 50);
+                            $rightVal = (int) ($pcts[$axis['right']] ?? 50);
+                            $leftDominant = $leftVal >= $rightVal;
+                            $dominantWidth = max($leftVal, $rightVal);
+                        @endphp
+                        <div class="space-y-1.5">
+                            <div class="flex items-center justify-between gap-2 text-xs">
+                                <span class="font-display {{ $leftDominant ? 'font-bold text-brand-gold' : 'font-medium text-text-muted' }}">
+                                    {{ $axis['leftLabel'] }} ({{ $axis['left'] }}) <span class="font-mono">{{ $leftVal }}%</span>
+                                </span>
+                                <span class="font-display {{ ! $leftDominant ? 'font-bold text-brand-gold' : 'font-medium text-text-muted' }}">
+                                    <span class="font-mono">{{ $rightVal }}%</span> ({{ $axis['right'] }}) {{ $axis['rightLabel'] }}
+                                </span>
+                            </div>
+                            <div class="relative h-2.5 w-full rounded-full bg-canvas-base border border-white/10 overflow-hidden">
+                                @if ($leftDominant)
+                                    <div
+                                        class="absolute inset-y-0 left-0 rounded-full bg-brand-gold transition-all duration-300"
+                                        style="width: {{ $dominantWidth }}%;"
+                                    ></div>
+                                @else
+                                    <div
+                                        class="absolute inset-y-0 right-0 rounded-full bg-brand-red-hover transition-all duration-300"
+                                        style="width: {{ $dominantWidth }}%;"
+                                    ></div>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </section>
+        @endif
         </div>
 
         {{-- RIGHT COLUMN: Identity, Quote, Bio Grid, Lifestyle, Spotify --}}
