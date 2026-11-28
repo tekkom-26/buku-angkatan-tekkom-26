@@ -131,6 +131,7 @@ export function createMbtiObsidianGraph(canvas, payload, callbacks = {}) {
         panX: 0,
         panY: 0,
         scale: 1,
+        hasInitializedView: false,
         width: 800,
         height: 600,
         dpr: Math.min(window.devicePixelRatio || 1, 2),
@@ -272,6 +273,13 @@ export function createMbtiObsidianGraph(canvas, payload, callbacks = {}) {
         .alphaDecay(0.022)
         .velocityDecay(0.36);
 
+    function getDefaultView(width) {
+        if (width < 640) {
+            return { panX: 0, panY: 26, scale: 0.48 };
+        }
+        return { panX: 0, panY: 0, scale: 1 };
+    }
+
     function resize() {
         const rect = canvas.getBoundingClientRect();
         if (rect.width === 0 || rect.height === 0) {
@@ -283,9 +291,12 @@ export function createMbtiObsidianGraph(canvas, payload, callbacks = {}) {
         canvas.width = Math.round(rect.width * state.dpr);
         canvas.height = Math.round(rect.height * state.dpr);
 
-        // Adapt initial zoom slightly for smaller viewports
-        if (state.scale === 1 && rect.width < 640) {
-            state.scale = 0.68;
+        if (!state.hasInitializedView) {
+            const view = getDefaultView(rect.width);
+            state.panX = view.panX;
+            state.panY = view.panY;
+            state.scale = view.scale;
+            state.hasInitializedView = true;
         }
     }
 
@@ -841,9 +852,10 @@ export function createMbtiObsidianGraph(canvas, payload, callbacks = {}) {
             state.scale = Math.max(0.28, Math.min(3.5, state.scale * factor));
         },
         resetCamera() {
-            state.panX = 0;
-            state.panY = 0;
-            state.scale = state.width < 640 ? 0.68 : 1;
+            const view = getDefaultView(state.width);
+            state.panX = view.panX;
+            state.panY = view.panY;
+            state.scale = view.scale;
         },
         reheat() {
             simulation.alpha(0.75).restart();

@@ -11,7 +11,7 @@
 
     <main
         id="main-content"
-        class="relative grow w-full h-[calc(100vh-5rem)] min-h-[600px] overflow-hidden select-none"
+        class="relative grow w-full h-[calc(100dvh-4.75rem)] md:h-[calc(100dvh-5.5rem)] min-h-[460px] overflow-hidden select-none"
         x-data="{
             graph: null,
             payload: @js($graphPayload),
@@ -20,8 +20,9 @@
             matchedCount: {{ (int) ($center['mappedCount'] ?? 0) }},
             aspectCounts: @js(collect($graphPayload['aspectNodes'] ?? [])->mapWithKeys(fn ($n, $k) => [$k => $n['count']])->all()),
             selectedStudent: null,
-            showFilters: window.innerWidth >= 768,
-            showControls: window.innerWidth >= 1024,
+            isDesktop: window.innerWidth >= 768,
+            mobileTab: null,
+            showDesktopControls: window.innerWidth >= 1024,
             repelStrength: 135,
             linkDistance: 145,
             showLinks: true,
@@ -35,6 +36,9 @@
                     this.graph = window.mbtiGraphRuntime.create(this.$refs.canvas, this.payload, {
                         onSelectStudent: (student) => {
                             this.selectedStudent = student;
+                            if (student && !this.isDesktop) {
+                                this.mobileTab = null;
+                            }
                         },
                         onToggleAspect: (letter) => {
                             this.toggleAspect(letter);
@@ -66,6 +70,10 @@
                 this.$watch('showLabels', (val) => {
                     if (this.graph) this.graph.setShowStudentLabels(val);
                 });
+            },
+
+            toggleMobileTab(tab) {
+                this.mobileTab = this.mobileTab === tab ? null : tab;
             },
 
             toggleAspect(letter) {
@@ -123,7 +131,8 @@
                 return `${base}?${params.toString()}`;
             }
         }"
-        @keydown.escape.window="clearSelection()"
+        @resize.window="isDesktop = window.innerWidth >= 768"
+        @keydown.escape.window="clearSelection(); mobileTab = null"
     >
         {{-- Interactive Force-Directed HTML5 Canvas --}}
         <canvas
@@ -132,45 +141,77 @@
             aria-label="Kanvas interaktif Graph View MBTI Tekkom 26"
         ></canvas>
 
-        {{-- Top-Left HUD: Title, Live Search, Aspect Filters & Bridge CTA --}}
-        <div class="pointer-events-none absolute top-3 left-3 right-3 md:right-auto md:w-88 z-20 flex flex-col gap-2.5">
-            <div class="pointer-events-auto rounded-2xl border border-white/15 bg-surface-card/90 backdrop-blur-md p-3.5 shadow-xl space-y-3">
-                <div class="flex items-start justify-between gap-2">
-                    <div>
-                        <p class="font-display text-[11px] font-semibold uppercase tracking-widest text-brand-gold">
-                            Fun Corner &middot; Obsidian Graph View
+        {{-- Unified Top-Left HUD (Desktop: Filters card; Mobile: Single unified bar + mutually exclusive Filter / Controls tabs) --}}
+        <div class="pointer-events-none absolute top-3 inset-x-3 md:right-auto md:w-88 z-20 flex flex-col gap-2">
+            <div class="pointer-events-auto rounded-2xl border border-white/15 bg-surface-card/92 backdrop-blur-md p-3 sm:p-3.5 shadow-xl space-y-2.5">
+                <div class="flex items-center justify-between gap-2">
+                    <div class="min-w-0">
+                        <p class="font-display text-[10px] sm:text-[11px] font-semibold uppercase tracking-widest text-brand-gold truncate">
+                            Fun Corner &middot; Obsidian Graph
                         </p>
-                        <h1 class="font-display text-base sm:text-lg font-bold text-text-primary leading-snug">
+                        <h1 class="font-display text-sm sm:text-lg font-bold text-text-primary leading-snug truncate">
                             Konstelasi MBTI Tekkom 26
                         </h1>
                     </div>
-                    <button
-                        type="button"
-                        @click="showFilters = !showFilters"
-                        class="md:hidden shrink-0 min-h-8 px-2.5 py-1 rounded-lg bg-surface-elevated border border-white/15 font-display text-[11px] font-semibold text-brand-gold cursor-pointer"
-                    >
-                        <span x-text="showFilters ? 'Tutup' : 'Filter'">Filter</span>
-                    </button>
+
+                    {{-- Mobile Exclusive Tab Buttons (Filter / Controls) --}}
+                    <div class="flex md:hidden items-center gap-1.5 shrink-0">
+                        <button
+                            type="button"
+                            @click="toggleMobileTab('filter')"
+                            :aria-expanded="(mobileTab === 'filter').toString()"
+                            :class="mobileTab === 'filter' || activeAspects.length > 0 ? 'bg-brand-red text-text-primary border-brand-gold/60' : 'bg-surface-elevated text-text-secondary border-white/15'"
+                            class="min-h-9 px-2.5 py-1 rounded-lg border font-display text-[11px] font-semibold transition-colors cursor-pointer inline-flex items-center gap-1"
+                        >
+                            <span>Filter</span>
+                            <span
+                                x-show="activeAspects.length > 0"
+                                x-text="activeAspects.length"
+                                class="px-1 rounded bg-canvas-base/70 font-mono text-[10px] text-brand-gold"
+                            ></span>
+                        </button>
+                        <button
+                            type="button"
+                            @click="toggleMobileTab('controls')"
+                            :aria-expanded="(mobileTab === 'controls').toString()"
+                            :class="mobileTab === 'controls' ? 'bg-brand-red text-text-primary border-brand-gold/60' : 'bg-surface-elevated text-brand-gold border-white/15'"
+                            class="min-h-9 px-2.5 py-1 rounded-lg border font-display text-[11px] font-semibold transition-colors cursor-pointer inline-flex items-center gap-1"
+                        >
+                            <svg class="size-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
+                            </svg>
+                            <span>Controls</span>
+                        </button>
+                    </div>
                 </div>
 
                 {{-- Search Node Input --}}
-                <div class="relative">
-                    <label for="graph-node-search" class="sr-only">Cari mahasiswa atau tipe MBTI di graf</label>
-                    <svg class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                        <circle cx="11" cy="11" r="7" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m20 20-3.5-3.5" />
-                    </svg>
-                    <input
-                        id="graph-node-search"
-                        type="search"
-                        x-model="searchQuery"
-                        placeholder="Highlight nama, NIM, atau ENTJ..."
-                        class="w-full min-h-9 rounded-xl border border-white/15 bg-canvas-base/90 pl-8 pr-3 py-1.5 font-body text-xs text-text-primary placeholder:text-text-muted focus:border-brand-gold focus:outline-none"
-                    />
+                <div class="relative flex items-center gap-2">
+                    <div class="relative flex-1 min-w-0">
+                        <label for="graph-node-search" class="sr-only">Cari mahasiswa atau tipe MBTI di graf</label>
+                        <svg class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <circle cx="11" cy="11" r="7" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m20 20-3.5-3.5" />
+                        </svg>
+                        <input
+                            id="graph-node-search"
+                            type="search"
+                            x-model="searchQuery"
+                            placeholder="Highlight nama, NIM, atau ENTJ..."
+                            class="w-full min-h-9 rounded-xl border border-white/15 bg-canvas-base/90 pl-8 pr-3 py-1.5 font-body text-xs text-text-primary placeholder:text-text-muted focus:border-brand-gold focus:outline-none"
+                        />
+                    </div>
+                    <span class="md:hidden shrink-0 font-mono text-[11px] text-brand-gold px-2 py-1 rounded-lg bg-canvas-base border border-white/10">
+                        <span x-text="matchedCount">{{ (int) ($center['mappedCount'] ?? 0) }}</span>
+                    </span>
                 </div>
 
-                {{-- Collapsible 8-Aspect Filter Pills --}}
-                <div x-show="showFilters" x-transition class="space-y-2">
+                {{-- 8-Aspect Filter Drawer (Always open on Desktop md+; toggled via Filter pill on Mobile) --}}
+                <div
+                    x-show="isDesktop || mobileTab === 'filter'"
+                    x-transition
+                    class="space-y-2.5 max-h-[52dvh] overflow-y-auto md:max-h-none md:overflow-visible pt-1"
+                >
                     <div class="grid grid-cols-2 gap-1.5">
                         @foreach ($axes as $pair)
                             <div class="flex rounded-lg border border-white/10 bg-canvas-base/85 p-0.5 gap-0.5">
@@ -179,7 +220,7 @@
                                     @click="toggleAspect('{{ $pair['left'] }}')"
                                     :aria-pressed="activeAspects.includes('{{ $pair['left'] }}').toString()"
                                     :class="activeAspects.includes('{{ $pair['left'] }}') ? 'bg-brand-red text-text-primary border-brand-gold/60' : 'text-text-secondary hover:text-brand-gold border-transparent'"
-                                    class="flex-1 min-h-8 px-2 py-1 rounded-md border font-mono text-[11px] font-bold transition-colors cursor-pointer flex items-center justify-between"
+                                    class="flex-1 min-h-10 md:min-h-8 px-2 py-1 rounded-md border font-mono text-[11px] font-bold transition-colors cursor-pointer flex items-center justify-between"
                                     title="{{ $pair['leftName'] }}"
                                 >
                                     <span>{{ $pair['left'] }}</span>
@@ -190,7 +231,7 @@
                                     @click="toggleAspect('{{ $pair['right'] }}')"
                                     :aria-pressed="activeAspects.includes('{{ $pair['right'] }}').toString()"
                                     :class="activeAspects.includes('{{ $pair['right'] }}') ? 'bg-brand-red text-text-primary border-brand-gold/60' : 'text-text-secondary hover:text-brand-gold border-transparent'"
-                                    class="flex-1 min-h-8 px-2 py-1 rounded-md border font-mono text-[11px] font-bold transition-colors cursor-pointer flex items-center justify-between"
+                                    class="flex-1 min-h-10 md:min-h-8 px-2 py-1 rounded-md border font-mono text-[11px] font-bold transition-colors cursor-pointer flex items-center justify-between"
                                     title="{{ $pair['rightName'] }}"
                                 >
                                     <span>{{ $pair['right'] }}</span>
@@ -211,7 +252,7 @@
                                 x-show="activeAspects.length > 0 || searchQuery.trim() !== ''"
                                 type="button"
                                 @click="resetFilters()"
-                                class="min-h-8 px-2.5 py-1 rounded-lg border border-white/15 bg-surface-elevated font-display text-[11px] font-semibold text-text-secondary hover:text-brand-gold cursor-pointer"
+                                class="min-h-9 md:min-h-8 px-2.5 py-1 rounded-lg border border-white/15 bg-surface-elevated font-display text-[11px] font-semibold text-text-secondary hover:text-brand-gold cursor-pointer"
                             >
                                 Reset
                             </button>
@@ -219,7 +260,7 @@
                             <a
                                 :href="directoryUrl()"
                                 href="{{ route('directory.index') }}"
-                                class="inline-flex items-center gap-1 min-h-8 px-2.5 py-1 rounded-lg bg-brand-red hover:bg-brand-red-hover border border-brand-red-hover font-display text-[11px] font-semibold text-text-primary transition-colors"
+                                class="inline-flex items-center gap-1 min-h-9 md:min-h-8 px-3 py-1 rounded-lg bg-brand-red hover:bg-brand-red-hover border border-brand-red-hover font-display text-[11px] font-semibold text-text-primary transition-colors"
                             >
                                 <span>Lihat di Direktori</span>
                                 <span class="text-brand-gold" aria-hidden="true">&rarr;</span>
@@ -227,16 +268,26 @@
                         </div>
                     </div>
                 </div>
+
+                {{-- Mobile-Only In-Flow Graph Controls Drawer (zero overlap with filter or canvas chrome) --}}
+                <div
+                    x-cloak
+                    x-show="!isDesktop && mobileTab === 'controls'"
+                    x-transition
+                    class="md:hidden pt-2 border-t border-white/10 max-h-[52dvh] overflow-y-auto"
+                >
+                    <x-graph-controls-body />
+                </div>
             </div>
         </div>
 
-        {{-- Top-Right HUD: Obsidian-Style Graph Controls (Physics & Display) --}}
-        <div class="pointer-events-none fixed md:absolute top-20 md:top-3 right-3 z-20 flex flex-col items-end gap-2">
+        {{-- Desktop-Only Top-Right HUD: Obsidian-Style Graph Controls --}}
+        <div class="pointer-events-none hidden md:flex md:absolute md:top-3 md:right-3 z-20 flex-col items-end gap-2">
             <button
                 type="button"
-                @click="showControls = !showControls"
+                @click="showDesktopControls = !showDesktopControls"
                 class="pointer-events-auto inline-flex items-center gap-2 min-h-9 px-3 py-1.5 rounded-xl border border-white/15 bg-surface-card/90 backdrop-blur-md font-display text-xs font-semibold text-brand-gold hover:border-brand-gold/50 shadow-lg cursor-pointer"
-                :aria-expanded="showControls.toString()"
+                :aria-expanded="showDesktopControls.toString()"
             >
                 <svg class="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
@@ -246,83 +297,19 @@
 
             <div
                 x-cloak
-                x-show="showControls"
+                x-show="showDesktopControls"
                 x-transition
-                class="pointer-events-auto w-64 rounded-2xl border border-white/15 bg-surface-card/92 backdrop-blur-md p-4 shadow-xl space-y-4"
+                class="pointer-events-auto w-64 rounded-2xl border border-white/15 bg-surface-card/92 backdrop-blur-md p-4 shadow-xl"
             >
-                <div class="space-y-3">
-                    <p class="font-display text-[11px] font-semibold uppercase tracking-wider text-brand-gold">
-                        Forces
-                    </p>
-
-                    <label class="block space-y-1">
-                        <div class="flex items-center justify-between text-[11px]">
-                            <span class="font-body text-text-secondary">Repel Force</span>
-                            <span class="font-mono text-brand-gold" x-text="repelStrength"></span>
-                        </div>
-                        <input
-                            type="range"
-                            min="50"
-                            max="320"
-                            step="5"
-                            x-model.number="repelStrength"
-                            class="w-full accent-brand-gold cursor-pointer"
-                        />
-                    </label>
-
-                    <label class="block space-y-1">
-                        <div class="flex items-center justify-between text-[11px]">
-                            <span class="font-body text-text-secondary">Link Distance</span>
-                            <span class="font-mono text-brand-gold" x-text="linkDistance"></span>
-                        </div>
-                        <input
-                            type="range"
-                            min="70"
-                            max="260"
-                            step="5"
-                            x-model.number="linkDistance"
-                            class="w-full accent-brand-gold cursor-pointer"
-                        />
-                    </label>
-                </div>
-
-                <div class="pt-3 border-t border-white/10 space-y-2.5">
-                    <p class="font-display text-[11px] font-semibold uppercase tracking-wider text-brand-gold">
-                        Display
-                    </p>
-
-                    <label class="flex items-center justify-between gap-2 text-xs text-text-secondary cursor-pointer">
-                        <span>Tampilkan Garis Koneksi</span>
-                        <input type="checkbox" x-model="showLinks" class="size-4 accent-brand-gold cursor-pointer" />
-                    </label>
-
-                    <label class="flex items-center justify-between gap-2 text-xs text-text-secondary cursor-pointer">
-                        <span>Label Nama Mahasiswa</span>
-                        <input type="checkbox" x-model="showLabels" class="size-4 accent-brand-gold cursor-pointer" />
-                    </label>
-                </div>
-
-                <div class="pt-3 border-t border-white/10 grid grid-cols-2 gap-2">
-                    <button
-                        type="button"
-                        @click="graph && graph.reheat()"
-                        class="min-h-8 px-2.5 py-1.5 rounded-lg bg-surface-elevated border border-white/10 hover:border-brand-gold/50 font-display text-[11px] font-semibold text-text-primary cursor-pointer"
-                    >
-                        Re-heat
-                    </button>
-                    <button
-                        type="button"
-                        @click="graph && graph.resetCamera()"
-                        class="min-h-8 px-2.5 py-1.5 rounded-lg bg-surface-elevated border border-white/10 hover:border-brand-gold/50 font-display text-[11px] font-semibold text-brand-gold cursor-pointer"
-                    >
-                        Reset View
-                    </button>
-                </div>
+                <x-graph-controls-body />
             </div>
         </div>
 
-        {{-- Bottom-Left HUD: Zoom Controls & Hint --}}
-        <div class="pointer-events-none absolute bottom-3 left-3 z-20 flex flex-col gap-2">
+        {{-- Bottom Zoom Controls (Mobile: bottom-right & auto-hidden when Mini Profile Card opens; Desktop: bottom-left) --}}
+        <div
+            :class="selectedStudent ? 'hidden sm:flex' : 'flex'"
+            class="pointer-events-none absolute bottom-3 right-3 sm:right-auto sm:left-3 z-20 flex-col gap-2"
+        >
             <div class="pointer-events-auto inline-flex items-center gap-1 rounded-xl border border-white/15 bg-surface-card/90 backdrop-blur-md p-1 shadow-lg w-fit">
                 <button
                     type="button"
