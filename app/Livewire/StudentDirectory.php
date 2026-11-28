@@ -18,6 +18,9 @@ class StudentDirectory extends Component
     #[Url(except: '')]
     public string $class = '';
 
+    #[Url(except: '')]
+    public string $aspects = '';
+
     /**
      * Normalize incoming URL filter state on mount.
      */
@@ -26,6 +29,8 @@ class StudentDirectory extends Component
         if (! in_array($this->class, ['', 'A', 'B', 'C', 'D'], true)) {
             $this->class = '';
         }
+
+        $this->aspects = implode(',', StudentDirectoryService::normalizeAspects($this->aspects));
     }
 
     /**
@@ -46,25 +51,54 @@ class StudentDirectory extends Component
     }
 
     /**
-     * Clear both search and class filters.
+     * Toggle a single MBTI aspect (activates, switches opposing pole, or deactivates).
+     */
+    public function toggleAspect(string $aspect): void
+    {
+        $next = StudentDirectoryService::toggleAspectInList(
+            StudentDirectoryService::normalizeAspects($this->aspects),
+            $aspect,
+        );
+
+        $this->aspects = implode(',', $next);
+        $this->resetPage();
+    }
+
+    /**
+     * Clear active MBTI aspect filters without clearing search/class.
+     */
+    public function resetAspects(): void
+    {
+        $this->aspects = '';
+        $this->resetPage();
+    }
+
+    /**
+     * Clear search, class, and MBTI aspect filters.
      */
     public function resetFilters(): void
     {
         $this->search = '';
         $this->class = '';
+        $this->aspects = '';
         $this->resetPage();
     }
 
     public function render(StudentDirectoryService $directory): View
     {
+        $activeAspects = StudentDirectoryService::normalizeAspects($this->aspects);
+        $aspectsQuery = $activeAspects !== [] ? implode(',', $activeAspects) : null;
+
         $payload = $directory->getDirectoryPayload(
             search: trim($this->search) !== '' ? trim($this->search) : null,
             classFilter: $this->class !== '' ? $this->class : null,
+            aspectsFilter: $activeAspects,
             perPage: 15,
             page: max(1, (int) $this->getPage()),
             query: array_filter([
                 'search' => trim($this->search) !== '' ? trim($this->search) : null,
                 'class' => $this->class !== '' ? $this->class : null,
+                'aspects' => $aspectsQuery,
             ]),
         );
 

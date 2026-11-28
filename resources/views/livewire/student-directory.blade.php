@@ -60,7 +60,7 @@
                             class="w-full min-h-11 rounded-xl border border-white/15 bg-surface-elevated pl-10 pr-20 py-2.5 font-body text-sm text-text-primary placeholder:text-text-muted focus:border-brand-gold focus-visible:ring-2 focus-visible:ring-brand-gold/70 focus:outline-none transition-colors"
                         />
                         <div class="absolute right-2.5 flex items-center gap-2">
-                            <span wire:loading wire:target="search, selectClass, resetFilters, gotoPage, nextPage, previousPage" class="text-xs font-display text-brand-gold">
+                            <span wire:loading wire:target="search, selectClass, toggleAspect, resetAspects, resetFilters, gotoPage, nextPage, previousPage" class="text-xs font-display text-brand-gold">
                                 Memuat...
                             </span>
                             <kbd class="hidden sm:inline-flex items-center justify-center px-2 py-0.5 rounded bg-canvas-base border border-white/15 font-mono text-[11px] text-text-muted" aria-hidden="true">
@@ -121,6 +121,11 @@
                             Kelas {{ $class }}
                         </span>
                     @endif
+                    @if ($activeAspects !== [])
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-brand-gold/15 border border-brand-gold/40 font-mono text-brand-gold font-semibold">
+                            MBTI: {{ implode(' · ', $activeAspects) }}
+                        </span>
+                    @endif
                     @if (trim($search) !== '')
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-brand-red/25 border border-brand-red-hover/60 text-text-primary font-medium">
                             “{{ trim($search) }}”
@@ -128,7 +133,7 @@
                     @endif
                 </div>
 
-                @if (trim($search) !== '' || $class !== '')
+                @if (trim($search) !== '' || $class !== '' || $activeAspects !== [])
                     <button
                         type="button"
                         wire:click="resetFilters"
@@ -140,6 +145,9 @@
             </div>
         </div>
     </section>
+
+    {{-- Interactive 8-Aspect MBTI Colony Graph --}}
+    <x-colony-mbti-graph :colonyGraph="$colonyGraph" :activeAspects="$activeAspects" />
 
     {{-- Student Grid or Empty State --}}
     @php

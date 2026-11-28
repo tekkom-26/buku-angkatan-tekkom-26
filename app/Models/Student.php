@@ -2,44 +2,57 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Casts\Attribute;   
 use App\Observers\StudentObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 #[ObservedBy([StudentObserver::class])]
 class Student extends Model
-
 {
     use HasFactory;
 
     /**
-     * Limit public student queries to non-sensitive columns.
+     * Limit public student queries to non-sensitive columns and safe MBTI fields.
      */
     public function scopePublic(Builder $query): Builder
     {
-        return $query->select([
-            'id',
-            'nim',
-            'name',
-            'nickname',
-            'class_name',
-            'religion',
-            'birth_place',
-            'birth_date',
-            'origin_city',
-            'instagram_username',
-            'hobbies',
-            'bio_quote',
-            'favorite_food_place',
-            'spotify_song_url',
-            'formal_photo_url',
-            'casual_photo_url',
-            'created_at',
-            'updated_at',
-        ]);
+        return $query
+            ->select([
+                'id',
+                'nim',
+                'name',
+                'nickname',
+                'class_name',
+                'religion',
+                'birth_place',
+                'birth_date',
+                'origin_city',
+                'instagram_username',
+                'hobbies',
+                'bio_quote',
+                'favorite_food_place',
+                'spotify_song_url',
+                'formal_photo_url',
+                'casual_photo_url',
+                'created_at',
+                'updated_at',
+            ])
+            ->with([
+                'mbtiProfile:id,student_id,mbti_type_id,pct_e,pct_i,pct_n,pct_s,pct_t,pct_f,pct_j,pct_p',
+                'mbtiProfile.mbtiType:id,code,temperament_code,temperament_name,title,description',
+            ]);
+    }
+
+    /**
+     * @return HasOne<StudentMbtiProfile, $this>
+     */
+    public function mbtiProfile(): HasOne
+    {
+        return $this->hasOne(StudentMbtiProfile::class);
     }
 
     // Pilihan dari Google Form (bisa dipakai di Select Filament)

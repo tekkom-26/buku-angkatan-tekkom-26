@@ -75,12 +75,20 @@
             />
         @endif
 
-        {{-- Bottom Gradient Vignette & NIM / Domisili --}}
+        {{-- Bottom Gradient Vignette & NIM / MBTI / Domisili --}}
         <div class="absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-canvas-base via-canvas-base/85 to-transparent pt-12 pb-3.5 px-4 space-y-1.5">
-            <div>
+            <div class="flex flex-wrap items-center gap-1.5">
                 <span class="inline-flex items-center px-2 py-0.5 rounded bg-surface-card/90 border border-white/15 font-mono text-[11px] font-semibold text-brand-gold tracking-wide">
                     {{ $locked ? '21120126••••••' : $nim }}
                 </span>
+                @if (! $locked && ! empty($student['mbti_code']))
+                    <span
+                        data-mbti-badge
+                        class="inline-flex items-center px-2 py-0.5 rounded bg-brand-gold/15 border border-brand-gold/45 font-mono text-[11px] font-bold text-brand-gold tracking-wider"
+                    >
+                        {{ $student['mbti_code'] }}
+                    </span>
+                @endif
             </div>
             <div class="flex items-center gap-1.5 font-body text-xs text-text-secondary" title="{{ $originCity }}">
                 <svg class="size-3.5 shrink-0 stroke-[1.75] stroke-current text-brand-gold" fill="none" viewBox="0 0 24 24" aria-hidden="true">

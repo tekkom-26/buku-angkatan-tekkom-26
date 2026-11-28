@@ -18,6 +18,41 @@ class StudentDirectoryService
     public const CACHE_KEY = 'students:public_directory';
 
     /**
+     * Canonical opposing poles per MBTI axis.
+     *
+     * @var array<int, array{0: string, 1: string}>
+     */
+    public const ASPECT_AXES = [
+        ['E', 'I'],
+        ['N', 'S'],
+        ['T', 'F'],
+        ['J', 'P'],
+    ];
+
+    /**
+     * Allowed single-letter MBTI aspect codes.
+     *
+     * @var list<string>
+     */
+    public const VALID_ASPECTS = ['E', 'I', 'N', 'S', 'T', 'F', 'J', 'P'];
+
+    /**
+     * Metadata & SVG hub layout positions for the 8 aspect nodes (opposite poles face across center 500, 280).
+     *
+     * @var array<string, array{label: string, axis: string, angle: float, x: int, y: int}>
+     */
+    private const ASPECT_GRAPH_NODES = [
+        'N' => ['label' => 'Intuition', 'axis' => 'N/S', 'angle' => -90.0, 'x' => 500, 'y' => 142],
+        'T' => ['label' => 'Thinking', 'axis' => 'T/F', 'angle' => -45.0, 'x' => 631, 'y' => 182],
+        'J' => ['label' => 'Judging', 'axis' => 'J/P', 'angle' => 0.0, 'x' => 685, 'y' => 280],
+        'I' => ['label' => 'Introvert', 'axis' => 'E/I', 'angle' => 45.0, 'x' => 631, 'y' => 378],
+        'S' => ['label' => 'Sensing', 'axis' => 'N/S', 'angle' => 90.0, 'x' => 500, 'y' => 418],
+        'F' => ['label' => 'Feeling', 'axis' => 'T/F', 'angle' => 135.0, 'x' => 369, 'y' => 378],
+        'P' => ['label' => 'Perceiving', 'axis' => 'J/P', 'angle' => 180.0, 'x' => 315, 'y' => 280],
+        'E' => ['label' => 'Extravert', 'axis' => 'E/I', 'angle' => -135.0, 'x' => 369, 'y' => 182],
+    ];
+
+    /**
      * @var array<int, array<string, mixed>>|null
      */
     protected ?array $memo = null;
@@ -36,24 +71,37 @@ class StudentDirectoryService
                     ->orderBy('class_name', 'asc')
                     ->orderBy('name', 'asc')
                     ->get()
-                    ->map(fn (Student $student): array => [
-                        'id' => $student->id,
-                        'nim' => (string) $student->nim,
-                        'name' => (string) $student->name,
-                        'nickname' => $student->nickname,
-                        'class_name' => (string) $student->class_name,
-                        'religion' => $student->religion,
-                        'birth_place' => $student->birth_place,
-                        'birth_date' => $student->birth_date ? $student->birth_date->format('Y-m-d') : null,
-                        'origin_city' => $student->origin_city,
-                        'instagram_username' => $student->instagram_username,
-                        'hobbies' => $student->hobbies,
-                        'bio_quote' => $student->bio_quote,
-                        'favorite_food_place' => $student->favorite_food_place,
-                        'spotify_song_url' => $student->spotify_song_url,
-                        'formal_photo_url' => $student->formal_photo_url,
-                        'casual_photo_url' => $student->casual_photo_url,
-                    ])
+                    ->map(function (Student $student): array {
+                        $mbtiProfile = $student->mbtiProfile;
+                        $mbtiType = $mbtiProfile?->mbtiType;
+                        $mbtiCode = $mbtiType ? (string) $mbtiType->code : null;
+
+                        return [
+                            'id' => $student->id,
+                            'nim' => (string) $student->nim,
+                            'name' => (string) $student->name,
+                            'nickname' => $student->nickname,
+                            'class_name' => (string) $student->class_name,
+                            'religion' => $student->religion,
+                            'birth_place' => $student->birth_place,
+                            'birth_date' => $student->birth_date ? $student->birth_date->format('Y-m-d') : null,
+                            'origin_city' => $student->origin_city,
+                            'instagram_username' => $student->instagram_username,
+                            'hobbies' => $student->hobbies,
+                            'bio_quote' => $student->bio_quote,
+                            'favorite_food_place' => $student->favorite_food_place,
+                            'spotify_song_url' => $student->spotify_song_url,
+                            'formal_photo_url' => $student->formal_photo_url,
+                            'casual_photo_url' => $student->casual_photo_url,
+                            'mbti_code' => $mbtiCode,
+                            'mbti_title' => $mbtiType ? (string) $mbtiType->title : null,
+                            'temperament_code' => $mbtiType ? (string) $mbtiType->temperament_code : null,
+                            'temperament_name' => $mbtiType ? (string) $mbtiType->temperament_name : null,
+                            'mbti_description' => $mbtiType ? (string) $mbtiType->description : null,
+                            'mbti_aspects' => $mbtiCode !== null ? str_split($mbtiCode) : [],
+                            'mbti_pcts' => $mbtiProfile ? $mbtiProfile->toPercentageMap() : null,
+                        ];
+                    })
                     ->all();
             });
 
@@ -64,45 +112,142 @@ class StudentDirectoryService
     }
 
     /**
-     * Build paginated directory payload, class counts, and total student count in memory.
+     * Normalize aspect filters to at most one pole per axis in canonical [E/I, N/S, T/F, J/P] order.
      *
+     * @param  array<int, string>|string|null  $aspects
+     * @return list<string>
+     */
+    public static function normalizeAspects(array|string|null $aspects): array
+    {
+        $items = is_string($aspects)
+            ? explode(',', $aspects)
+            : (is_array($aspects) ? $aspects : []);
+
+        $selectedByAxis = [];
+
+        foreach ($items as $raw) {
+            $letter = strtoupper(trim((string) $raw));
+            foreach (self::ASPECT_AXES as $axisIndex => $pair) {
+                if (in_array($letter, $pair, true)) {
+                    $selectedByAxis[$axisIndex] = $letter;
+                    break;
+                }
+            }
+        }
+
+        ksort($selectedByAxis);
+
+        return array_values($selectedByAxis);
+    }
+
+    /**
+     * Toggle an aspect in an active filter list:
+     * - clicking active pole deactivates it
+     * - clicking opposing pole switches to the opposing pole
+     * - clicking inactive pole on an unused axis adds it
+     *
+     * @param  array<int, string>  $currentAspects
+     * @return list<string>
+     */
+    public static function toggleAspectInList(array $currentAspects, string $aspect): array
+    {
+        $letter = strtoupper(trim($aspect));
+        $normalized = self::normalizeAspects($currentAspects);
+
+        $targetAxisIndex = null;
+        foreach (self::ASPECT_AXES as $axisIndex => $pair) {
+            if (in_array($letter, $pair, true)) {
+                $targetAxisIndex = $axisIndex;
+                break;
+            }
+        }
+
+        if ($targetAxisIndex === null) {
+            return $normalized;
+        }
+
+        if (in_array($letter, $normalized, true)) {
+            return array_values(array_filter(
+                $normalized,
+                fn (string $item): bool => $item !== $letter
+            ));
+        }
+
+        $opposingPair = self::ASPECT_AXES[$targetAxisIndex];
+        $withoutAxis = array_values(array_filter(
+            $normalized,
+            fn (string $item): bool => ! in_array($item, $opposingPair, true)
+        ));
+        $withoutAxis[] = $letter;
+
+        return self::normalizeAspects($withoutAxis);
+    }
+
+    /**
+     * Build paginated directory payload, class counts, Colony Graph payload, and total count in memory.
+     *
+     * @param  array<int, string>|string  $aspectsFilter
      * @param  array<string, mixed>  $query
      * @return array{
      *     students: LengthAwarePaginator,
      *     filters: array<int, string>,
      *     classCounts: Collection<string, int>,
-     *     totalStudents: int
+     *     totalStudents: int,
+     *     activeAspects: list<string>,
+     *     colonyGraph: array<string, mixed>
      * }
      */
     public function getDirectoryPayload(
         ?string $search = null,
         ?string $classFilter = null,
+        array|string $aspectsFilter = [],
         int $perPage = 15,
         int $page = 1,
         array $query = [],
     ): array {
         $all = $this->allPublicStudents();
         $filters = ['A', 'B', 'C', 'D'];
+        $normalizedAspects = self::normalizeAspects($aspectsFilter);
 
         $groupedCounts = $all->countBy('class_name');
         $classCounts = collect($filters)->mapWithKeys(
             fn (string $class): array => [$class => (int) ($groupedCounts[$class] ?? 0)]
         );
 
-        $filtered = $all;
+        $searchAndClassFiltered = $all;
 
         if (filled($search)) {
             $needle = Str::lower(trim((string) $search));
-            $filtered = $filtered->filter(function (array $student) use ($needle): bool {
+            $searchAndClassFiltered = $searchAndClassFiltered->filter(function (array $student) use ($needle): bool {
                 return Str::contains(Str::lower((string) ($student['nim'] ?? '')), $needle)
                     || Str::contains(Str::lower((string) ($student['name'] ?? '')), $needle)
                     || Str::contains(Str::lower((string) ($student['nickname'] ?? '')), $needle)
-                    || Str::contains(Str::lower((string) ($student['origin_city'] ?? '')), $needle);
+                    || Str::contains(Str::lower((string) ($student['origin_city'] ?? '')), $needle)
+                    || Str::contains(Str::lower((string) ($student['mbti_code'] ?? '')), $needle);
             });
         }
 
         if (filled($classFilter)) {
-            $filtered = $filtered->where('class_name', $classFilter);
+            $searchAndClassFiltered = $searchAndClassFiltered->where('class_name', $classFilter);
+        }
+
+        $filtered = $searchAndClassFiltered;
+
+        if ($normalizedAspects !== []) {
+            $filtered = $filtered->filter(function (array $student) use ($normalizedAspects): bool {
+                $studentAspects = $student['mbti_aspects'] ?? [];
+                if ($studentAspects === []) {
+                    return false;
+                }
+
+                foreach ($normalizedAspects as $requiredAspect) {
+                    if (! in_array($requiredAspect, $studentAspects, true)) {
+                        return false;
+                    }
+                }
+
+                return true;
+            });
         }
 
         $filtered = $filtered->values();
@@ -131,6 +276,8 @@ class StudentDirectoryService
                     'hobbies' => array_slice($parsedHobbies, 0, 3),
                     'formal_photo_url' => $photoUrl,
                     'avatar_url' => $photoUrl,
+                    'mbti_code' => $student['mbti_code'] ?? null,
+                    'temperament_code' => $student['temperament_code'] ?? null,
                 ];
             });
 
@@ -150,6 +297,8 @@ class StudentDirectoryService
             'filters' => $filters,
             'classCounts' => $classCounts,
             'totalStudents' => $all->count(),
+            'activeAspects' => $normalizedAspects,
+            'colonyGraph' => $this->buildColonyGraphData($all, $searchAndClassFiltered, $filtered, $normalizedAspects),
         ];
     }
 
@@ -202,6 +351,14 @@ class StudentDirectoryService
             'spotify_track_id' => $spotify['id'] ?? null,
             'spotify_type' => $spotify['type'] ?? null,
             'spotify_item' => $spotify,
+            'mbti' => ! empty($student['mbti_code']) ? [
+                'code' => $student['mbti_code'],
+                'title' => $student['mbti_title'] ?? null,
+                'temperament_code' => $student['temperament_code'] ?? null,
+                'temperament_name' => $student['temperament_name'] ?? null,
+                'description' => $student['mbti_description'] ?? null,
+                'pcts' => $student['mbti_pcts'] ?? null,
+            ] : null,
         ];
 
         $classMates = $all
@@ -239,6 +396,132 @@ class StudentDirectoryService
         $this->memo = null;
         Cache::forget(self::CACHE_KEY);
         app(AppConfigService::class)->bumpStateVersion();
+    }
+
+    /**
+     * Build lightweight Colony Graph coordinates and counts for the 8-Aspect MBTI constellation.
+     *
+     * @param  Collection<int, array<string, mixed>>  $all
+     * @param  Collection<int, array<string, mixed>>  $scopedPool
+     * @param  Collection<int, array<string, mixed>>  $matchedPool
+     * @param  list<string>  $activeAspects
+     * @return array<string, mixed>
+     */
+    private function buildColonyGraphData(
+        Collection $all,
+        Collection $scopedPool,
+        Collection $matchedPool,
+        array $activeAspects,
+    ): array {
+        $mappedAll = $all->filter(fn (array $student): bool => ! empty($student['mbti_code']))->values();
+        $unmappedCount = $all->count() - $mappedAll->count();
+        $matchedNims = $matchedPool->pluck('nim')->flip()->all();
+        $scopedNims = $scopedPool->pluck('nim')->flip()->all();
+
+        $aspectNodes = [];
+        foreach (self::ASPECT_GRAPH_NODES as $letter => $meta) {
+            $previewAspects = in_array($letter, $activeAspects, true)
+                ? $activeAspects
+                : self::toggleAspectInList($activeAspects, $letter);
+
+            $previewCount = $scopedPool->filter(function (array $student) use ($previewAspects): bool {
+                $studentAspects = $student['mbti_aspects'] ?? [];
+                if ($studentAspects === []) {
+                    return false;
+                }
+
+                foreach ($previewAspects as $needed) {
+                    if (! in_array($needed, $studentAspects, true)) {
+                        return false;
+                    }
+                }
+
+                return true;
+            })->count();
+
+            $aspectNodes[$letter] = [
+                'letter' => $letter,
+                'label' => $meta['label'],
+                'axis' => $meta['axis'],
+                'x' => $meta['x'],
+                'y' => $meta['y'],
+                'active' => in_array($letter, $activeAspects, true),
+                'count' => $previewCount,
+            ];
+        }
+
+        // Order mapped students by centroid angle of their 4 aspect vectors so similar types cluster organically.
+        $orderedStudents = $mappedAll
+            ->map(function (array $student): array {
+                $sumX = 0.0;
+                $sumY = 0.0;
+                foreach (($student['mbti_aspects'] ?? []) as $letter) {
+                    if (isset(self::ASPECT_GRAPH_NODES[$letter])) {
+                        $rad = deg2rad(self::ASPECT_GRAPH_NODES[$letter]['angle']);
+                        $sumX += cos($rad);
+                        $sumY += sin($rad);
+                    }
+                }
+                $angle = atan2($sumY, $sumX);
+                if ($angle < 0) {
+                    $angle += 2 * M_PI;
+                }
+                $student['_sort_angle'] = $angle;
+
+                return $student;
+            })
+            ->sortBy([
+                ['_sort_angle', 'asc'],
+                ['mbti_code', 'asc'],
+                ['nim', 'asc'],
+            ])
+            ->values();
+
+        $totalMapped = max(1, $orderedStudents->count());
+        $studentNodes = [];
+
+        foreach ($orderedStudents as $idx => $student) {
+            $theta = (2 * M_PI * $idx) / $totalMapped - (M_PI / 2);
+            $ringBand = $idx % 2;
+            $rx = $ringBand === 0 ? 352.0 : 422.0;
+            $ry = $ringBand === 0 ? 196.0 : 235.0;
+
+            $x = (int) round(500.0 + ($rx * cos($theta)));
+            $y = (int) round(280.0 + ($ry * sin($theta)));
+
+            $nim = (string) $student['nim'];
+            $inScope = isset($scopedNims[$nim]);
+            $matched = isset($matchedNims[$nim]);
+
+            $studentNodes[] = [
+                'nim' => $nim,
+                'name' => (string) $student['name'],
+                'nickname' => (string) ($student['nickname'] ?? $student['name']),
+                'class_name' => (string) $student['class_name'],
+                'mbti_code' => (string) $student['mbti_code'],
+                'mbti_title' => (string) ($student['mbti_title'] ?? ''),
+                'aspects' => $student['mbti_aspects'],
+                'pcts' => $student['mbti_pcts'],
+                'x' => $x,
+                'y' => $y,
+                'matched' => $inScope && $matched,
+                'url' => route('students.show', ['nim' => $nim]),
+            ];
+        }
+
+        return [
+            'center' => [
+                'label' => 'TEKKOM 26',
+                'x' => 500,
+                'y' => 280,
+                'mappedCount' => $mappedAll->count(),
+                'unmappedCount' => $unmappedCount,
+                'matchedCount' => $matchedPool->count(),
+            ],
+            'axes' => self::ASPECT_AXES,
+            'aspectNodes' => $aspectNodes,
+            'studentNodes' => $studentNodes,
+        ];
     }
 
     /**
