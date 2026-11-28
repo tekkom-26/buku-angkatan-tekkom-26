@@ -1,6 +1,34 @@
 <?php
 
+$rawAdminEmails = array_map(
+    static fn (string $email): string => strtolower(trim($email)),
+    explode(',', (string) env('ADMIN_ALLOWED_EMAILS', '')),
+);
+
+$adminAllowedEmails = array_values(array_filter(
+    $rawAdminEmails,
+    static fn (string $email): bool => $email !== '',
+));
+
+$adminPanelPath = trim((string) env('ADMIN_PANEL_PATH', 'admin'), '/');
+
 return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Panel Security Configuration
+    |--------------------------------------------------------------------------
+    |
+    | - admin_panel_path: URL path prefix for the Filament admin panel (default: "admin").
+    | - admin_allowed_emails: Optional comma-separated allowlist of admin emails
+    |   permitted to enter the panel via User::canAccessPanel(). When left empty,
+    |   dummy/example emails are still blocked outside local/testing environments.
+    |
+    */
+
+    'admin_panel_path' => $adminPanelPath !== '' ? $adminPanelPath : 'admin',
+
+    'admin_allowed_emails' => $adminAllowedEmails,
 
     /*
     |--------------------------------------------------------------------------

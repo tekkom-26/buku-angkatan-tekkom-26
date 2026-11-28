@@ -28,8 +28,9 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
 
-# Enable production PHP configuration
-RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+# Enable production PHP configuration and disable PHP version exposure
+RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
+    && echo "expose_php = Off" > "$PHP_INI_DIR/conf.d/99-security.ini"
 
 # Copy application source and build artifacts
 COPY . /app

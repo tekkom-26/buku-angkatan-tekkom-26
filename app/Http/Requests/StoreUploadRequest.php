@@ -25,8 +25,8 @@ class StoreUploadRequest extends FormRequest
         $maxKb = (int) config('angkatan.public_storage.max_upload_size_kb', 10240);
 
         return [
-            'file' => ['required', 'file', 'max:'.$maxKb],
-            'path' => ['required', 'string', 'max:1024'],
+            'file' => ['required', 'file', 'mimes:jpg,jpeg,png,webp,gif,pdf', 'max:'.$maxKb],
+            'path' => ['required', 'string', 'max:1024', 'not_regex:/(?:^|\/)\.\.?(?:\/|$)|\\\\|[\x00-\x1F]/'],
             'alias' => ['nullable', 'string', 'max:191', 'alpha_dash'],
             'overwrite' => ['nullable', 'boolean'],
         ];

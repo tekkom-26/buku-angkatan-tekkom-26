@@ -18,6 +18,8 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
 
@@ -31,7 +33,7 @@ class FileManager extends Page implements HasTable
 {
     use InteractsWithTable;
 
-    protected static string | \BackedEnum | null $navigationIcon = Heroicon::OutlinedFolder;
+    protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedFolder;
 
     protected static ?string $navigationLabel = 'File Manager';
 
@@ -205,7 +207,7 @@ class FileManager extends Page implements HasTable
                         ->required(),
                 ])
                 ->action(function (array $data): void {
-                    $tmpDisk = \Illuminate\Support\Facades\Storage::disk('local');
+                    $tmpDisk = Storage::disk('local');
                     $tmpPath = $data['file'];
                     $absoluteTmpPath = $tmpDisk->path($tmpPath);
 
@@ -227,9 +229,20 @@ class FileManager extends Page implements HasTable
                         }
                     }
 
+                    $extension = strtolower(pathinfo($desiredName, PATHINFO_EXTENSION));
+                    $blockedPublicExtensions = ['php', 'phtml', 'phar', 'html', 'htm', 'xhtml', 'svg', 'js', 'mjs', 'exe', 'sh'];
+
+                    if ($data['visibility'] === StorageFile::VISIBILITY_PUBLIC && in_array($extension, $blockedPublicExtensions, true)) {
+                        $tmpDisk->delete($tmpPath);
+
+                        throw ValidationException::withMessages([
+                            'filename' => "Ekstensi .{$extension} tidak diizinkan untuk file publik demi keamanan XSS/eksekusi.",
+                        ]);
+                    }
+
                     $directory = $this->getCurrentDirectory();
 
-                    $uploadedFile = new \Illuminate\Http\UploadedFile(
+                    $uploadedFile = new UploadedFile(
                         $absoluteTmpPath,
                         $desiredName,
                         $tmpDisk->mimeType($tmpPath),
