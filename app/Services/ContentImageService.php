@@ -132,13 +132,17 @@ class ContentImageService
     /**
      * Resolusi URL pratinjau yang aman untuk ditampilkan pada ImageEntry Filament.
      */
-    public function previewUrl(?string $path): ?string
+    public function previewUrl(?string $path, bool $ignorePlaceholder = false): ?string
     {
         if (blank($path)) {
             return null;
         }
 
         $trimmed = trim($path);
+
+        if ($ignorePlaceholder && str_contains($trimmed, 'Placeholder.png')) {
+            return null;
+        }
 
         if (str_starts_with($trimmed, 'http://') || str_starts_with($trimmed, 'https://')) {
             return $trimmed;

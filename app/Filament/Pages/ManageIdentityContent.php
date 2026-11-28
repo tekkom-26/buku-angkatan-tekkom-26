@@ -78,8 +78,8 @@ class ManageIdentityContent extends Page
                                             ImageEntry::make('header_banner_preview')
                                                 ->label('Pratinjau Banner Saat Ini')
                                                 ->imageHeight(140)
-                                                ->state(fn (Get $get): ?string => app(ContentImageService::class)->previewUrl($get('header_banner.banner_placeholder')))
-                                                ->visible(fn (Get $get): bool => filled(app(ContentImageService::class)->previewUrl($get('header_banner.banner_placeholder')))),
+                                                ->state(fn (Get $get): ?string => app(ContentImageService::class)->previewUrl($get('header_banner.banner_placeholder'), ignorePlaceholder: true))
+                                                ->visible(fn (Get $get): bool => filled(app(ContentImageService::class)->previewUrl($get('header_banner.banner_placeholder'), ignorePlaceholder: true))),
 
                                             self::imageUpload(
                                                 'header_banner.banner_upload',
@@ -344,8 +344,8 @@ class ManageIdentityContent extends Page
                                                     ImageEntry::make('image_preview')
                                                         ->label('Pratinjau Gambar Saat Ini')
                                                         ->imageHeight(140)
-                                                        ->state(fn (Get $get): ?string => app(ContentImageService::class)->previewUrl($get('image')))
-                                                        ->visible(fn (Get $get): bool => filled(app(ContentImageService::class)->previewUrl($get('image')))),
+                                                        ->state(fn (Get $get): ?string => app(ContentImageService::class)->previewUrl($get('image'), ignorePlaceholder: true))
+                                                        ->visible(fn (Get $get): bool => filled(app(ContentImageService::class)->previewUrl($get('image'), ignorePlaceholder: true))),
 
                                                     self::imageUpload(
                                                         'image_upload',

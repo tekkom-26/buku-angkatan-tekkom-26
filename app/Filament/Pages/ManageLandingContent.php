@@ -97,8 +97,8 @@ class ManageLandingContent extends Page
                                             ImageEntry::make('hero_mascot_preview')
                                                 ->label('Pratinjau Gambar Maskot Saat Ini')
                                                 ->imageHeight(140)
-                                                ->state(fn (Get $get): ?string => app(ContentImageService::class)->previewUrl($get('hero.mascot_placeholder')))
-                                                ->visible(fn (Get $get): bool => filled(app(ContentImageService::class)->previewUrl($get('hero.mascot_placeholder')))),
+                                                ->state(fn (Get $get): ?string => app(ContentImageService::class)->previewUrl($get('hero.mascot_placeholder'), ignorePlaceholder: true))
+                                                ->visible(fn (Get $get): bool => filled(app(ContentImageService::class)->previewUrl($get('hero.mascot_placeholder'), ignorePlaceholder: true))),
 
                                             self::imageUpload('hero.mascot_upload', 'Unggah Gambar Maskot'),
 
@@ -152,8 +152,8 @@ class ManageLandingContent extends Page
                                                     ImageEntry::make('image_preview')
                                                         ->label('Pratinjau Foto Saat Ini')
                                                         ->imageHeight(160)
-                                                        ->state(fn (Get $get): ?string => app(ContentImageService::class)->previewUrl($get('image')))
-                                                        ->visible(fn (Get $get): bool => filled(app(ContentImageService::class)->previewUrl($get('image')))),
+                                                        ->state(fn (Get $get): ?string => app(ContentImageService::class)->previewUrl($get('image'), ignorePlaceholder: true))
+                                                        ->visible(fn (Get $get): bool => filled(app(ContentImageService::class)->previewUrl($get('image'), ignorePlaceholder: true))),
 
                                                     self::imageUpload('image_upload', 'Unggah Foto Momen'),
 

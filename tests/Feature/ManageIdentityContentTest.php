@@ -274,6 +274,18 @@ class ManageIdentityContentTest extends TestCase
         );
     }
 
+    public function test_preview_url_hides_placeholder_logo_on_photo_slots_until_real_image_uploaded(): void
+    {
+        $service = app(ContentImageService::class);
+
+        $this->assertNull($service->previewUrl('/assets/Placeholder.png', ignorePlaceholder: true));
+        $this->assertNotNull($service->previewUrl('/assets/Placeholder.png', ignorePlaceholder: false));
+        $this->assertSame(
+            'https://cdn.subekti.web.id/content/landing/moments/foto.jpg',
+            $service->previewUrl('https://cdn.subekti.web.id/content/landing/moments/foto.jpg', ignorePlaceholder: true),
+        );
+    }
+
     /**
      * Buat file gambar valid (PNG / JPG / WEBP) tanpa bergantung pada ekstensi GD.
      */
