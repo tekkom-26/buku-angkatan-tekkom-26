@@ -305,10 +305,26 @@
             </div>
         </div>
 
-        {{-- Bottom Zoom Controls (Mobile: bottom-right & auto-hidden when Mini Profile Card opens; Desktop: bottom-left) --}}
+        {{-- Mobile/Tablet Always-Visible Back to Directory Button (bottom-left, hidden when Mini Card opens or on md+ where Filter HUD is open) --}}
         <div
-            :class="selectedStudent ? 'hidden sm:flex' : 'flex'"
-            class="pointer-events-none absolute bottom-4 right-3 sm:right-auto sm:left-3 z-20 flex-col gap-2 pb-[env(safe-area-inset-bottom)]"
+            :class="selectedStudent ? 'hidden' : 'flex md:hidden'"
+            class="pointer-events-none absolute bottom-4 left-3 z-20 pb-[env(safe-area-inset-bottom)]"
+        >
+            <a
+                :href="directoryUrl()"
+                href="{{ route('directory.index') }}"
+                class="pointer-events-auto inline-flex items-center gap-1.5 min-h-11 px-3.5 py-2 rounded-xl bg-surface-card/92 hover:bg-brand-red border border-white/15 hover:border-brand-red-hover backdrop-blur-md font-display text-xs font-semibold text-text-primary shadow-lg transition-colors"
+                aria-label="Kembali ke Direktori Mahasiswa"
+            >
+                <span class="font-mono text-brand-gold" aria-hidden="true">&larr;</span>
+                <span>Direktori</span>
+            </a>
+        </div>
+
+        {{-- Bottom Zoom Controls (Mobile/Tablet: bottom-right & auto-hidden when Mini Profile Card opens; Desktop: bottom-left) --}}
+        <div
+            :class="selectedStudent ? 'hidden md:flex' : 'flex'"
+            class="pointer-events-none absolute bottom-4 right-3 md:right-auto md:left-3 z-20 flex-col gap-2 pb-[env(safe-area-inset-bottom)]"
         >
             <div class="pointer-events-auto inline-flex items-center gap-1 rounded-xl border border-white/15 bg-surface-card/90 backdrop-blur-md p-1 shadow-lg w-fit">
                 <button
