@@ -130,10 +130,6 @@
                     >
                         <x-wireframe-slot variant="emblem" label="Foto Formal" hint="Jas Almamater Undip" />
                     </div>
-
-                    <div class="absolute bottom-3 right-3 z-20 px-2.5 py-1 rounded-lg text-xs font-display font-medium bg-canvas-base/85 border border-white/15 text-brand-gold backdrop-blur-xs pointer-events-none">
-                        Jas Almamater
-                    </div>
                 </div>
 
                 {{-- Casual Layer --}}
@@ -161,9 +157,6 @@
                         <x-wireframe-slot variant="emblem" label="Foto Kasual" hint="Gaya Bebas" />
                     </div>
 
-                    <div class="absolute bottom-3 right-3 z-20 px-2.5 py-1 rounded-lg text-xs font-display font-medium bg-brand-red/90 border border-brand-red-hover text-text-primary backdrop-blur-xs pointer-events-none">
-                        Foto Kasual
-                    </div>
                 </div>
             </div>
 
