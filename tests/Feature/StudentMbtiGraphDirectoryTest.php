@@ -266,18 +266,20 @@ class StudentMbtiGraphDirectoryTest extends TestCase
             'class_name' => 'C',
         ]);
 
-        // Directory shows compact Filter MBTI toggle + CTA link to /graph.
+        // Directory shows compact Filter MBTI toggle + CTA link to /graph without locking document scroll.
         $dirResponse = $this->call('GET', '/directory', [], ['angkatan_session' => $this->sessionCookie]);
         $dirResponse->assertOk();
         $dirResponse->assertSee('Filter MBTI');
         $dirResponse->assertSee('Buka Graph View');
         $dirResponse->assertSee(route('graph.index'), false);
+        $dirResponse->assertDontSee('h-dvh overflow-hidden overscroll-none');
 
-        // /graph renders 200 OK, pre-hydrates active aspects from URL, excludes screenshot_url, and has no arbitrary HEX.
+        // /graph renders 200 OK, locks viewport height without scroll, pre-hydrates aspects, excludes screenshot_url, and has no arbitrary HEX.
         $graphResponse = $this->call('GET', '/graph', ['aspects' => 'E,N'], [
             'angkatan_session' => $this->sessionCookie,
         ]);
         $graphResponse->assertOk();
+        $graphResponse->assertSee('h-dvh overflow-hidden overscroll-none');
         $graphResponse->assertSee('Konstelasi MBTI Tekkom 26');
         $graphResponse->assertSee('Graph Controls');
         $graphResponse->assertSee('Buka Profil Lengkap');

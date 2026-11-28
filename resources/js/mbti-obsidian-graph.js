@@ -125,6 +125,9 @@ export function createMbtiObsidianGraph(canvas, payload, callbacks = {}) {
         selectedStudentNode: null,
         draggedNode: null,
         isPanning: false,
+        activePointers: new Map(),
+        pinchState: null,
+        wasMultiTouch: false,
         pointerDownPos: null,
         lastPointerPos: null,
         pointerMovedDist: 0,
@@ -681,8 +684,46 @@ export function createMbtiObsidianGraph(canvas, payload, callbacks = {}) {
         };
     }
 
+    function getPinchMetrics() {
+        const points = [...state.activePointers.values()];
+        if (points.length < 2) {
+            return null;
+        }
+        const [p1, p2] = points;
+        return {
+            dist: Math.max(10, Math.hypot(p2.x - p1.x, p2.y - p1.y)),
+            midX: (p1.x + p2.x) / 2,
+            midY: (p1.y + p2.y) / 2,
+        };
+    }
+
     function onPointerDown(e) {
         const pos = getLocalCoords(e.clientX, e.clientY);
+        state.activePointers.set(e.pointerId, pos);
+
+        if (canvas.setPointerCapture && e.pointerId !== undefined) {
+            try {
+                canvas.setPointerCapture(e.pointerId);
+            } catch (_) {
+                // Ignore synthetic events
+            }
+        }
+
+        if (state.activePointers.size >= 2) {
+            state.wasMultiTouch = true;
+            if (state.draggedNode) {
+                state.draggedNode.fx = null;
+                state.draggedNode.fy = null;
+                state.draggedNode = null;
+                simulation.alphaTarget(0);
+            }
+            state.isPanning = false;
+            state.pinchState = getPinchMetrics();
+            canvas.style.cursor = 'grabbing';
+            return;
+        }
+
+        state.wasMultiTouch = false;
         state.pointerDownPos = pos;
         state.lastPointerPos = pos;
         state.pointerMovedDist = 0;
@@ -698,18 +739,31 @@ export function createMbtiObsidianGraph(canvas, payload, callbacks = {}) {
             state.isPanning = true;
             canvas.style.cursor = 'grabbing';
         }
-
-        if (canvas.setPointerCapture && e.pointerId !== undefined) {
-            try {
-                canvas.setPointerCapture(e.pointerId);
-            } catch (_) {
-                // Ignore synthetic events
-            }
-        }
     }
 
     function onPointerMove(e) {
         const pos = getLocalCoords(e.clientX, e.clientY);
+        if (state.activePointers.has(e.pointerId)) {
+            state.activePointers.set(e.pointerId, pos);
+        }
+
+        if (state.activePointers.size >= 2) {
+            const metrics = getPinchMetrics();
+            if (metrics && state.pinchState) {
+                const scaleFactor = metrics.dist / state.pinchState.dist;
+                const nextScale = Math.max(0.28, Math.min(3.5, state.scale * scaleFactor));
+                const ratio = nextScale / state.scale;
+
+                const offsetX = metrics.midX - state.width / 2 - state.panX;
+                const offsetY = metrics.midY - state.height / 2 - state.panY;
+
+                state.panX = state.panX - offsetX * (ratio - 1) + (metrics.midX - state.pinchState.midX);
+                state.panY = state.panY - offsetY * (ratio - 1) + (metrics.midY - state.pinchState.midY);
+                state.scale = nextScale;
+            }
+            state.pinchState = metrics;
+            return;
+        }
 
         if (state.draggedNode) {
             const dx = pos.x - state.lastPointerPos.x;
@@ -744,6 +798,40 @@ export function createMbtiObsidianGraph(canvas, payload, callbacks = {}) {
     }
 
     function onPointerUp(e) {
+        state.activePointers.delete(e.pointerId);
+
+        if (canvas.releasePointerCapture && e.pointerId !== undefined) {
+            try {
+                canvas.releasePointerCapture(e.pointerId);
+            } catch (_) {
+                // Ignore if not captured
+            }
+        }
+
+        if (state.activePointers.size >= 2) {
+            state.pinchState = getPinchMetrics();
+            return;
+        }
+
+        if (state.activePointers.size === 1) {
+            state.pinchState = null;
+            const [remaining] = state.activePointers.values();
+            state.lastPointerPos = remaining;
+            state.isPanning = true;
+            state.pointerMovedDist = 999;
+            return;
+        }
+
+        state.pinchState = null;
+
+        if (state.wasMultiTouch) {
+            state.wasMultiTouch = false;
+            state.isPanning = false;
+            state.draggedNode = null;
+            canvas.style.cursor = 'grab';
+            return;
+        }
+
         const wasClick = state.pointerMovedDist < 6;
 
         if (state.draggedNode) {

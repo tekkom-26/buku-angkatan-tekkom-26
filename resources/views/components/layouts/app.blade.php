@@ -4,6 +4,7 @@
     'description' => null,
     'withNavbar' => true,
     'withFooter' => true,
+    'lockViewport' => false,
 ])
 
 @php
@@ -13,7 +14,7 @@
 @endphp
 
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth dark {{ $lockViewport ? 'h-dvh overflow-hidden overscroll-none' : '' }}">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -35,7 +36,7 @@
         @livewireStyles
         @stack('styles')
     </head>
-    <body class="relative min-h-screen overflow-x-hidden bg-canvas-base text-text-primary font-body antialiased selection:bg-brand-gold selection:text-canvas-base flex flex-col justify-between">
+    <body class="relative {{ $lockViewport ? 'h-dvh overflow-hidden overscroll-none' : 'min-h-screen overflow-x-hidden' }} bg-canvas-base text-text-primary font-body antialiased selection:bg-brand-gold selection:text-canvas-base flex flex-col justify-between">
 
         {{-- Global Atmospheric Backdrop: Hexagonal Honeycomb, Circuit Grid & 26 GPU Colony Particles --}}
         <div class="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
@@ -58,7 +59,7 @@
         @endif
 
         {{-- Main Page Slot Content --}}
-        <div class="relative z-10 grow flex flex-col">
+        <div class="relative z-10 grow flex flex-col {{ $lockViewport ? 'min-h-0 overflow-hidden' : '' }}">
             {{ $slot }}
         </div>
 

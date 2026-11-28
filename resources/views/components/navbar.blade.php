@@ -22,7 +22,7 @@
 <header
     x-data="{ mobileOpen: false }"
     @keydown.escape.window="mobileOpen = false"
-    class="sticky top-4 z-50 w-full px-4 sm:px-6 lg:px-8 pt-2"
+    class="sticky top-4 z-50 shrink-0 w-full px-4 sm:px-6 lg:px-8 pt-2"
 >
     <div class="max-w-6xl mx-auto">
         {{-- Floating Pill Navigation Bar (Dark Frosted Glass + Hairline Border) --}}

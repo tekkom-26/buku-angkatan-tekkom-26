@@ -1,4 +1,4 @@
-<x-layouts.app activePage="graph" :title="'Graph View MBTI — ' . ($cohortName ?? 'COMETS 2026')" :withFooter="false">
+<x-layouts.app activePage="graph" :title="'Graph View MBTI — ' . ($cohortName ?? 'COMETS 2026')" :withFooter="false" :lockViewport="true">
     @php
         $center = $graphPayload['center'] ?? [];
         $axes = [
@@ -11,7 +11,7 @@
 
     <main
         id="main-content"
-        class="relative grow w-full h-[calc(100dvh-4.75rem)] md:h-[calc(100dvh-5.5rem)] min-h-[460px] overflow-hidden select-none"
+        class="relative flex-1 min-h-0 w-full overflow-hidden overscroll-none select-none"
         x-data="{
             graph: null,
             payload: @js($graphPayload),
@@ -210,7 +210,7 @@
                 <div
                     x-show="isDesktop || mobileTab === 'filter'"
                     x-transition
-                    class="space-y-2.5 max-h-[52dvh] overflow-y-auto md:max-h-none md:overflow-visible pt-1"
+                    class="space-y-2.5 max-h-[50dvh] overflow-y-auto overscroll-contain md:max-h-none md:overflow-visible pt-1"
                 >
                     <div class="grid grid-cols-2 gap-1.5">
                         @foreach ($axes as $pair)
@@ -274,7 +274,7 @@
                     x-cloak
                     x-show="!isDesktop && mobileTab === 'controls'"
                     x-transition
-                    class="md:hidden pt-2 border-t border-white/10 max-h-[52dvh] overflow-y-auto"
+                    class="md:hidden pt-2 border-t border-white/10 max-h-[50dvh] overflow-y-auto overscroll-contain"
                 >
                     <x-graph-controls-body />
                 </div>
@@ -308,7 +308,7 @@
         {{-- Bottom Zoom Controls (Mobile: bottom-right & auto-hidden when Mini Profile Card opens; Desktop: bottom-left) --}}
         <div
             :class="selectedStudent ? 'hidden sm:flex' : 'flex'"
-            class="pointer-events-none absolute bottom-3 right-3 sm:right-auto sm:left-3 z-20 flex-col gap-2"
+            class="pointer-events-none absolute bottom-4 right-3 sm:right-auto sm:left-3 z-20 flex-col gap-2 pb-[env(safe-area-inset-bottom)]"
         >
             <div class="pointer-events-auto inline-flex items-center gap-1 rounded-xl border border-white/15 bg-surface-card/90 backdrop-blur-md p-1 shadow-lg w-fit">
                 <button
@@ -331,7 +331,7 @@
             </div>
 
             <div class="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border border-white/10 bg-canvas-base/80 backdrop-blur-xs font-body text-[11px] text-text-muted">
-                <span>Drag node untuk menarik pegas &middot; Scroll zoom &middot; Klik node mahasiswa untuk Mini Profil</span>
+                <span>Drag node untuk menarik pegas &middot; Scroll / pinch zoom &middot; Klik node mahasiswa untuk Mini Profil</span>
             </div>
         </div>
 
@@ -341,7 +341,7 @@
             x-show="selectedStudent !== null"
             x-transition
             id="graph-mini-profile-card"
-            class="pointer-events-auto absolute bottom-3 right-3 left-3 sm:left-auto sm:w-84 z-30 rounded-2xl border border-brand-gold/55 bg-surface-card/95 backdrop-blur-md p-4 shadow-2xl"
+            class="pointer-events-auto absolute bottom-4 right-3 left-3 sm:left-auto sm:w-84 z-30 rounded-2xl border border-brand-gold/55 bg-surface-card/95 backdrop-blur-md p-4 shadow-2xl mb-[env(safe-area-inset-bottom)]"
         >
             <template x-if="selectedStudent">
                 <div class="space-y-3.5">
