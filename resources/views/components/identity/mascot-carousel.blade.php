@@ -8,58 +8,13 @@
     $rawEyebrow = $c['eyebrow'] ?? 'Karakter Maskot';
     $eyebrow = str_starts_with($rawEyebrow, '//') ? 'Karakter Maskot' : $rawEyebrow;
     $title = $c['title'] ?? 'Bedah Karakter';
-    $subtitle = $c['subtitle'] ?? '&amp; Anatomi Maskot Bee-ner';
+    $subtitle = html_entity_decode((string) ($c['subtitle'] ?? '& Anatomi Maskot Bee-ner'), ENT_QUOTES | ENT_HTML5, 'UTF-8');
     $description = $c['description'] ?? 'Setiap detail anatomi pada maskot lebah biner Bee-ner dirancang untuk memancarkan kecerdasan komputasi, potensi diri yang menyala, kekuatan memikul tanggung jawab bersama, dan kepekaan sosial koloni COMETS 2026.';
 
-    $beenerSlides = [
-        [
-            'number' => '01',
-            'eyebrow' => 'Logika Komputasi',
-            'title' => 'Strip Hitam-Emas — Logika Biner 0 & 1',
-            'description' => 'Belang tubuh berwarna hitam Charcoal dan Tech Gold merepresentasikan bilangan biner (0 dan 1) sebagai fondasi logika komputasi Teknik Komputer sekaligus ketangguhan melewati suka dan duka.',
-            'detail' => 'Biner 0 & 1',
-            'part' => 'Strip Hitam-Emas',
-            'image' => $mascotPlaceholder,
-        ],
-        [
-            'number' => '02',
-            'eyebrow' => 'Potensi Diri',
-            'title' => 'Mata Hexagon — Potensi yang Menyala',
-            'description' => 'Mata berbentuk segi enam (hexagon) yang bersinar keemasan melambangkan fokus, ketajaman visi rekayasa, serta potensi setiap mahasiswa COMETS 2026 yang selalu menyala.',
-            'detail' => 'Visi Hexagon',
-            'part' => 'Mata Hexagon',
-            'image' => $mascotPlaceholder,
-        ],
-        [
-            'number' => '03',
-            'eyebrow' => 'Tanggung Jawab Bersama',
-            'title' => 'Ring Bahu — Kuat Memikul Beban Bersama',
-            'description' => 'Konstruksi ring pelindung di kedua bahu Bee-ner melambangkan kekuatan fisik maupun mental untuk saling menopang dan memikul tanggung jawab besar secara kolektif.',
-            'detail' => 'Kekuatan Kolektif',
-            'part' => 'Ring Bahu',
-            'image' => $mascotPlaceholder,
-        ],
-        [
-            'number' => '04',
-            'eyebrow' => 'Empati & Konektivitas',
-            'title' => 'Antena — Peka & Peduli Sesama',
-            'description' => 'Sepasang antena pemancar di kepala Bee-ner berfungsi sebagai sensor kepekaan sosial: selalu tanggap, peduli, dan terhubung dengan kondisi rekan satu angkatan.',
-            'detail' => 'Peka & Peduli',
-            'part' => 'Antena',
-            'image' => $mascotPlaceholder,
-        ],
-        [
-            'number' => '05',
-            'eyebrow' => 'Semangat Inklusif',
-            'title' => 'Senyum Ramah — Inklusivitas Koloni',
-            'description' => 'Ekspresi senyum hangat Bee-ner menyeimbangkan ketegasan teknologi keras dengan keramahan keluarga besar Teknik Komputer 2026 yang terbuka bagi siapa saja.',
-            'detail' => 'Koloni Inklusif',
-            'part' => 'Senyum Ramah',
-            'image' => $mascotPlaceholder,
-        ],
-    ];
-
-    $slides = (! empty($c['slides']) && count($c['slides']) === 5) ? $c['slides'] : $beenerSlides;
+    $slides = app(\App\Services\WebContentService::class)->resolveIdentitySlides(
+        $c['slides'] ?? null,
+        'mascot',
+    );
 @endphp
 
 <section
@@ -89,7 +44,7 @@
                 </p>
                 <h2 id="mascot-explorer-heading" class="font-display text-2xl sm:text-4xl font-bold tracking-tight text-text-primary">
                     {{ $title }}
-                    <span class="text-brand-gold">{!! $subtitle !!}</span>
+                    <span class="text-brand-gold">{{ $subtitle }}</span>
                 </h2>
                 <p class="mt-3 max-w-xl font-body text-sm sm:text-base leading-relaxed text-text-secondary">
                     {{ $description }}

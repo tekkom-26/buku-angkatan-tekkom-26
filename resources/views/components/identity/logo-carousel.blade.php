@@ -11,55 +11,10 @@
     $subtitle = $c['subtitle'] ?? '5 Elemen Lambang COMETS';
     $description = $c['description'] ?? 'Setiap lapisan geometri pada lambang COMETS 2026 dirancang dengan presisi untuk memadukan solidaritas koloni lebah, ketangguhan melewati masa terang dan gelap, serta identitas keilmuan Teknik Komputer.';
 
-    $cometsLogoSlides = [
-        [
-            'number' => '01',
-            'eyebrow' => 'Kesetaraan & Perlindungan',
-            'title' => 'Lingkaran — Kesetaraan Tanpa Awal & Akhir',
-            'description' => 'Lingkaran utuh melambangkan kesetaraan seluruh anggota angkatan tanpa awal maupun akhir, sebuah ikatan pelindung di mana setiap mahasiswa saling menjaga satu sama lain.',
-            'detail' => 'Saling Melindungi',
-            'part' => 'Lingkaran',
-            'image' => $logoPlaceholder,
-        ],
-        [
-            'number' => '02',
-            'eyebrow' => 'Solidaritas Koloni',
-            'title' => 'Lebah — Satu Koloni Membangun Sarang Kokoh',
-            'description' => 'Lebah merepresentasikan nilai inti Kebersamaan: satu koloni pekerja keras yang bersinergi secara harmonis untuk membangun sarang dan masa depan yang kokoh.',
-            'detail' => 'Kebersamaan Koloni',
-            'part' => 'Lebah',
-            'image' => $logoPlaceholder,
-        ],
-        [
-            'number' => '03',
-            'eyebrow' => 'Identitas Teknik Komputer',
-            'title' => 'Sayap Bersirkuit — Rekayasa & Daya Juang',
-            'description' => 'Rentang sayap berjalur sirkuit terpadu melambangkan identitas keilmuan Teknik Komputer (perangkat keras & perangkat lunak) sekaligus daya juang untuk terus melaju tinggi.',
-            'detail' => 'Hardware & Software',
-            'part' => 'Sayap Bersirkuit',
-            'image' => $logoPlaceholder,
-        ],
-        [
-            'number' => '04',
-            'eyebrow' => 'Ketangguhan',
-            'title' => 'Belang & Sengat — Terang, Gelap & Daya Tahan',
-            'description' => 'Perpaduan belang hitam-emas dan sengat tajam melambangkan masa terang maupun gelap yang dilewati bersama dengan penuh keberanian dan daya tahan.',
-            'detail' => 'Ketangguhan Bersama',
-            'part' => 'Belang & Sengat',
-            'image' => $logoPlaceholder,
-        ],
-        [
-            'number' => '05',
-            'eyebrow' => 'Angkatan 2026',
-            'title' => '26 Segi Enam — 26 Simpul Rumah Bersama',
-            'description' => 'Konstruksi 26 sel heksagonal menjadi penanda angkatan 2026, di mana setiap simpul mahasiswa saling terhubung membentuk satu rumah besar Teknik Komputer Undip.',
-            'detail' => '26 Simpul Hexagon',
-            'part' => '26 Segi Enam',
-            'image' => $logoPlaceholder,
-        ],
-    ];
-
-    $slides = (! empty($c['slides']) && count($c['slides']) === 5) ? $c['slides'] : $cometsLogoSlides;
+    $slides = app(\App\Services\WebContentService::class)->resolveIdentitySlides(
+        $c['slides'] ?? null,
+        'logo_symbolism',
+    );
 @endphp
 
 <section

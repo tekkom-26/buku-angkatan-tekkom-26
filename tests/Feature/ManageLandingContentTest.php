@@ -3,9 +3,12 @@
 namespace Tests\Feature;
 
 use App\Filament\Pages\ManageLandingContent;
+use App\Models\StorageFile;
 use App\Models\User;
 use App\Services\WebContentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -73,5 +76,40 @@ class ManageLandingContentTest extends TestCase
         $this->assertEquals('BERSAMA KITA BISA', $content['hero']['motto']);
         $this->assertEquals('TEKKOM 26', $content['decoding']['wordmark']);
         $this->assertEquals('Direktori Mahasiswa 2026', $content['directory_banner']['headline']);
+    }
+
+    public function test_admin_can_upload_decoding_logo_image_to_r2_from_landing_cms(): void
+    {
+        config(['filesystems.disks.r2.url' => 'https://cdn.subekti.web.id']);
+        Storage::fake('local');
+        Storage::fake('r2', ['url' => 'https://cdn.subekti.web.id']);
+
+        $logoFile = UploadedFile::fake()->createWithContent(
+            'comets-logo.png',
+            (string) base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='),
+        );
+
+        Livewire::actingAs($this->admin)
+            ->test(ManageLandingContent::class)
+            ->fillForm([
+                'decoding' => [
+                    'wordmark' => 'COMETS',
+                    'logo_upload' => $logoFile,
+                ],
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors()
+            ->assertNotified('Konten Beranda Berhasil Diperbarui');
+
+        $content = app(WebContentService::class)->getLandingContent();
+        $logoUrl = $content['decoding']['logo_placeholder'];
+
+        $this->assertArrayNotHasKey('logo_upload', $content['decoding']);
+        $this->assertMatchesRegularExpression('#^https://cdn\.subekti\.web\.id/content/landing/decoding-logo-[a-z0-9]{8}\.png\?v=\d+$#', $logoUrl);
+        $this->assertSame(1, StorageFile::query()->where('disk', 'r2')->where('visibility', StorageFile::VISIBILITY_PUBLIC)->count());
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee($logoUrl, false);
     }
 }

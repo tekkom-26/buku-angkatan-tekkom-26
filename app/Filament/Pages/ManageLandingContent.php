@@ -2,17 +2,24 @@
 
 namespace App\Filament\Pages;
 
+use App\Services\ContentImageService;
 use App\Services\WebContentService;
 use BackedEnum;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Infolists\Components\ImageEntry;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use InvalidArgumentException;
+use RuntimeException;
 use UnitEnum;
 
 /**
@@ -85,11 +92,20 @@ class ManageLandingContent extends Page
                                             ->required()
                                             ->maxLength(255),
 
-                                        TextInput::make('hero.mascot_placeholder')
-                                            ->label('Path Asset Maskot Chibi')
-                                            ->helperText('Contoh: /assets/Placeholder.png')
-                                            ->columnSpanFull()
-                                            ->maxLength(255),
+                                        Group::make([
+                                            ImageEntry::make('hero_mascot_preview')
+                                                ->label('Pratinjau Gambar Maskot Saat Ini')
+                                                ->imageHeight(140)
+                                                ->state(fn (Get $get): ?string => app(ContentImageService::class)->previewUrl($get('hero.mascot_placeholder')))
+                                                ->visible(fn (Get $get): bool => filled(app(ContentImageService::class)->previewUrl($get('hero.mascot_placeholder')))),
+
+                                            self::imageUpload('hero.mascot_upload', 'Unggah Gambar Maskot'),
+
+                                            TextInput::make('hero.mascot_placeholder')
+                                                ->label('Path Asset / URL R2 Maskot')
+                                                ->helperText('Terisi otomatis setelah unggah gambar ke Cloudflare R2, atau isi path/URL manual (mis. /assets/Placeholder.png).')
+                                                ->maxLength(500),
+                                        ])->columnSpanFull(),
                                     ]),
                             ]),
 
@@ -111,11 +127,20 @@ class ManageLandingContent extends Page
                                             ->label('Sub-label Monospace')
                                             ->maxLength(255),
 
-                                        TextInput::make('decoding.logo_placeholder')
-                                            ->label('Path Asset Logo')
-                                            ->helperText('Contoh: /assets/Placeholder.png')
-                                            ->columnSpanFull()
-                                            ->maxLength(255),
+                                        Group::make([
+                                            ImageEntry::make('decoding_logo_preview')
+                                                ->label('Pratinjau Gambar Logo Saat Ini')
+                                                ->imageHeight(140)
+                                                ->state(fn (Get $get): ?string => app(ContentImageService::class)->previewUrl($get('decoding.logo_placeholder')))
+                                                ->visible(fn (Get $get): bool => filled(app(ContentImageService::class)->previewUrl($get('decoding.logo_placeholder')))),
+
+                                            self::imageUpload('decoding.logo_upload', 'Unggah Gambar Logo'),
+
+                                            TextInput::make('decoding.logo_placeholder')
+                                                ->label('Path Asset / URL R2 Logo')
+                                                ->helperText('Terisi otomatis setelah unggah gambar ke Cloudflare R2, atau isi path/URL manual (mis. /assets/Placeholder.png).')
+                                                ->maxLength(500),
+                                        ])->columnSpanFull(),
                                     ]),
 
                                 Section::make('Movement 01')
@@ -173,15 +198,45 @@ class ManageLandingContent extends Page
     /**
      * Simpan pembaruan konten beranda ke database dan bersihkan cache.
      */
-    public function save(WebContentService $contentService): void
+    public function save(WebContentService $contentService, ContentImageService $imageService): void
     {
         $state = $this->form->getState();
 
+        try {
+            $state = $imageService->processLandingFormData($state, $contentService->getLandingContent());
+        } catch (InvalidArgumentException|RuntimeException $exception) {
+            Notification::make()
+                ->danger()
+                ->title('Upload gambar gagal')
+                ->body($exception->getMessage())
+                ->persistent()
+                ->send();
+
+            return;
+        }
+
         $contentService->updateLandingContent($state);
+        $this->form->fill($contentService->getLandingContent());
 
         Notification::make()
             ->title('Konten Beranda Berhasil Diperbarui')
             ->success()
             ->send();
+    }
+
+    /**
+     * Field upload virtual untuk gambar beranda (disinggahkan di tmp-uploads lalu diunggah ke R2).
+     */
+    protected static function imageUpload(string $name, string $label): FileUpload
+    {
+        return FileUpload::make($name)
+            ->label($label)
+            ->image()
+            ->disk('local')
+            ->directory('tmp-uploads')
+            ->visibility('private')
+            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+            ->maxSize(5120)
+            ->helperText('JPG / PNG / WEBP, maks 5 MB. Kosongkan jika tidak ingin mengganti gambar saat ini.');
     }
 }
