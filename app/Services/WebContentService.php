@@ -90,6 +90,66 @@ class WebContentService
     }
 
     /**
+     * Deteksi apakah data slide masih berupa template gajah/legacy lama yang belum pernah
+     * diisi gambar maupun diedit oleh admin setelah revamp COMETS 2026.
+     *
+     * @param  array<int, mixed>  $slides
+     */
+    public function isUntouchedLegacySlides(array $slides, string $section): bool
+    {
+        $legacyParts = match ($section) {
+            'logo_symbolism' => ['WINGS', 'NUMERAL 26', 'CIRCUIT', 'FULL EMBLEM'],
+            'mascot' => ['TUSK', 'TRUNK', 'JACKET', 'FULL BODY'],
+            default => null,
+        };
+
+        if ($legacyParts === null || count($slides) !== count($legacyParts)) {
+            return false;
+        }
+
+        $parts = [];
+
+        foreach ($slides as $slide) {
+            if (! is_array($slide)) {
+                return false;
+            }
+
+            $image = (string) ($slide['image'] ?? '');
+            if ($image !== '' && ! str_contains($image, 'Placeholder.png')) {
+                return false;
+            }
+
+            $parts[] = $slide['part'] ?? null;
+        }
+
+        return $parts === $legacyParts;
+    }
+
+    /**
+     * Resolusi daftar slide Identitas (Logo / Maskot) dengan fallback otomatis
+     * ke default COMETS 2026 jika data kosong atau masih berupa template legacy lama.
+     *
+     * @param  array<int, mixed>|null  $slides
+     * @return array<int, array<string, mixed>>
+     */
+    public function resolveIdentitySlides(?array $slides, string $section): array
+    {
+        $normalized = array_values(array_filter(
+            $slides ?? [],
+            static fn (mixed $slide): bool => is_array($slide) && filled($slide['title'] ?? null),
+        ));
+
+        if ($normalized === [] || $this->isUntouchedLegacySlides($normalized, $section)) {
+            /** @var array<int, array<string, mixed>> $defaults */
+            $defaults = config("content.identity.{$section}.slides", []);
+
+            return $defaults;
+        }
+
+        return $normalized;
+    }
+
+    /**
      * Invalidate content cache.
      * If $section is null, clear all content caches.
      */

@@ -39,8 +39,8 @@ class WebContentServiceTest extends TestCase
         $this->assertEquals(config('content.identity.header_banner.title'), $content['header_banner']['title']);
         $this->assertEquals(config('content.identity.vision_mission.motto'), $content['vision_mission']['motto']);
         $this->assertCount(4, $content['color_pillars']['pillars']);
-        $this->assertCount(4, $content['logo_symbolism']['slides']);
-        $this->assertCount(4, $content['mascot']['slides']);
+        $this->assertCount(5, $content['logo_symbolism']['slides']);
+        $this->assertCount(5, $content['mascot']['slides']);
     }
 
     public function test_update_landing_content_persists_to_database_and_clears_cache(): void

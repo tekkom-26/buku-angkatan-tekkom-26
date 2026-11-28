@@ -10,7 +10,7 @@
 
     <main id="main-content" class="grow">
         {{-- Section 1: COMETS Hero Section with Embedded Media Carousel (PRD §3.1.1) --}}
-        <x-landing.hero :content="$landingContent['hero'] ?? null" />
+        <x-landing.hero :content="$landingContent['hero'] ?? null" :moments="$landingContent['moments'] ?? null" />
 
         {{-- Section 2: Bee-ner Mascot & Jargon Identity Section (PRD §3.1.2) --}}
         <x-landing.decoding-ascent :content="$landingContent['decoding'] ?? null" />

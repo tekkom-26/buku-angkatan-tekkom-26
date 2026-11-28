@@ -1,5 +1,6 @@
 @props([
     'content' => null,
+    'moments' => null,
     'title' => null,
     'motto' => null,
     'narrative' => null,
@@ -38,7 +39,7 @@
 
         {{-- Moments Media Carousel --}}
         <div class="mb-8 sm:mb-10">
-            <x-landing.moments />
+            <x-landing.moments :moments="$moments" />
         </div>
 
         {{-- Narrative Summary --}}

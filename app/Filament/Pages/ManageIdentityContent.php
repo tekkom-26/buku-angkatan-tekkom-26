@@ -2,18 +2,25 @@
 
 namespace App\Filament\Pages;
 
+use App\Services\ContentImageService;
 use App\Services\WebContentService;
 use BackedEnum;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Infolists\Components\ImageEntry;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use InvalidArgumentException;
+use RuntimeException;
 use UnitEnum;
 
 /**
@@ -38,7 +45,7 @@ class ManageIdentityContent extends Page
 
     public function mount(WebContentService $contentService): void
     {
-        $this->form->fill($contentService->getIdentityContent());
+        $this->form->fill($this->prepareFormData($contentService));
     }
 
     public function form(Schema $schema): Schema
@@ -67,10 +74,23 @@ class ManageIdentityContent extends Page
                                             ->rows(3)
                                             ->required(),
 
-                                        TextInput::make('header_banner.banner_placeholder')
-                                            ->label('Path Aset Banner 21:9')
-                                            ->helperText('Contoh: /assets/Placeholder.png atau URL publik Cloudflare R2')
-                                            ->maxLength(500),
+                                        Group::make([
+                                            ImageEntry::make('header_banner_preview')
+                                                ->label('Pratinjau Banner Saat Ini')
+                                                ->imageHeight(140)
+                                                ->state(fn (Get $get): ?string => app(ContentImageService::class)->previewUrl($get('header_banner.banner_placeholder'), ignorePlaceholder: true))
+                                                ->visible(fn (Get $get): bool => filled(app(ContentImageService::class)->previewUrl($get('header_banner.banner_placeholder'), ignorePlaceholder: true))),
+
+                                            self::imageUpload(
+                                                'header_banner.banner_upload',
+                                                'Unggah Gambar Banner 21:9',
+                                            ),
+
+                                            TextInput::make('header_banner.banner_placeholder')
+                                                ->label('Path Aset / URL R2 Banner 21:9')
+                                                ->helperText('Terisi otomatis setelah unggah gambar ke Cloudflare R2, atau isi path/URL manual (mis. /assets/Placeholder.png).')
+                                                ->maxLength(500),
+                                        ]),
                                     ]),
                             ]),
 
@@ -202,9 +222,12 @@ class ManageIdentityContent extends Page
                                     ->schema([
                                         Repeater::make('logo_symbolism.slides')
                                             ->label('Slide Elemen Simbol')
+                                            ->addActionLabel('Tambah Slide Logo')
+                                            ->collapsible()
+                                            ->itemLabel(fn (array $state): ?string => trim(($state['number'] ?? '').' — '.($state['title'] ?? $state['part'] ?? 'Slide Baru'), ' —'))
                                             ->schema([
                                                 TextInput::make('number')
-                                                    ->label('Nomor (01-04)')
+                                                    ->label('Nomor (mis. 01-05)')
                                                     ->required()
                                                     ->maxLength(10),
 
@@ -224,14 +247,27 @@ class ManageIdentityContent extends Page
                                                     ->maxLength(255),
 
                                                 TextInput::make('part')
-                                                    ->label('Part Tag (e.g. WINGS)')
+                                                    ->label('Part Tag (mis. Lingkaran)')
                                                     ->required()
                                                     ->maxLength(50),
 
-                                                TextInput::make('image')
-                                                    ->label('Path Asset / URL R2')
-                                                    ->helperText('Contoh: /assets/Placeholder.png')
-                                                    ->maxLength(500),
+                                                Group::make([
+                                                    ImageEntry::make('image_preview')
+                                                        ->label('Pratinjau Gambar Saat Ini')
+                                                        ->imageHeight(140)
+                                                        ->state(fn (Get $get): ?string => app(ContentImageService::class)->previewUrl($get('image')))
+                                                        ->visible(fn (Get $get): bool => filled(app(ContentImageService::class)->previewUrl($get('image')))),
+
+                                                    self::imageUpload(
+                                                        'image_upload',
+                                                        'Unggah Gambar Elemen Logo',
+                                                    ),
+
+                                                    TextInput::make('image')
+                                                        ->label('Path Asset / URL R2')
+                                                        ->helperText('Terisi otomatis setelah unggah gambar ke Cloudflare R2, atau tempel URL/path aset manual.')
+                                                        ->maxLength(500),
+                                                ])->columnSpanFull(),
 
                                                 Textarea::make('description')
                                                     ->label('Deskripsi Filosofis')
@@ -275,9 +311,12 @@ class ManageIdentityContent extends Page
                                     ->schema([
                                         Repeater::make('mascot.slides')
                                             ->label('Slide Atribut Maskot')
+                                            ->addActionLabel('Tambah Slide Maskot')
+                                            ->collapsible()
+                                            ->itemLabel(fn (array $state): ?string => trim(($state['number'] ?? '').' — '.($state['title'] ?? $state['part'] ?? 'Slide Baru'), ' —'))
                                             ->schema([
                                                 TextInput::make('number')
-                                                    ->label('Nomor (01-04)')
+                                                    ->label('Nomor (mis. 01-05)')
                                                     ->required()
                                                     ->maxLength(10),
 
@@ -297,14 +336,27 @@ class ManageIdentityContent extends Page
                                                     ->maxLength(255),
 
                                                 TextInput::make('part')
-                                                    ->label('Part Tag (e.g. TUSK)')
+                                                    ->label('Part Tag (mis. Strip Hitam-Emas)')
                                                     ->required()
                                                     ->maxLength(50),
 
-                                                TextInput::make('image')
-                                                    ->label('Path Asset / URL R2')
-                                                    ->helperText('Contoh: /assets/Placeholder.png')
-                                                    ->maxLength(500),
+                                                Group::make([
+                                                    ImageEntry::make('image_preview')
+                                                        ->label('Pratinjau Gambar Saat Ini')
+                                                        ->imageHeight(140)
+                                                        ->state(fn (Get $get): ?string => app(ContentImageService::class)->previewUrl($get('image'), ignorePlaceholder: true))
+                                                        ->visible(fn (Get $get): bool => filled(app(ContentImageService::class)->previewUrl($get('image'), ignorePlaceholder: true))),
+
+                                                    self::imageUpload(
+                                                        'image_upload',
+                                                        'Unggah Gambar Atribut Maskot',
+                                                    ),
+
+                                                    TextInput::make('image')
+                                                        ->label('Path Asset / URL R2')
+                                                        ->helperText('Terisi otomatis setelah unggah gambar ke Cloudflare R2, atau tempel URL/path aset manual.')
+                                                        ->maxLength(500),
+                                                ])->columnSpanFull(),
 
                                                 Textarea::make('description')
                                                     ->label('Deskripsi Karakter & Makna')
@@ -323,15 +375,69 @@ class ManageIdentityContent extends Page
     /**
      * Simpan pembaruan konten identitas ke database dan bersihkan cache.
      */
-    public function save(WebContentService $contentService): void
+    public function save(WebContentService $contentService, ContentImageService $imageService): void
     {
         $state = $this->form->getState();
 
+        try {
+            $state = $imageService->processIdentityFormData($state, $contentService->getIdentityContent());
+        } catch (InvalidArgumentException|RuntimeException $exception) {
+            Notification::make()
+                ->danger()
+                ->title('Upload gambar gagal')
+                ->body($exception->getMessage())
+                ->persistent()
+                ->send();
+
+            return;
+        }
+
         $contentService->updateIdentityContent($state);
+        $this->form->fill($this->prepareFormData($contentService));
 
         Notification::make()
             ->title('Konten Identitas Berhasil Diperbarui')
             ->success()
             ->send();
+    }
+
+    /**
+     * Siapkan data form awal, sekaligus mengganti template slide legacy yang belum pernah
+     * diedit dengan 5 slide resmi COMETS 2026 & Bee-ner.
+     *
+     * @return array<string, mixed>
+     */
+    protected function prepareFormData(WebContentService $contentService): array
+    {
+        $content = $contentService->getIdentityContent();
+
+        $content['logo_symbolism']['slides'] = $contentService->resolveIdentitySlides(
+            $content['logo_symbolism']['slides'] ?? null,
+            'logo_symbolism',
+        );
+
+        $content['mascot']['slides'] = $contentService->resolveIdentitySlides(
+            $content['mascot']['slides'] ?? null,
+            'mascot',
+        );
+
+        return $content;
+    }
+
+    /**
+     * Field upload virtual: file singgah di disk lokal (tmp-uploads), lalu
+     * ContentImageService mengunggahnya ke Cloudflare R2 dan mengisi URL publiknya.
+     */
+    protected static function imageUpload(string $name, string $label): FileUpload
+    {
+        return FileUpload::make($name)
+            ->label($label)
+            ->image()
+            ->disk('local')
+            ->directory('tmp-uploads')
+            ->visibility('private')
+            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+            ->maxSize(5120)
+            ->helperText('JPG / PNG / WEBP, maks 5 MB. Kosongkan jika tidak ingin mengganti gambar saat ini.');
     }
 }
