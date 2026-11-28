@@ -36,10 +36,14 @@
                     aria-label="Beranda COMETS 2026 — Teknik Komputer"
                 >
                     <div
-                        class="size-9 rounded-lg border border-brand-gold/40 bg-surface-elevated flex items-center justify-center font-mono text-xs text-brand-gold font-bold shrink-0 group-hover:border-brand-gold transition-colors"
+                        class="size-9 rounded-lg border border-brand-gold/40 bg-surface-elevated flex items-center justify-center overflow-hidden p-0.5 shrink-0 group-hover:border-brand-gold transition-colors"
                         aria-hidden="true"
                     >
-                        C26
+                        <img
+                            src="{{ asset('assets/Placeholder.png') }}"
+                            alt=""
+                            class="size-full object-contain select-none"
+                        />
                     </div>
 
                     <span class="font-display text-sm sm:text-base font-bold tracking-tight text-text-primary group-hover:text-brand-gold transition-colors leading-none">

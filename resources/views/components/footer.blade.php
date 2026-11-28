@@ -14,10 +14,14 @@
             <div class="lg:col-span-6 flex flex-col items-start space-y-4">
                 <div class="flex items-center gap-3.5">
                     <div
-                        class="size-11 rounded-xl border border-brand-gold/30 bg-surface-card flex items-center justify-center font-mono text-xs text-brand-gold font-bold shrink-0"
+                        class="size-11 rounded-xl border border-brand-gold/30 bg-surface-card flex items-center justify-center overflow-hidden p-1 shrink-0"
                         aria-hidden="true"
                     >
-                        C26
+                        <img
+                            src="{{ asset('assets/Placeholder.png') }}"
+                            alt=""
+                            class="size-full object-contain select-none"
+                        />
                     </div>
                     <div>
                         <p class="font-display text-xs font-medium text-brand-gold">

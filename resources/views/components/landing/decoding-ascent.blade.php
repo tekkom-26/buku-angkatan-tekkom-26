@@ -12,7 +12,7 @@
 @php
     $c = $content ?? [];
     $logoPlaceholder = $c['logo_placeholder'] ?? $logoPlaceholder ?? '/assets/Placeholder.png';
-    $isPlaceholderImage = empty($logoPlaceholder) || str_contains($logoPlaceholder, 'Placeholder.png');
+    $isPlaceholderImage = empty($logoPlaceholder);
     $wordmark = $c['wordmark'] ?? $wordmark ?? null;
     $jargon = $c['jargon'] ?? 'SOLID LIKE A BEE, BE LIKE WE WANT TO BE, STRONG AND FREE!';
     $movementOneHeading = $c['movement_one_heading'] ?? $movementOneHeading ?? 'Kebersamaan & Solidaritas Koloni';
