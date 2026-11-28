@@ -80,7 +80,7 @@
                             class="w-full min-h-11 rounded-xl border border-white/15 bg-surface-elevated pl-10 pr-20 py-2.5 font-body text-sm text-text-primary placeholder:text-text-muted focus:border-brand-gold focus-visible:ring-2 focus-visible:ring-brand-gold/70 focus:outline-none transition-colors"
                         />
                         <div class="absolute right-2.5 flex items-center gap-2">
-                            <span wire:loading wire:target="search, selectClass, toggleAspect, resetAspects, resetFilters, gotoPage, nextPage, previousPage" class="text-xs font-display text-brand-gold">
+                            <span wire:loading wire:target="search, selectClass, toggleAspect, resetAspects, resetFilters, setPerPage, perPage, gotoPage, nextPage, previousPage" class="text-xs font-display text-brand-gold">
                                 Memuat...
                             </span>
                             <kbd class="hidden sm:inline-flex items-center justify-center px-2 py-0.5 rounded bg-canvas-base border border-white/15 font-mono text-[11px] text-text-muted" aria-hidden="true">
@@ -201,8 +201,8 @@
                 @endforeach
             </div>
 
-            {{-- Active Filter Summary Bar --}}
-            <div class="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-white/10 text-xs text-text-secondary">
+            {{-- Active Filter Summary Bar & Dynamic Per-Page Control --}}
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pt-3 border-t border-white/10 text-xs text-text-secondary">
                 <div class="flex flex-wrap items-center gap-2 font-body">
                     <span>
                         Menampilkan <strong class="text-brand-gold">{{ $students->count() }}</strong> dari <strong class="text-text-primary">{{ $students->total() }}</strong> mahasiswa
@@ -222,17 +222,77 @@
                             “{{ trim($search) }}”
                         </span>
                     @endif
+
+                    @if (trim($search) !== '' || $class !== '' || $activeAspects !== [])
+                        <button
+                            type="button"
+                            wire:click="resetFilters"
+                            class="inline-flex items-center min-h-8 px-2.5 py-1 rounded-lg border border-white/15 hover:border-brand-gold/50 font-display text-xs font-semibold text-brand-gold hover:text-brand-gold-glow transition-colors cursor-pointer"
+                        >
+                            Reset Filter
+                        </button>
+                    @endif
                 </div>
 
-                @if (trim($search) !== '' || $class !== '' || $activeAspects !== [])
-                    <button
-                        type="button"
-                        wire:click="resetFilters"
-                        class="inline-flex items-center min-h-9 px-3 py-1 rounded-lg border border-white/15 hover:border-brand-gold/50 font-display text-xs font-semibold text-brand-gold hover:text-brand-gold-glow transition-colors cursor-pointer"
-                    >
-                        Reset Filter
-                    </button>
-                @endif
+                {{-- Always-visible Per-Page Control (presets + clamped custom numeric input) --}}
+                <div
+                    x-data="{
+                        draft: {{ (int) $perPage }},
+                        min: {{ (int) $minPerPage }},
+                        max: {{ (int) $maxPerPage }},
+                        commit() {
+                            let parsed = parseInt(this.draft, 10);
+                            if (Number.isNaN(parsed)) {
+                                parsed = {{ (int) $perPage }};
+                            }
+                            parsed = Math.max(this.min, Math.min(this.max, parsed));
+                            this.draft = parsed;
+                            if (parsed !== {{ (int) $perPage }}) {
+                                $wire.setPerPage(parsed);
+                            }
+                        }
+                    }"
+                    x-effect="draft = {{ (int) $perPage }}"
+                    class="flex flex-wrap items-center gap-2 shrink-0"
+                >
+                    <span class="font-display text-xs text-text-muted">Per halaman:</span>
+
+                    <div class="inline-flex items-center gap-1 rounded-xl border border-white/10 bg-canvas-base/80 p-1">
+                        @foreach ($perPagePresets as $preset)
+                            <button
+                                type="button"
+                                wire:click="setPerPage({{ $preset }})"
+                                data-per-page-preset="{{ $preset }}"
+                                aria-pressed="{{ $perPage === $preset ? 'true' : 'false' }}"
+                                @class([
+                                    'min-h-8 min-w-8 px-2 py-1 rounded-lg font-mono text-xs font-semibold transition-colors cursor-pointer',
+                                    'bg-brand-red text-text-primary border border-brand-gold/60' => $perPage === $preset,
+                                    'text-text-secondary hover:text-brand-gold border border-transparent' => $perPage !== $preset,
+                                ])
+                            >
+                                {{ $preset }}
+                            </button>
+                        @endforeach
+                    </div>
+
+                    <form @submit.prevent="commit()" class="inline-flex items-center gap-1.5">
+                        <label for="directory-per-page-input" class="sr-only">
+                            Jumlah mahasiswa per halaman ({{ $minPerPage }} sampai {{ $maxPerPage }})
+                        </label>
+                        <input
+                            id="directory-per-page-input"
+                            type="number"
+                            inputmode="numeric"
+                            min="{{ $minPerPage }}"
+                            max="{{ $maxPerPage }}"
+                            x-model="draft"
+                            @blur="commit()"
+                            @change="commit()"
+                            class="w-16 min-h-9 rounded-xl border border-white/15 bg-surface-elevated px-2.5 py-1 text-center font-mono text-xs font-semibold text-brand-gold focus:border-brand-gold focus:outline-none"
+                        />
+                        <span class="font-mono text-[11px] text-text-muted">({{ $minPerPage }}&ndash;{{ $maxPerPage }})</span>
+                    </form>
+                </div>
             </div>
         </div>
     </section>

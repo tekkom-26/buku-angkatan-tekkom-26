@@ -21,6 +21,9 @@ class StudentDirectory extends Component
     #[Url(except: '')]
     public string $aspects = '';
 
+    #[Url(as: 'per_page', except: StudentDirectoryService::DEFAULT_PER_PAGE)]
+    public int $perPage = StudentDirectoryService::DEFAULT_PER_PAGE;
+
     /**
      * Normalize incoming URL filter state on mount.
      */
@@ -31,6 +34,24 @@ class StudentDirectory extends Component
         }
 
         $this->aspects = implode(',', StudentDirectoryService::normalizeAspects($this->aspects));
+        $this->perPage = StudentDirectoryService::clampPerPage($this->perPage);
+    }
+
+    /**
+     * Clamp and apply a user-requested page size, resetting to page 1.
+     */
+    public function setPerPage(mixed $value): void
+    {
+        $this->perPage = StudentDirectoryService::clampPerPage($value);
+        $this->resetPage();
+    }
+
+    /**
+     * Clamp page size whenever updated directly via model binding.
+     */
+    public function updatedPerPage(mixed $value): void
+    {
+        $this->setPerPage($value);
     }
 
     /**
@@ -88,17 +109,19 @@ class StudentDirectory extends Component
     {
         $activeAspects = StudentDirectoryService::normalizeAspects($this->aspects);
         $aspectsQuery = $activeAspects !== [] ? implode(',', $activeAspects) : null;
+        $safePerPage = StudentDirectoryService::clampPerPage($this->perPage);
 
         $payload = $directory->getDirectoryPayload(
             search: trim($this->search) !== '' ? trim($this->search) : null,
             classFilter: $this->class !== '' ? $this->class : null,
             aspectsFilter: $activeAspects,
-            perPage: 15,
+            perPage: $safePerPage,
             page: max(1, (int) $this->getPage()),
             query: array_filter([
                 'search' => trim($this->search) !== '' ? trim($this->search) : null,
                 'class' => $this->class !== '' ? $this->class : null,
                 'aspects' => $aspectsQuery,
+                'per_page' => $safePerPage !== StudentDirectoryService::DEFAULT_PER_PAGE ? $safePerPage : null,
             ]),
         );
 

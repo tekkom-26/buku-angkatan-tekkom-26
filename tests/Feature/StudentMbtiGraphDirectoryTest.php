@@ -291,4 +291,58 @@ class StudentMbtiGraphDirectoryTest extends TestCase
             $graphResponse->getContent(),
         );
     }
+
+    public function test_directory_supports_dynamic_pagination_with_clamped_min_max_bounds(): void
+    {
+        Student::factory()
+            ->count(65)
+            ->sequence(fn ($sequence): array => [
+                'nim' => '2112012612'.str_pad((string) ($sequence->index + 100), 4, '0', STR_PAD_LEFT),
+            ])
+            ->create();
+
+        // 1. Default per_page = 15
+        $defaultResponse = $this->call('GET', '/directory', [], ['angkatan_session' => $this->sessionCookie]);
+        $defaultResponse->assertOk();
+        $this->assertSame(15, $defaultResponse->viewData('students')->perPage());
+        $this->assertSame(15, $defaultResponse->viewData('students')->count());
+
+        // 2. Custom per_page = 24
+        $customResponse = $this->call('GET', '/directory', ['per_page' => 24], ['angkatan_session' => $this->sessionCookie]);
+        $customResponse->assertOk();
+        $this->assertSame(24, $customResponse->viewData('students')->perPage());
+        $this->assertSame(24, $customResponse->viewData('students')->count());
+
+        // 3. Below minimum (per_page = 2) clamps up to 6
+        $minResponse = $this->call('GET', '/directory', ['per_page' => 2], ['angkatan_session' => $this->sessionCookie]);
+        $minResponse->assertOk();
+        $this->assertSame(6, $minResponse->viewData('students')->perPage());
+        $this->assertSame(6, $minResponse->viewData('students')->count());
+
+        // 4. Above maximum (per_page = 999) clamps down to 60
+        $maxResponse = $this->call('GET', '/directory', ['per_page' => 999], ['angkatan_session' => $this->sessionCookie]);
+        $maxResponse->assertOk();
+        $this->assertSame(60, $maxResponse->viewData('students')->perPage());
+        $this->assertSame(60, $maxResponse->viewData('students')->count());
+
+        // 5. Livewire setPerPage resets back to page 1 and enforces clamping + keeps per_page control visible on 1-page results
+        $component = Livewire::test(StudentDirectory::class)
+            ->call('nextPage')
+            ->assertViewHas('students', fn ($students): bool => $students->currentPage() === 2)
+            ->call('setPerPage', 60)
+            ->assertSet('perPage', 60)
+            ->assertViewHas('students', fn ($students): bool => $students->currentPage() === 1 && $students->count() === 60)
+            ->assertSee('directory-per-page-input')
+            ->call('setPerPage', 1)
+            ->assertSet('perPage', 6)
+            ->call('setPerPage', 500)
+            ->assertSet('perPage', 60)
+            ->call('setPerPage', 20)
+            ->assertSet('perPage', 20);
+
+        $this->assertDoesNotMatchRegularExpression(
+            '/(?:bg|text|border|ring|fill|stroke)-\[#[0-9a-fA-F]+\]/',
+            $component->html(),
+        );
+    }
 }

@@ -17,6 +17,19 @@ class StudentDirectoryService
 {
     public const CACHE_KEY = 'students:public_directory';
 
+    public const DEFAULT_PER_PAGE = 15;
+
+    public const MIN_PER_PAGE = 6;
+
+    public const MAX_PER_PAGE = 60;
+
+    /**
+     * Quick preset options for dynamic directory pagination.
+     *
+     * @var list<int>
+     */
+    public const PER_PAGE_PRESETS = [9, 15, 30, 60];
+
     /**
      * Canonical opposing poles per MBTI axis.
      *
@@ -184,6 +197,20 @@ class StudentDirectoryService
     }
 
     /**
+     * Clamp user-requested page size cleanly between MIN_PER_PAGE and MAX_PER_PAGE.
+     */
+    public static function clampPerPage(mixed $value): int
+    {
+        if ($value === null || $value === '' || ! is_numeric($value)) {
+            return self::DEFAULT_PER_PAGE;
+        }
+
+        $parsed = (int) $value;
+
+        return max(self::MIN_PER_PAGE, min(self::MAX_PER_PAGE, $parsed));
+    }
+
+    /**
      * Build paginated directory payload, class counts, lightweight MBTI pill counts, and total count in memory.
      *
      * @param  array<int, string>|string  $aspectsFilter
@@ -194,20 +221,25 @@ class StudentDirectoryService
      *     classCounts: Collection<string, int>,
      *     totalStudents: int,
      *     activeAspects: list<string>,
-     *     aspectStats: array<string, array{letter: string, label: string, axis: string, active: bool, count: int}>
+     *     aspectStats: array<string, array{letter: string, label: string, axis: string, active: bool, count: int}>,
+     *     perPage: int,
+     *     minPerPage: int,
+     *     maxPerPage: int,
+     *     perPagePresets: list<int>
      * }
      */
     public function getDirectoryPayload(
         ?string $search = null,
         ?string $classFilter = null,
         array|string $aspectsFilter = [],
-        int $perPage = 15,
+        int $perPage = self::DEFAULT_PER_PAGE,
         int $page = 1,
         array $query = [],
     ): array {
         $all = $this->allPublicStudents();
         $filters = ['A', 'B', 'C', 'D'];
         $normalizedAspects = self::normalizeAspects($aspectsFilter);
+        $safePerPage = self::clampPerPage($perPage);
 
         $groupedCounts = $all->countBy('class_name');
         $classCounts = collect($filters)->mapWithKeys(
@@ -255,7 +287,7 @@ class StudentDirectoryService
         $currentPage = max(1, $page);
 
         $items = $filtered
-            ->forPage($currentPage, $perPage)
+            ->forPage($currentPage, $safePerPage)
             ->values()
             ->map(function (array $student): array {
                 $hobbies = $student['hobbies'] ?? null;
@@ -284,7 +316,7 @@ class StudentDirectoryService
         $paginator = new LengthAwarePaginator(
             $items,
             $total,
-            $perPage,
+            $safePerPage,
             $currentPage,
             [
                 'path' => LengthAwarePaginator::resolveCurrentPath(),
@@ -299,6 +331,10 @@ class StudentDirectoryService
             'totalStudents' => $all->count(),
             'activeAspects' => $normalizedAspects,
             'aspectStats' => $this->buildAspectStats($searchAndClassFiltered, $normalizedAspects),
+            'perPage' => $safePerPage,
+            'minPerPage' => self::MIN_PER_PAGE,
+            'maxPerPage' => self::MAX_PER_PAGE,
+            'perPagePresets' => self::PER_PAGE_PRESETS,
         ];
     }
 

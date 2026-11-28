@@ -23,6 +23,7 @@ class DirectoryController extends Controller
                 'search' => 'nullable|string|max:100',
                 'class' => 'nullable|string|in:A,B,C,D',
                 'aspects' => 'nullable|string|max:32',
+                'per_page' => 'nullable|numeric',
                 'page' => 'nullable|integer|min:1',
             ]);
 
@@ -30,7 +31,7 @@ class DirectoryController extends Controller
                 search: $validated['search'] ?? null,
                 classFilter: $validated['class'] ?? null,
                 aspectsFilter: StudentDirectoryService::normalizeAspects($validated['aspects'] ?? ''),
-                perPage: 15,
+                perPage: StudentDirectoryService::clampPerPage($validated['per_page'] ?? null),
                 page: (int) ($validated['page'] ?? 1),
                 query: $request->query(),
             );
