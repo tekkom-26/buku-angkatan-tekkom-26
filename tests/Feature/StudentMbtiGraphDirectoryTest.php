@@ -237,4 +237,58 @@ class StudentMbtiGraphDirectoryTest extends TestCase
         $resMapped->assertSee('58%');
         $this->assertDoesNotMatchRegularExpression('/(?:bg|text|border|ring|fill|stroke)-\[#[0-9a-fA-F]+\]/', $resMapped->getContent());
     }
+
+    public function test_graph_route_requires_passcode_and_renders_obsidian_workspace_without_sensitive_fields(): void
+    {
+        // Guest must be redirected to passcode gate.
+        $this->get('/graph')->assertRedirect('/unlock');
+
+        $entjType = MbtiType::query()->where('code', 'ENTJ')->firstOrFail();
+        $mapped = Student::factory()->create([
+            'nim' => '21120126120077',
+            'name' => 'Zaky Commander',
+            'nickname' => 'Zaky',
+            'class_name' => 'B',
+        ]);
+        StudentMbtiProfile::query()->create([
+            'student_id' => $mapped->id,
+            'mbti_type_id' => $entjType->id,
+            'pct_e' => 75, 'pct_i' => 25,
+            'pct_n' => 70, 'pct_s' => 30,
+            'pct_t' => 85, 'pct_f' => 15,
+            'pct_j' => 80, 'pct_p' => 20,
+            'screenshot_url' => 'https://drive.google.com/open?id=top-secret-screenshot',
+        ]);
+        Student::factory()->create([
+            'nim' => '21120126120078',
+            'name' => 'Raka Belum Isi',
+            'nickname' => 'Raka',
+            'class_name' => 'C',
+        ]);
+
+        // Directory shows compact Filter MBTI toggle + CTA link to /graph.
+        $dirResponse = $this->call('GET', '/directory', [], ['angkatan_session' => $this->sessionCookie]);
+        $dirResponse->assertOk();
+        $dirResponse->assertSee('Filter MBTI');
+        $dirResponse->assertSee('Buka Graph View');
+        $dirResponse->assertSee(route('graph.index'), false);
+
+        // /graph renders 200 OK, pre-hydrates active aspects from URL, excludes screenshot_url, and has no arbitrary HEX.
+        $graphResponse = $this->call('GET', '/graph', ['aspects' => 'E,N'], [
+            'angkatan_session' => $this->sessionCookie,
+        ]);
+        $graphResponse->assertOk();
+        $graphResponse->assertSee('Konstelasi MBTI Tekkom 26');
+        $graphResponse->assertSee('Graph Controls');
+        $graphResponse->assertSee('Buka Profil Lengkap');
+        $graphResponse->assertSee('Zaky Commander');
+        $graphResponse->assertDontSee('top-secret-screenshot');
+        $this->assertSame(['E', 'N'], $graphResponse->viewData('graphPayload')['activeAspects']);
+        $this->assertSame(1, $graphResponse->viewData('graphPayload')['center']['mappedCount']);
+        $this->assertSame(1, $graphResponse->viewData('graphPayload')['center']['unmappedCount']);
+        $this->assertDoesNotMatchRegularExpression(
+            '/(?:bg|text|border|ring|fill|stroke)-\[#[0-9a-fA-F]+\]/',
+            $graphResponse->getContent(),
+        );
+    }
 }

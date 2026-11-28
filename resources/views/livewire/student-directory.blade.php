@@ -27,7 +27,23 @@
                 </p>
             </div>
 
-            <div class="shrink-0">
+            <div class="shrink-0 flex flex-wrap items-center gap-2.5">
+                <a
+                    href="{{ route('graph.index', $activeAspects !== [] ? ['aspects' => implode(',', $activeAspects)] : []) }}"
+                    class="inline-flex items-center gap-2 min-h-10 px-4 py-2 rounded-xl bg-brand-red hover:bg-brand-red-hover border border-brand-red-hover font-display text-xs font-semibold text-text-primary transition-colors"
+                >
+                    <svg class="size-4 text-brand-gold shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <circle cx="12" cy="12" r="2.5" />
+                        <circle cx="5" cy="6" r="2" />
+                        <circle cx="19" cy="6" r="2" />
+                        <circle cx="5" cy="18" r="2" />
+                        <circle cx="19" cy="18" r="2" />
+                        <path stroke-linecap="round" d="m10 10.5-3.5-3M14 10.5l3.5-3M10 13.5l-3.5 3M14 13.5l3.5 3" />
+                    </svg>
+                    <span>Buka Graph View</span>
+                    <span class="font-mono text-brand-gold" aria-hidden="true">&rarr;</span>
+                </a>
+
                 <span class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-card/85 border border-white/15 font-display text-xs font-semibold text-brand-gold">
                     <span>Total {{ $totalStudents }} Mahasiswa</span>
                     <span class="sr-only">{{ $totalStudents }} MAHASISWA TERDATA</span>
@@ -37,7 +53,11 @@
     </header>
 
     {{-- Livewire Real-Time Search Bar & Class Filter Tabs --}}
-    <section aria-label="Pencarian dan filter kelas mahasiswa" class="mb-8">
+    <section
+        aria-label="Pencarian dan filter kelas mahasiswa"
+        class="mb-8"
+        x-data="{ showMbtiFilter: @js($activeAspects !== []) }"
+    >
         <div class="rounded-2xl border border-white/10 bg-surface-card/80 p-4 sm:p-6 space-y-4">
             <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
 
@@ -106,8 +126,79 @@
                             <span class="font-mono text-[11px] text-brand-gold">({{ $classCounts[$filter] }})</span>
                         </button>
                     @endforeach
+
+                    <button
+                        type="button"
+                        @click="showMbtiFilter = !showMbtiFilter"
+                        :aria-expanded="showMbtiFilter.toString()"
+                        @class([
+                            'min-h-10 px-3.5 py-2 rounded-xl border font-display text-xs font-semibold transition-colors cursor-pointer whitespace-nowrap inline-flex items-center gap-1.5',
+                            'bg-brand-gold/15 text-brand-gold border-brand-gold/50' => $activeAspects !== [],
+                            'bg-surface-elevated text-text-secondary border-white/10 hover:border-brand-gold/40 hover:text-brand-gold' => $activeAspects === [],
+                        ])
+                    >
+                        <span>Filter MBTI</span>
+                        @if ($activeAspects !== [])
+                            <span class="font-mono text-[11px] text-text-primary">{{ implode('', $activeAspects) }}</span>
+                        @endif
+                    </button>
                 </div>
 
+            </div>
+
+            {{-- Compact Collapsible MBTI 4-Axis Quick Filter Bar --}}
+            @php
+                $mbtiAxes = [
+                    ['left' => 'E', 'leftName' => 'Extravert', 'right' => 'I', 'rightName' => 'Introvert'],
+                    ['left' => 'N', 'leftName' => 'Intuition', 'right' => 'S', 'rightName' => 'Sensing'],
+                    ['left' => 'T', 'leftName' => 'Thinking', 'right' => 'F', 'rightName' => 'Feeling'],
+                    ['left' => 'J', 'leftName' => 'Judging', 'right' => 'P', 'rightName' => 'Perceiving'],
+                ];
+            @endphp
+            <div
+                x-cloak
+                x-show="showMbtiFilter"
+                x-transition
+                class="pt-3 border-t border-white/10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5"
+            >
+                @foreach ($mbtiAxes as $pair)
+                    @php
+                        $left = $pair['left'];
+                        $right = $pair['right'];
+                        $leftStat = $aspectStats[$left] ?? ['active' => false, 'count' => 0];
+                        $rightStat = $aspectStats[$right] ?? ['active' => false, 'count' => 0];
+                    @endphp
+                    <div class="rounded-xl border border-white/10 bg-canvas-base/80 p-1.5 grid grid-cols-2 gap-1.5">
+                        <button
+                            type="button"
+                            wire:click="toggleAspect('{{ $left }}')"
+                            aria-pressed="{{ $leftStat['active'] ? 'true' : 'false' }}"
+                            data-aspect-pill="{{ $left }}"
+                            @class([
+                                'min-h-9 px-2.5 py-1 rounded-lg border font-display text-xs font-semibold transition-colors cursor-pointer flex items-center justify-between gap-1',
+                                'bg-brand-red text-text-primary border-brand-gold/70' => $leftStat['active'],
+                                'bg-surface-elevated text-text-secondary border-white/10 hover:border-brand-gold/45 hover:text-text-primary' => ! $leftStat['active'],
+                            ])
+                        >
+                            <span>{{ $left }} &middot; {{ $pair['leftName'] }}</span>
+                            <span class="font-mono text-[11px] {{ $leftStat['active'] ? 'text-brand-gold-glow' : 'text-brand-gold' }}">{{ $leftStat['count'] }}</span>
+                        </button>
+                        <button
+                            type="button"
+                            wire:click="toggleAspect('{{ $right }}')"
+                            aria-pressed="{{ $rightStat['active'] ? 'true' : 'false' }}"
+                            data-aspect-pill="{{ $right }}"
+                            @class([
+                                'min-h-9 px-2.5 py-1 rounded-lg border font-display text-xs font-semibold transition-colors cursor-pointer flex items-center justify-between gap-1',
+                                'bg-brand-red text-text-primary border-brand-gold/70' => $rightStat['active'],
+                                'bg-surface-elevated text-text-secondary border-white/10 hover:border-brand-gold/45 hover:text-text-primary' => ! $rightStat['active'],
+                            ])
+                        >
+                            <span>{{ $right }} &middot; {{ $pair['rightName'] }}</span>
+                            <span class="font-mono text-[11px] {{ $rightStat['active'] ? 'text-brand-gold-glow' : 'text-brand-gold' }}">{{ $rightStat['count'] }}</span>
+                        </button>
+                    </div>
+                @endforeach
             </div>
 
             {{-- Active Filter Summary Bar --}}
@@ -145,9 +236,6 @@
             </div>
         </div>
     </section>
-
-    {{-- Interactive 8-Aspect MBTI Colony Graph --}}
-    <x-colony-mbti-graph :colonyGraph="$colonyGraph" :activeAspects="$activeAspects" />
 
     {{-- Student Grid or Empty State --}}
     @php

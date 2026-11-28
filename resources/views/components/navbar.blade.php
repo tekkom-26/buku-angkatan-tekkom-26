@@ -1,5 +1,5 @@
 @props([
-    'activePage' => 'home', // 'home' | 'identity' | 'directory' | 'student' | 'unlock' | 'gallery' | 'contact' | 'error'
+    'activePage' => 'home', // 'home' | 'identity' | 'directory' | 'graph' | 'student' | 'unlock' | 'gallery' | 'contact' | 'error'
     'isUnlocked' => null,
 ])
 
@@ -12,8 +12,9 @@
     $isUnlockPage = $activePage === 'unlock' || request()->routeIs('unlock');
 
     $isDirectoryContext = $activePage !== 'error' && ! $isUnlockPage && (
-        in_array($activePage, ['directory', 'student', 'students.show'])
+        in_array($activePage, ['directory', 'graph', 'student', 'students.show'])
         || request()->routeIs('directory.*')
+        || request()->routeIs('graph.*')
         || request()->routeIs('students.*')
     );
 @endphp

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DirectoryController;
+use App\Http\Controllers\GraphController;
 use App\Http\Controllers\PasscodeController;
 use App\Http\Controllers\PublicController;
 use App\Http\Controllers\StudentController;
@@ -13,6 +14,7 @@ Route::middleware(['etag:public'])->group(function () {
 
 Route::middleware(['student.epoch', 'student.role', 'etag:private'])->group(function () {
     Route::get('/directory', [DirectoryController::class, 'index'])->name('directory.index');
+    Route::get('/graph', [GraphController::class, 'index'])->name('graph.index');
     Route::get('/students/{nim}', [StudentController::class, 'show'])->name('students.show');
 });
 

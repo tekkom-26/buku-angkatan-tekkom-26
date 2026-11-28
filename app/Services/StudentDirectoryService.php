@@ -184,7 +184,7 @@ class StudentDirectoryService
     }
 
     /**
-     * Build paginated directory payload, class counts, Colony Graph payload, and total count in memory.
+     * Build paginated directory payload, class counts, lightweight MBTI pill counts, and total count in memory.
      *
      * @param  array<int, string>|string  $aspectsFilter
      * @param  array<string, mixed>  $query
@@ -194,7 +194,7 @@ class StudentDirectoryService
      *     classCounts: Collection<string, int>,
      *     totalStudents: int,
      *     activeAspects: list<string>,
-     *     colonyGraph: array<string, mixed>
+     *     aspectStats: array<string, array{letter: string, label: string, axis: string, active: bool, count: int}>
      * }
      */
     public function getDirectoryPayload(
@@ -298,7 +298,7 @@ class StudentDirectoryService
             'classCounts' => $classCounts,
             'totalStudents' => $all->count(),
             'activeAspects' => $normalizedAspects,
-            'colonyGraph' => $this->buildColonyGraphData($all, $searchAndClassFiltered, $filtered, $normalizedAspects),
+            'aspectStats' => $this->buildAspectStats($searchAndClassFiltered, $normalizedAspects),
         ];
     }
 
@@ -399,32 +399,74 @@ class StudentDirectoryService
     }
 
     /**
-     * Build lightweight Colony Graph coordinates and counts for the 8-Aspect MBTI constellation.
+     * Build interactive Obsidian-style force graph payload for the dedicated /graph view.
      *
-     * @param  Collection<int, array<string, mixed>>  $all
-     * @param  Collection<int, array<string, mixed>>  $scopedPool
-     * @param  Collection<int, array<string, mixed>>  $matchedPool
-     * @param  list<string>  $activeAspects
+     * @param  array<int, string>|string  $aspects
      * @return array<string, mixed>
      */
-    private function buildColonyGraphData(
-        Collection $all,
-        Collection $scopedPool,
-        Collection $matchedPool,
-        array $activeAspects,
-    ): array {
-        $mappedAll = $all->filter(fn (array $student): bool => ! empty($student['mbti_code']))->values();
-        $unmappedCount = $all->count() - $mappedAll->count();
-        $matchedNims = $matchedPool->pluck('nim')->flip()->all();
-        $scopedNims = $scopedPool->pluck('nim')->flip()->all();
+    public function getGraphPayload(array|string $aspects = []): array
+    {
+        $all = $this->allPublicStudents();
+        $normalizedAspects = self::normalizeAspects($aspects);
 
+        $mappedStudents = $all
+            ->filter(fn (array $student): bool => ! empty($student['mbti_code']))
+            ->values();
+
+        $studentNodes = $mappedStudents->map(function (array $student): array {
+            $nim = (string) $student['nim'];
+            $avatar = ! empty($student['formal_photo_url'])
+                ? (string) $student['formal_photo_url']
+                : asset('/assets/Placeholder.png');
+
+            return [
+                'nim' => $nim,
+                'name' => (string) $student['name'],
+                'nickname' => (string) ($student['nickname'] ?? $student['name']),
+                'class_name' => (string) $student['class_name'],
+                'mbti_code' => (string) $student['mbti_code'],
+                'mbti_title' => (string) ($student['mbti_title'] ?? ''),
+                'temperament_code' => (string) ($student['temperament_code'] ?? ''),
+                'temperament_name' => (string) ($student['temperament_name'] ?? ''),
+                'aspects' => $student['mbti_aspects'] ?? [],
+                'pcts' => $student['mbti_pcts'] ?? [],
+                'avatar_url' => $avatar,
+                'url' => route('students.show', ['nim' => $nim]),
+            ];
+        })->all();
+
+        return [
+            'center' => [
+                'label' => 'TEKKOM 26',
+                'totalStudents' => $all->count(),
+                'mappedCount' => $mappedStudents->count(),
+                'unmappedCount' => $all->count() - $mappedStudents->count(),
+            ],
+            'activeAspects' => $normalizedAspects,
+            'axes' => self::ASPECT_AXES,
+            'aspectNodes' => $this->buildAspectStats($mappedStudents, $normalizedAspects),
+            'studentNodes' => $studentNodes,
+            'directoryUrl' => route('directory.index'),
+        ];
+    }
+
+    /**
+     * Compute per-aspect preview intersection counts for a given student pool.
+     *
+     * @param  Collection<int, array<string, mixed>>  $pool
+     * @param  list<string>  $activeAspects
+     * @return array<string, array{letter: string, label: string, axis: string, active: bool, count: int}>
+     */
+    private function buildAspectStats(Collection $pool, array $activeAspects): array
+    {
         $aspectNodes = [];
+
         foreach (self::ASPECT_GRAPH_NODES as $letter => $meta) {
             $previewAspects = in_array($letter, $activeAspects, true)
                 ? $activeAspects
                 : self::toggleAspectInList($activeAspects, $letter);
 
-            $previewCount = $scopedPool->filter(function (array $student) use ($previewAspects): bool {
+            $previewCount = $pool->filter(function (array $student) use ($previewAspects): bool {
                 $studentAspects = $student['mbti_aspects'] ?? [];
                 if ($studentAspects === []) {
                     return false;
@@ -443,85 +485,12 @@ class StudentDirectoryService
                 'letter' => $letter,
                 'label' => $meta['label'],
                 'axis' => $meta['axis'],
-                'x' => $meta['x'],
-                'y' => $meta['y'],
                 'active' => in_array($letter, $activeAspects, true),
                 'count' => $previewCount,
             ];
         }
 
-        // Order mapped students by centroid angle of their 4 aspect vectors so similar types cluster organically.
-        $orderedStudents = $mappedAll
-            ->map(function (array $student): array {
-                $sumX = 0.0;
-                $sumY = 0.0;
-                foreach (($student['mbti_aspects'] ?? []) as $letter) {
-                    if (isset(self::ASPECT_GRAPH_NODES[$letter])) {
-                        $rad = deg2rad(self::ASPECT_GRAPH_NODES[$letter]['angle']);
-                        $sumX += cos($rad);
-                        $sumY += sin($rad);
-                    }
-                }
-                $angle = atan2($sumY, $sumX);
-                if ($angle < 0) {
-                    $angle += 2 * M_PI;
-                }
-                $student['_sort_angle'] = $angle;
-
-                return $student;
-            })
-            ->sortBy([
-                ['_sort_angle', 'asc'],
-                ['mbti_code', 'asc'],
-                ['nim', 'asc'],
-            ])
-            ->values();
-
-        $totalMapped = max(1, $orderedStudents->count());
-        $studentNodes = [];
-
-        foreach ($orderedStudents as $idx => $student) {
-            $theta = (2 * M_PI * $idx) / $totalMapped - (M_PI / 2);
-            $ringBand = $idx % 2;
-            $rx = $ringBand === 0 ? 352.0 : 422.0;
-            $ry = $ringBand === 0 ? 196.0 : 235.0;
-
-            $x = (int) round(500.0 + ($rx * cos($theta)));
-            $y = (int) round(280.0 + ($ry * sin($theta)));
-
-            $nim = (string) $student['nim'];
-            $inScope = isset($scopedNims[$nim]);
-            $matched = isset($matchedNims[$nim]);
-
-            $studentNodes[] = [
-                'nim' => $nim,
-                'name' => (string) $student['name'],
-                'nickname' => (string) ($student['nickname'] ?? $student['name']),
-                'class_name' => (string) $student['class_name'],
-                'mbti_code' => (string) $student['mbti_code'],
-                'mbti_title' => (string) ($student['mbti_title'] ?? ''),
-                'aspects' => $student['mbti_aspects'],
-                'pcts' => $student['mbti_pcts'],
-                'x' => $x,
-                'y' => $y,
-                'matched' => $inScope && $matched,
-                'url' => route('students.show', ['nim' => $nim]),
-            ];
-        }
-
-        return [
-            'center' => [
-                'label' => 'TEKKOM 26',
-                'x' => 500,
-                'y' => 280,
-                'mappedCount' => $mappedAll->count(),
-                'unmappedCount' => $unmappedCount,
-                'matchedCount' => $matchedPool->count(),
-            ],
-            'axes' => self::ASPECT_AXES,
-            'aspectNodes' => $aspectNodes,
-            'studentNodes' => $studentNodes,
-        ];
+        return $aspectNodes;
     }
 
     /**
